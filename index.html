@@ -3012,15 +3012,15 @@ async function syncShopeeApiOrders({ silent = false } = {}) {
     }
 
     if (!silent) {
-      showToast(`✅ ${addedCount > 0 ? addedCount + ' novos pedidos reais importados da Shopee!' : 'Shopee sincronizada: nenhum pedido novo pendente no momento.'}`, true);
+      showToast(`✅ ${addedCount > 0 ? addedCount + ' novos pedidos importados da Shopee!' : 'Shopee sincronizada: nenhum pedido novo pendente no momento.'}`, true);
     }
   } else if (!apiSuccess && accessToken) {
     if (!silent) {
-      showToast('⚠️ API Shopee: Não retornou pedidos. Use o botão "Importar Planilha" para carregar seus pedidos reais da Central do Vendedor.', false);
+      showToast('⚠️ API Shopee: Não retornou pedidos. Use o botão "Importar Planilha" para carregar seus pedidos da Central do Vendedor.', false);
     }
   } else {
     if (!silent) {
-      showToast('⚠️ Conecte sua loja Shopee nos Ajustes ou use "Importar Planilha" para carregar seus pedidos reais.', false);
+      showToast('⚠️ Conecte sua loja Shopee nos Ajustes ou use "Importar Planilha" para carregar seus pedidos.', false);
     }
   }
 
