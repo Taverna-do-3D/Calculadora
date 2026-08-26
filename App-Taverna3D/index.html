@@ -2737,20 +2737,12 @@ async function generateShopeeSign(partnerId, path, timestamp, accessToken = '', 
 async function startShopeeOAuthLogin() {
   const partnerId = appConfig.shopeeApi?.partnerId?.trim() || '2042545';
   const partnerKey = appConfig.shopeeApi?.partnerKey?.trim() || 'shpk7452725641576e6843564b6e5a456951564b5a424373685a7a6673525244';
-  const proxyUrl = appConfig.shopeeApi?.proxyUrl?.trim() || 'https://pedidos.tavernado3d.workers.dev';
-  const redirectUrl = `${proxyUrl.replace(/\/$/, '')}/api/shopee/callback`;
+  const isWebHosted = window.location.protocol.startsWith('http');
+  const authUrl = isWebHosted 
+    ? `${window.location.origin}/api/shopee/auth`
+    : `https://openplatform.shopee.com.br/api/v2/shop/auth_partner?partner_id=${partnerId}&timestamp=${Math.floor(Date.now()/1000)}&sign=${await generateShopeeSign(partnerId, '/api/v2/shop/auth_partner', Math.floor(Date.now()/1000), '', '', partnerKey)}&redirect=${encodeURIComponent('https://pedidos.tavernado3d.workers.dev/api/shopee/callback')}`;
 
   showToast('Iniciando autorização segura com a Shopee...');
-
-  const timestamp = Math.floor(Date.now() / 1000);
-  const path = '/api/v2/shop/auth_partner';
-  const sign = await generateShopeeSign(partnerId, path, timestamp, '', '', partnerKey);
-
-  const authUrl = new URL('https://openplatform.shopee.com.br/api/v2/shop/auth_partner');
-  authUrl.searchParams.set('partner_id', partnerId);
-  authUrl.searchParams.set('timestamp', timestamp.toString());
-  authUrl.searchParams.set('sign', sign);
-  authUrl.searchParams.set('redirect', redirectUrl);
 
   const popupWidth = 620;
   const popupHeight = 720;
@@ -2758,15 +2750,13 @@ async function startShopeeOAuthLogin() {
   const top = window.screenY + (window.outerHeight - popupHeight) / 2;
 
   const authWindow = window.open(
-    authUrl.toString(),
+    authUrl,
     'ShopeeOAuthLogin',
     `width=${popupWidth},height=${popupHeight},left=${left},top=${top},status=no,menubar=no,toolbar=no`
   );
 
   if (!authWindow || authWindow.closed || typeof authWindow.closed === 'undefined') {
-    // Popup bloqueado pelo navegador, abre em nova aba
-    window.open(authUrl.toString(), '_blank');
-    showToast('Janela de autorização aberta! Cole o código retornado caso necessário.', true);
+    window.open(authUrl, '_blank');
   }
 }
 
@@ -2777,17 +2767,23 @@ window.addEventListener('message', async (event) => {
   if (event.data.type === 'pedidos:shopee-connected' || event.data.code) {
     const code = event.data.code;
     const shopId = event.data.shop_id || event.data.shopId;
+    const accessToken = event.data.accessToken || event.data.access_token;
+    const refreshToken = event.data.refreshToken || event.data.refresh_token;
+    const shopName = event.data.shopName || event.data.shop_name;
     
-    if (code) {
-      await exchangeShopeeAuthCode(code, shopId);
-    } else {
+    if (accessToken) {
+      appConfig.shopeeApi.accessToken = accessToken;
+      if (refreshToken) appConfig.shopeeApi.refreshToken = refreshToken;
       if (shopId) appConfig.shopeeApi.shopId = shopId.toString();
-      if (event.data.shopName) appConfig.shopeeApi.shopName = event.data.shopName;
+      if (shopName) appConfig.shopeeApi.shopName = shopName;
       appConfig.shopeeApi.connectedAt = Date.now();
       saveLocal();
+      loadSettingsUI();
       renderShopeeStatus();
-      showToast('🎉 Loja Shopee conectada com sucesso!', true);
+      showToast(`🎉 Loja ${shopName || 'Shopee'} conectada com sucesso!`, true);
       syncShopeeApiOrders({ silent: false });
+    } else if (code) {
+      await exchangeShopeeAuthCode(code, shopId);
     }
   } else if (event.data.type === 'pedidos:shopee-error') {
     showToast('Erro na autorização da Shopee: ' + (event.data.message || 'Falha ao autorizar.'));
@@ -2795,54 +2791,38 @@ window.addEventListener('message', async (event) => {
 });
 
 async function exchangeShopeeAuthCode(code, shopId = '') {
-  const partnerId = appConfig.shopeeApi?.partnerId?.trim() || '2042545';
-  const partnerKey = appConfig.shopeeApi?.partnerKey?.trim() || 'shpk7452725641576e6843564b6e5a456951564b5a424373685a7a6673525244';
-  const proxyUrl = appConfig.shopeeApi?.proxyUrl?.trim() || 'https://pedidos.tavernado3d.workers.dev';
+  const isWebHosted = window.location.protocol.startsWith('http');
+  const tokenEndpoint = isWebHosted ? '/api/shopee/token' : 'https://pedidos.tavernado3d.workers.dev/api/shopee/token';
 
-  showToast('Trocando código de autorização por token de acesso...');
+  showToast('Validando código com a Shopee...');
 
   try {
-    const timestamp = Math.floor(Date.now() / 1000);
-    const path = '/api/v2/auth/token/get';
-    const sign = await generateShopeeSign(partnerId, path, timestamp, '', '', partnerKey);
+    const resp = await fetch(tokenEndpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code, shop_id: shopId ? parseInt(shopId, 10) : undefined })
+    });
 
-    const tokenUrl = `${proxyUrl.replace(/\/$/, '')}/api/shopee/token?partner_id=${partnerId}&timestamp=${timestamp}&sign=${sign}`;
-    
-    let tokenData = null;
-    try {
-      const resp = await fetch(tokenUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code, partner_id: parseInt(partnerId), shop_id: shopId ? parseInt(shopId) : undefined })
-      });
-      if (resp.ok) tokenData = await resp.json();
-    } catch (e) {
-      console.warn('[Shopee Token Exchange Worker]', e);
-    }
+    const tokenData = await resp.json();
 
-    if (!tokenData || !tokenData.access_token) {
-      // Fallback para armazenar shop_id e código
-      appConfig.shopeeApi.accessToken = code.startsWith('shpat_') ? code : `shpat_${code.slice(0, 32)}`;
-      if (shopId) appConfig.shopeeApi.shopId = shopId.toString();
-      appConfig.shopeeApi.shopName = 'Loja Shopee Taverna do 3D';
-      appConfig.shopeeApi.connectedAt = Date.now();
-    } else {
+    if (resp.ok && tokenData.access_token) {
       appConfig.shopeeApi.accessToken = tokenData.access_token;
       appConfig.shopeeApi.refreshToken = tokenData.refresh_token || '';
       appConfig.shopeeApi.accessTokenExpiresAt = Date.now() + (tokenData.expire_in || 14400) * 1000;
       if (tokenData.shop_id) appConfig.shopeeApi.shopId = tokenData.shop_id.toString();
       appConfig.shopeeApi.shopName = tokenData.shop_name || 'Loja Shopee Taverna do 3D';
       appConfig.shopeeApi.connectedAt = Date.now();
+      saveLocal();
+      loadSettingsUI();
+      renderShopeeStatus();
+      showToast('🎉 Loja Shopee conectada com sucesso!', true);
+      syncShopeeApiOrders({ silent: false });
+    } else {
+      throw new Error(tokenData.message || tokenData.error || 'Falha na resposta da API.');
     }
-
-    saveLocal();
-    loadSettingsUI();
-    renderShopeeStatus();
-    showToast('🎉 Loja Shopee conectada com sucesso!', true);
-    syncShopeeApiOrders({ silent: false });
   } catch (err) {
     console.error('Erro no exchange de código:', err);
-    showToast('Erro ao validar código da Shopee: ' + err.message);
+    showToast('Erro ao validar com a Shopee: ' + err.message);
   }
 }
 
@@ -2953,37 +2933,37 @@ async function syncShopeeApiOrders({ silent = false } = {}) {
   let fetchedOrders = [];
   let apiSuccess = false;
 
-  // 1. Tentar puxar pedidos via Worker ou API Direta se houver conexão
+  // 1. Tentar puxar pedidos via Cloudflare API
   if (accessToken && shopId) {
     try {
-      const timestamp = Math.floor(Date.now() / 1000);
-      const path = '/api/v2/order/get_order_list';
-      const sign = await generateShopeeSign(partnerId, path, timestamp, accessToken, shopId, partnerKey);
-      
-      const queryParams = new URLSearchParams({
-        partner_id: partnerId,
-        timestamp: timestamp.toString(),
-        access_token: accessToken,
-        shop_id: shopId,
-        sign: sign,
-        order_status: 'READY_TO_SHIP',
-        page_size: '20',
-        response_optional_fields: 'order_status,buyer_user_id,buyer_username,total_amount,item_list,create_time,ship_by_date'
-      });
+      const isWebHosted = window.location.protocol.startsWith('http');
+      const endpoint = isWebHosted 
+        ? `/api/shopee/orders?shop_id=${encodeURIComponent(shopId)}&access_token=${encodeURIComponent(accessToken)}`
+        : `https://pedidos.tavernado3d.workers.dev/api/shopee/orders?shop_id=${encodeURIComponent(shopId)}&access_token=${encodeURIComponent(accessToken)}`;
 
-      // Tenta via Proxy Worker da Taverna
-      const workerUrl = `${proxyUrl.replace(/\/$/, '')}/api/shopee/orders?${queryParams.toString()}`;
-      const response = await fetch(workerUrl, { method: 'GET' }).catch(() => null);
+      const response = await fetch(endpoint, {
+        method: 'GET',
+        headers: {
+          'X-Shopee-Access-Token': accessToken,
+          'X-Shopee-Shop-Id': shopId
+        }
+      }).catch(err => {
+        console.warn('Fetch error:', err);
+        return null;
+      });
 
       if (response && response.ok) {
         const resData = await response.json();
-        if (resData.response && resData.response.order_list) {
+        if (resData.success && Array.isArray(resData.orders)) {
+          apiSuccess = true;
+          fetchedOrders = resData.orders;
+        } else if (resData.response && resData.response.order_list) {
           apiSuccess = true;
           resData.response.order_list.forEach(item => {
             const orderSn = item.order_sn;
             const prodName = item.item_list?.[0]?.item_name || 'Peça Personalizada 3D';
             const variation = item.item_list?.[0]?.model_name || '';
-            const price = parseFloat(item.total_amount) || 50.00;
+            const price = parseFloat(item.total_amount) || 0;
             const buyer = item.buyer_username || item.buyer_user_id || 'Cliente Shopee';
             const shipBy = item.ship_by_date ? new Date(item.ship_by_date * 1000).toLocaleDateString('pt-BR') : 'Shopee Envio';
 
