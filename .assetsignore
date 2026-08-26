@@ -1,0 +1,13 @@
+_worker.js
+.assetsignore
+.git
+.agents
+.gemini
+scratch
+node_modules
+functions
+wrangler.toml
+wrangler.jsonc
+package.json
+package-lock.json
+README.md
