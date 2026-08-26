@@ -158,7 +158,7 @@ export default {
     // 1. INICIAR LOGIN SHOPEE (OAUTH)
     if (url.pathname === '/api/shopee/auth') {
       const creds = getCredentials(env);
-      const redirectUrl = `${url.origin}/api/shopee/callback`;
+      const redirectUrl = env.SHOPEE_REDIRECT_URL || 'https://pedidos.tavernado3d.workers.dev/api/shopee/callback';
       const path = '/api/v2/shop/auth_partner';
 
       const authUrl = await buildSignedUrl(path, creds);

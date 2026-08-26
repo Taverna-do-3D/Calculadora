@@ -2741,8 +2741,7 @@ async function startShopeeOAuthLogin() {
   const path = '/api/v2/shop/auth_partner';
   const sign = await generateShopeeSign(partnerId, path, timestamp, '', '', partnerKey);
 
-  const currentOrigin = window.location.protocol.startsWith('http') ? window.location.origin : 'https://calculadora.tavernado3d.workers.dev';
-  const redirectUrl = `${currentOrigin}/api/shopee/callback`;
+  const redirectUrl = appConfig.shopeeApi?.redirectUrl?.trim() || 'https://pedidos.tavernado3d.workers.dev/api/shopee/callback';
 
   const authUrl = new URL('https://openplatform.shopee.com.br/api/v2/shop/auth_partner');
   authUrl.searchParams.set('partner_id', partnerId);
