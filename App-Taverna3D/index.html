@@ -2737,12 +2737,20 @@ async function generateShopeeSign(partnerId, path, timestamp, accessToken = '', 
 async function startShopeeOAuthLogin() {
   const partnerId = appConfig.shopeeApi?.partnerId?.trim() || '2042545';
   const partnerKey = appConfig.shopeeApi?.partnerKey?.trim() || 'shpk7452725641576e6843564b6e5a456951564b5a424373685a7a6673525244';
-  const isWebHosted = window.location.protocol.startsWith('http');
-  const authUrl = isWebHosted 
-    ? `${window.location.origin}/api/shopee/auth`
-    : `https://openplatform.shopee.com.br/api/v2/shop/auth_partner?partner_id=${partnerId}&timestamp=${Math.floor(Date.now()/1000)}&sign=${await generateShopeeSign(partnerId, '/api/v2/shop/auth_partner', Math.floor(Date.now()/1000), '', '', partnerKey)}&redirect=${encodeURIComponent('https://pedidos.tavernado3d.workers.dev/api/shopee/callback')}`;
+  const timestamp = Math.floor(Date.now() / 1000);
+  const path = '/api/v2/shop/auth_partner';
+  const sign = await generateShopeeSign(partnerId, path, timestamp, '', '', partnerKey);
 
-  showToast('Iniciando autorização segura com a Shopee...');
+  const currentOrigin = window.location.protocol.startsWith('http') ? window.location.origin : 'https://calculadora.tavernado3d.workers.dev';
+  const redirectUrl = `${currentOrigin}/api/shopee/callback`;
+
+  const authUrl = new URL('https://openplatform.shopee.com.br/api/v2/shop/auth_partner');
+  authUrl.searchParams.set('partner_id', partnerId);
+  authUrl.searchParams.set('timestamp', timestamp.toString());
+  authUrl.searchParams.set('sign', sign);
+  authUrl.searchParams.set('redirect', redirectUrl);
+
+  showToast('Abrindo autorização oficial na Shopee...', true);
 
   const popupWidth = 620;
   const popupHeight = 720;
@@ -2750,13 +2758,13 @@ async function startShopeeOAuthLogin() {
   const top = window.screenY + (window.outerHeight - popupHeight) / 2;
 
   const authWindow = window.open(
-    authUrl,
+    authUrl.toString(),
     'ShopeeOAuthLogin',
     `width=${popupWidth},height=${popupHeight},left=${left},top=${top},status=no,menubar=no,toolbar=no`
   );
 
   if (!authWindow || authWindow.closed || typeof authWindow.closed === 'undefined') {
-    window.open(authUrl, '_blank');
+    window.open(authUrl.toString(), '_blank');
   }
 }
 
