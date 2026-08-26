@@ -1,0 +1,10 @@
+name = "calculadora"
+main = "_worker.js"
+compatibility_date = "2024-09-23"
+
+[assets]
+directory = "."
+
+[vars]
+SHOPEE_PARTNER_ID = "2042545"
+SHOPEE_PARTNER_KEY = "shpk7452725641576e6843564b6e5a456951564b5a424373685a7a6673525244"
