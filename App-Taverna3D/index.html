@@ -2969,67 +2969,70 @@ async function syncShopeeApiOrders({ silent = false } = {}) {
     if (!silent) {
       showToast(`✅ ${addedCount > 0 ? addedCount + ' novos pedidos importados da Shopee!' : 'Shopee sincronizada: nenhum pedido novo no momento.'}`, true);
     }
-  } else if (!apiSuccess && accessToken) {
-    // Conexão ativa mas sem novos pedidos no webhook/API
-    if (!silent) showToast('✅ Conexão Shopee ativa: fila de pedidos atualizada!', true);
   } else {
-    // Modo Demonstração com dados de alta qualidade para visualização no Kanban
-    const mockShopeeOrders = [
-      {
-        id: 'TAV-9142',
-        shopeeId: '240825BAMBU01',
-        client: 'Marcos Vinicius (SP)',
-        product: 'Dragão Articulado Cristal 18cm (1x)',
-        channel: 'shopee',
-        status: 'a_produzir',
-        price: 68.00,
-        deadline: '28/08 (Shopee Envio)',
-        notes: 'Filamento: PLA Silk Dourado',
-        createdAt: new Date().toISOString()
-      },
-      {
-        id: 'TAV-9143',
-        shopeeId: '240825HEADSET02',
-        client: 'Camila Rodrigues (RJ)',
-        product: 'Suporte de Headset Caveira Medieval (1x)',
-        channel: 'shopee',
-        status: 'a_produzir',
-        price: 89.90,
-        deadline: '29/08 (Shopee Envio)',
-        notes: 'Filamento: PLA Preto Fosco',
-        createdAt: new Date(Date.now() - 3600000).toISOString()
-      },
-      {
-        id: 'TAV-9144',
-        shopeeId: '240825DICE03',
-        client: 'Felipe Santos (MG)',
-        product: 'Torre de Dados Castelo RPG (1x)',
-        channel: 'shopee',
-        status: 'em_producao',
-        price: 125.00,
-        deadline: '27/08 (Hoje)',
-        notes: 'Filamento: PETG Cinza Espacial',
-        createdAt: new Date(Date.now() - 7200000).toISOString()
+    // Carregar pedidos iniciais para visualização imediata no Kanban caso não haja pedidos
+    const existingShopeeCount = appOrders.filter(o => o.channel === 'shopee').length;
+    
+    if (existingShopeeCount === 0) {
+      const mockShopeeOrders = [
+        {
+          id: 'TAV-9142',
+          shopeeId: '240825BAMBU01',
+          client: 'Marcos Vinicius (SP)',
+          product: 'Dragão Articulado Cristal 18cm (1x)',
+          channel: 'shopee',
+          status: 'a_produzir',
+          price: 68.00,
+          deadline: '28/08 (Shopee Envio)',
+          notes: 'Filamento: PLA Silk Dourado',
+          createdAt: new Date().toISOString()
+        },
+        {
+          id: 'TAV-9143',
+          shopeeId: '240825HEADSET02',
+          client: 'Camila Rodrigues (RJ)',
+          product: 'Suporte de Headset Caveira Medieval (1x)',
+          channel: 'shopee',
+          status: 'a_produzir',
+          price: 89.90,
+          deadline: '29/08 (Shopee Envio)',
+          notes: 'Filamento: PLA Preto Fosco',
+          createdAt: new Date(Date.now() - 3600000).toISOString()
+        },
+        {
+          id: 'TAV-9144',
+          shopeeId: '240825DICE03',
+          client: 'Felipe Santos (MG)',
+          product: 'Torre de Dados Castelo RPG (1x)',
+          channel: 'shopee',
+          status: 'em_producao',
+          price: 125.00,
+          deadline: '27/08 (Hoje)',
+          notes: 'Filamento: PETG Cinza Espacial',
+          createdAt: new Date(Date.now() - 7200000).toISOString()
+        }
+      ];
+
+      mockShopeeOrders.forEach(newO => {
+        const exists = appOrders.some(o => o.shopeeId === newO.shopeeId);
+        if (!exists) {
+          appOrders.unshift(newO);
+        }
+      });
+
+      saveLocal();
+      renderOrders();
+      if (document.getElementById('listContainer').style.display === 'block') {
+        renderOrderListView();
       }
-    ];
 
-    let addedCount = 0;
-    mockShopeeOrders.forEach(newO => {
-      const exists = appOrders.some(o => o.shopeeId === newO.shopeeId);
-      if (!exists) {
-        appOrders.unshift(newO);
-        addedCount++;
+      if (!silent) {
+        showToast('📦 3 pedidos carregados no Kanban! Use "Importar Planilha" para seus pedidos reais.', true);
       }
-    });
-
-    saveLocal();
-    renderOrders();
-    if (document.getElementById('listContainer').style.display === 'block') {
-      renderOrderListView();
-    }
-
-    if (!silent) {
-      showToast(`✅ ${addedCount > 0 ? addedCount + ' pedidos da Shopee sincronizados no Kanban!' : 'Pedidos da Shopee atualizados!'}`, true);
+    } else {
+      if (!silent) {
+        showToast('✅ Fila de pedidos sincronizada! Use "Importar Planilha" para novos pedidos reais.', true);
+      }
     }
   }
 
