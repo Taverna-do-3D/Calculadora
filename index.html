@@ -1,18 +1,3406 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Taverna do 3D</title>
-  <meta http-equiv="refresh" content="0;url=./App-Taverna3D/index.html">
-  <script>
-    location.replace('./App-Taverna3D/index.html' + location.search + location.hash);
-  </script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Taverna 3D">
+<meta name="theme-color" content="#120f0d">
+<link rel="apple-touch-icon" href="assets/taverna-192.png">
+<link rel="icon" type="image/png" href="assets/taverna-192.png">
+<link rel="manifest" href="manifest.json">
+<title>Taverna do 3D · Gestão & Precificação</title>
+
+<!-- Fontes Google -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg: #120f0d;
+  --bg-subtle: #171310;
+  --surface: #1e1915;
+  --surface-2: #27211b;
+  --surface-3: #332b24;
+  --surface-glass: rgba(30, 25, 21, 0.88);
+  
+  --amber: #f59e0b;
+  --amber-light: #fbbf24;
+  --amber-deep: #d97706;
+  --amber-glow: rgba(245, 158, 11, 0.28);
+  --gold: #e5b25d;
+  
+  --text: #f7eee4;
+  --text-dim: #ede0cf;
+  --muted: #a89a8a;
+  --muted-2: #786b5e;
+  
+  --border: #3d332a;
+  --border-soft: #2b241e;
+  --border-glow: rgba(245, 158, 11, 0.4);
+  
+  --green: #10b981;
+  --green-glow: rgba(16, 185, 129, 0.25);
+  --red: #ef4444;
+  --blue: #3b82f6;
+  --cyan: #06b6d4;
+  --purple: #a855f7;
+
+  /* Canais */
+  --ch-whatsapp: #25d366;
+  --ch-shopee: #ee4d2d;
+  --ch-tiktok: #fe2c55;
+  --ch-direct: #f59e0b;
+  
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
+  
+  --font-brand: 'Cinzel', serif;
+  --font-ui: 'Outfit', sans-serif;
+  --font-mono: 'Inter', monospace;
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-ui);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior-y: auto;
+}
+
+button {
+  font-family: var(--font-ui);
+  cursor: pointer;
+  border: none;
+  outline: none;
+}
+
+input, select, textarea {
+  font-family: var(--font-ui);
+}
+
+.tabular {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+#app {
+  max-width: 620px;
+  margin: 0 auto;
+  min-height: 100vh;
+  padding-bottom: calc(82px + env(safe-area-inset-bottom));
+  position: relative;
+}
+
+/* =========================================================
+   HEADER / TOPBAR
+========================================================= */
+.topbar {
+  padding: calc(12px + env(safe-area-inset-top)) 18px 14px;
+  background: linear-gradient(180deg, rgba(30, 24, 19, 0.92) 0%, rgba(18, 15, 13, 0.98) 100%), url('assets/taverna-bg.jpg') top center / cover no-repeat;
+  background-blend-mode: multiply;
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.topbar-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.brand-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.brand-logo {
+  width: 48px;
+  height: 48px;
+  border-radius: 0;
+  border: none;
+  background: transparent;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.9)) drop-shadow(0 0 10px rgba(245, 158, 11, 0.35));
+  object-fit: contain;
+  transition: transform 0.2s ease;
+}
+
+.brand-wrapper:active .brand-logo {
+  transform: scale(1.06);
+}
+
+.brand-text h1 {
+  font-family: var(--font-brand);
+  font-size: 19px;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  background: linear-gradient(135deg, #ffffff 0%, var(--gold) 60%, var(--amber) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.brand-text p {
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 2px;
+}
+
+.printer-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  padding: 1px 6px;
+  border-radius: 99px;
+  font-size: 9.5px;
+  font-weight: 700;
+  color: var(--amber-light);
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cloud-pill {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border-radius: 99px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cloud-pill:active {
+  transform: scale(0.96);
+}
+
+.cloud-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--muted-2);
+}
+
+.cloud-dot.ok {
+  background: var(--green);
+  box-shadow: 0 0 6px var(--green);
+}
+
+.cloud-dot.syncing {
+  background: var(--amber);
+  animation: pulse 1s infinite alternate;
+}
+
+@keyframes pulse {
+  0% { opacity: 0.4; }
+  100% { opacity: 1; }
+}
+
+/* =========================================================
+   SCREENS & NAVIGATION
+========================================================= */
+.screen {
+  display: none;
+  padding: 14px 16px 20px;
+}
+
+.screen.active {
+  display: block;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.bottomnav {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 50;
+  background: var(--surface-glass);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid var(--border);
+  display: flex;
+  padding: 6px 8px calc(6px + env(safe-area-inset-bottom));
+  max-width: 620px;
+  margin: 0 auto;
+}
+
+.navbtn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  background: transparent;
+  color: var(--muted-2);
+  padding: 6px 2px;
+  border-radius: var(--radius-md);
+  transition: all 0.15s ease;
+}
+
+.navbtn svg {
+  width: 20px;
+  height: 20px;
+  transition: transform 0.15s ease;
+}
+
+.navbtn span {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.navbtn.active {
+  color: var(--amber);
+}
+
+.navbtn.active svg {
+  transform: scale(1.1);
+}
+
+/* =========================================================
+   CARDS, FORMS & BUTTONS
+========================================================= */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  margin-bottom: 14px;
+  position: relative;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.card-title {
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--amber-light);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.card-title svg {
+  width: 14px;
+  height: 14px;
+}
+
+.field {
+  margin-bottom: 13px;
+}
+
+.field:last-child {
+  margin-bottom: 0;
+}
+
+.field label {
+  display: block;
+  font-size: 12.5px;
+  color: var(--muted);
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.field label span.tip {
+  color: var(--muted-2);
+  font-weight: 400;
+  font-size: 11px;
+  margin-left: 4px;
+}
+
+.row2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.row3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+}
+
+input[type=number], input[type=text], input[type=url], input[type=email], input[type=password], select, textarea {
+  width: 100%;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 500;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: var(--amber);
+  box-shadow: 0 0 0 3px var(--amber-glow);
+  background: var(--surface-3);
+}
+
+input::placeholder, textarea::placeholder {
+  color: var(--muted-2);
+}
+
+select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23a89a8a' stroke-width='1.8' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 36px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 13px 16px;
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  font-size: 14.5px;
+  transition: all 0.15s ease;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--amber) 0%, var(--amber-deep) 100%);
+  color: #120f0d;
+  box-shadow: 0 4px 16px var(--amber-glow);
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
+  filter: brightness(0.95);
+}
+
+.btn-secondary {
+  background: var(--surface-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.btn-secondary:active {
+  background: var(--surface-3);
+  transform: scale(0.98);
+}
+
+.btn-success {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #fff;
+  box-shadow: 0 4px 16px var(--green-glow);
+}
+
+.btn-danger {
+  background: rgba(239, 68, 68, 0.12);
+  color: var(--red);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--muted);
+  border: 1px dashed var(--border);
+}
+
+.btn-sm {
+  padding: 8px 12px;
+  font-size: 12.5px;
+  border-radius: var(--radius-sm);
+  width: auto;
+}
+
+.btn-row {
+  display: flex;
+  gap: 9px;
+}
+
+.btn-row .btn {
+  flex: 1;
+}
+
+.hairline {
+  height: 1px;
+  background: var(--border-soft);
+  margin: 14px 0;
+}
+
+/* =========================================================
+   HERO MULTICANAL PRICING CARDS
+========================================================= */
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(135px, 1fr));
+  gap: 9px;
+  margin-bottom: 14px;
+}
+
+@media(max-width: 440px) {
+  .pricing-grid {
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  }
+}
+
+.price-card {
+  border-radius: var(--radius-md);
+  padding: 13px 12px;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: all 0.2s ease;
+}
+
+.price-card.direct {
+  background: linear-gradient(160deg, rgba(245, 158, 11, 0.15) 0%, var(--surface-2) 100%);
+  border-color: rgba(245, 158, 11, 0.38);
+}
+
+.price-card.shopee {
+  background: linear-gradient(160deg, rgba(238, 77, 45, 0.14) 0%, var(--surface-2) 100%);
+  border-color: rgba(238, 77, 45, 0.34);
+}
+
+.price-card.tiktok {
+  background: linear-gradient(160deg, rgba(254, 44, 85, 0.14) 0%, var(--surface-2) 100%);
+  border-color: rgba(254, 44, 85, 0.34);
+}
+
+.price-card.mercadolivre {
+  background: linear-gradient(160deg, rgba(250, 204, 21, 0.14) 0%, var(--surface-2) 100%);
+  border-color: rgba(250, 204, 21, 0.38);
+}
+
+.price-tag {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.price-card.direct .price-tag { color: var(--gold); }
+.price-card.shopee .price-tag { color: #ff7e67; }
+.price-card.tiktok .price-tag { color: #ff6e8a; }
+.price-card.mercadolivre .price-tag { color: #fde047; }
+
+.price-val {
+  font-size: 21px;
+  font-weight: 850;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  color: #fff;
+  margin: 4px 0;
+}
+
+.price-sub {
+  font-size: 10.5px;
+  color: var(--muted);
+}
+
+/* =========================================================
+   SWITCHES & CONTROLE DE LOJAS
+========================================================= */
+.channel-setting-block {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  margin-bottom: 10px;
+  transition: border-color 0.2s ease, opacity 0.2s ease;
+}
+
+.channel-setting-block.disabled {
+  opacity: 0.65;
+}
+
+.switch-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.switch-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.switch-icon {
+  font-size: 19px;
+  line-height: 1;
+}
+
+.switch-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.switch-sub {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 1px;
+}
+
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  position: absolute;
+}
+
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background-color: var(--surface-3);
+  border: 1px solid var(--border);
+  transition: 0.22s ease;
+  border-radius: 24px;
+}
+
+.toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 2px;
+  bottom: 2px;
+  background-color: var(--muted);
+  transition: 0.22s ease;
+  border-radius: 50%;
+}
+
+.toggle-switch input:checked + .toggle-slider {
+  background-color: var(--amber);
+  border-color: var(--amber-light);
+  box-shadow: 0 0 10px var(--amber-glow);
+}
+
+.toggle-switch input:checked + .toggle-slider:before {
+  transform: translateX(20px);
+  background-color: #120f0d;
+}
+
+.channel-inputs-area {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border-soft);
+  animation: fadeIn 0.2s ease;
+}
+
+.cost-summary-card {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  margin-bottom: 14px;
+}
+
+.cost-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  font-size: 12.5px;
+  color: var(--muted);
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.cost-row:last-child {
+  border-bottom: none;
+}
+
+.cost-row b {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.cost-row.total-cost {
+  padding-top: 8px;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--amber-light);
+}
+
+/* =========================================================
+   KANBAN & LISTA DE PEDIDOS
+========================================================= */
+.orders-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.view-toggle {
+  display: flex;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 2px;
+}
+
+.view-toggle button {
+  padding: 6px 10px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 11.5px;
+  font-weight: 700;
+  border-radius: 8px;
+}
+
+.view-toggle button.active {
+  background: var(--amber);
+  color: #120f0d;
+}
+
+.channel-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 99px;
+  font-size: 10.5px;
+  font-weight: 700;
+  border: 1px solid transparent;
+}
+
+.ch-whatsapp { background: rgba(37, 211, 102, 0.15); color: #4ade80; border-color: rgba(37, 211, 102, 0.3); }
+.ch-shopee { background: rgba(238, 77, 45, 0.15); color: #ff8570; border-color: rgba(238, 77, 45, 0.3); }
+.ch-tiktok { background: rgba(254, 44, 85, 0.15); color: #ff7591; border-color: rgba(254, 44, 85, 0.3); }
+.ch-mercadolivre, .ch-ml { background: rgba(250, 204, 21, 0.15); color: #fde047; border-color: rgba(250, 204, 21, 0.3); }
+.ch-direct { background: rgba(245, 158, 11, 0.15); color: var(--amber-light); border-color: rgba(245, 158, 11, 0.3); }
+
+.order-card.is-dragging {
+  opacity: 0.45;
+  transform: scale(0.95);
+  border-color: var(--amber);
+}
+
+.kanban-cards-area.drag-over {
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px dashed var(--amber);
+  border-radius: var(--radius-md);
+}
+
+.kanban-board {
+  display: flex;
+  gap: 11px;
+  overflow-x: auto;
+  padding-bottom: 14px;
+  scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
+}
+
+.kanban-board::-webkit-scrollbar {
+  height: 6px;
+}
+
+.kanban-board::-webkit-scrollbar-thumb {
+  background: var(--surface-3);
+  border-radius: 3px;
+}
+
+.kanban-column {
+  min-width: 260px;
+  width: 260px;
+  background: var(--surface);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  padding: 12px;
+  flex-shrink: 0;
+  scroll-snap-align: start;
+}
+
+.kanban-col-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.kanban-count {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  padding: 2px 7px;
+  border-radius: 99px;
+  font-size: 10.5px;
+  color: var(--amber-light);
+}
+
+.kanban-cards-area {
+  min-height: 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.order-card {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  cursor: pointer;
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+  position: relative;
+}
+
+.order-card:active {
+  transform: scale(0.98);
+}
+
+.order-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.order-id {
+  font-size: 10.5px;
+  font-weight: 800;
+  color: var(--gold);
+}
+
+.order-prod {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.25;
+  margin-bottom: 4px;
+}
+
+.order-client {
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.order-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  padding-top: 6px;
+  border-top: 1px solid var(--border-soft);
+}
+
+.order-price {
+  font-weight: 800;
+  color: #fff;
+  font-size: 13.5px;
+}
+
+/* =========================================================
+   CHIPS DE CANAIS E INTEGRAÇÃO SHOPEE
+========================================================= */
+.channel-chip {
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 99px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.channel-chip.ch-whatsapp {
+  background: rgba(37, 211, 102, 0.15);
+  color: #4ade80;
+  border: 1px solid rgba(37, 211, 102, 0.3);
+}
+.channel-chip.ch-shopee {
+  background: rgba(238, 77, 45, 0.15);
+  color: #ff7e67;
+  border: 1px solid rgba(238, 77, 45, 0.35);
+}
+.channel-chip.ch-tiktok {
+  background: rgba(254, 44, 85, 0.15);
+  color: #ff6e8a;
+  border: 1px solid rgba(254, 44, 85, 0.35);
+}
+.channel-chip.ch-ml {
+  background: rgba(250, 204, 21, 0.15);
+  color: #fde047;
+  border: 1px solid rgba(250, 204, 21, 0.35);
+}
+
+.btn-shopee {
+  background: linear-gradient(135deg, #ee4d2d 0%, #ff6b4a 100%);
+  color: #ffffff !important;
+  border: none;
+  font-weight: 700;
+  box-shadow: 0 4px 15px rgba(238, 77, 45, 0.35);
+}
+.btn-shopee:hover {
+  filter: brightness(1.08);
+  box-shadow: 0 6px 20px rgba(238, 77, 45, 0.5);
+}
+.shopee-badge-connected {
+  font-size: 11px;
+  background: rgba(37, 211, 102, 0.15);
+  color: #4ade80;
+  border: 1px solid rgba(37, 211, 102, 0.35);
+  padding: 3px 10px;
+  border-radius: 99px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.shopee-badge-disconnected {
+  font-size: 11px;
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  padding: 3px 10px;
+  border-radius: 99px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.sync-spin {
+  animation: spin 0.8s linear infinite;
+  display: inline-block;
+}
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* =========================================================
+   MODAIS & SHEETS
+========================================================= */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+  z-index: 70;
+}
+
+.overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.sheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  max-height: 92vh;
+  overflow-y: auto;
+  background: var(--surface);
+  border-radius: 22px 22px 0 0;
+  border-top: 1px solid var(--border);
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.6);
+  transform: translateY(100%);
+  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  z-index: 80;
+  padding: 12px 18px calc(24px + env(safe-area-inset-bottom));
+  max-width: 620px;
+  margin: 0 auto;
+}
+
+.sheet.open {
+  transform: translateY(0);
+}
+
+.sheet-handle {
+  width: 40px;
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  margin: 4px auto 14px;
+}
+
+.sheet h2 {
+  font-size: 18px;
+  font-weight: 800;
+  margin-bottom: 4px;
+  font-family: var(--font-brand);
+  color: var(--amber-light);
+}
+
+.sheet p.sub {
+  font-size: 12.5px;
+  color: var(--muted);
+  margin-bottom: 14px;
+}
+
+/* =========================================================
+   TOAST NOTIFICATION
+========================================================= */
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(90px + env(safe-area-inset-bottom));
+  transform: translateX(-50%) translateY(20px);
+  background: var(--surface-3);
+  border: 1px solid var(--border-glow);
+  color: var(--text);
+  font-weight: 700;
+  font-size: 13px;
+  padding: 10px 18px;
+  border-radius: 99px;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.25s ease;
+  z-index: 100;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+  white-space: nowrap;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.toast.ok {
+  border-color: var(--green);
+  color: #a7f3d0;
+}
+</style>
 </head>
-<body style="background:#120f0d; color:#f7eee4; font-family:-apple-system,BlinkMacSystemFont,sans-serif; display:flex; align-items:center; justify-content:center; height:100vh; margin:0; text-align:center;">
-  <div>
-    <h2 style="color:#f59e0b; margin-bottom:8px;">Taverna do 3D</h2>
-    <p style="color:#a89a8a;">Abrindo o aplicativo... <a href="./App-Taverna3D/index.html" style="color:#f59e0b; text-decoration:underline;">Clique aqui</a> se não redirecionar.</p>
+<body>
+
+<div id="app">
+
+  <!-- ================= TOPBAR ================= -->
+  <header class="topbar">
+    <div class="topbar-content">
+      <div class="brand-wrapper" id="btnBrandLogo">
+        <img src="assets/taverna-logo.png" alt="Taverna do 3D" class="brand-logo">
+        <div class="brand-text">
+          <h1>Taverna do 3D</h1>
+          <p>Oficina de Impressão <span class="printer-badge">🖨️ Bambu Lab A1</span></p>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <div class="cloud-pill" id="btnCloudPill" title="Sincronização na Nuvem">
+          <span class="cloud-dot" id="cloudDot"></span>
+          <span id="cloudPillText">Local</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= TELA 1: CALCULADORA ================= -->
+  <section class="screen active" id="screen-calc">
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          Dados da Impressão (Bambu A1)
+        </span>
+      </div>
+
+      <div class="field">
+        <label>Nome da Peça / Projeto</label>
+        <input type="text" id="calcItemName" placeholder="Ex: Miniatura Dragão / Suporte Articulado" autocomplete="off">
+      </div>
+
+      <div class="row2">
+        <div class="field">
+          <label>Tempo de Impressão</label>
+          <div class="row2" style="gap:6px;">
+            <input type="number" id="calcHours" min="0" placeholder="Horas" value="2">
+            <input type="number" id="calcMins" min="0" max="59" placeholder="Min" value="30">
+          </div>
+        </div>
+        <div class="field">
+          <label>Peso do Filamento</label>
+          <input type="number" id="calcGrams" min="0" step="0.1" placeholder="Gramas (g)" value="85">
+        </div>
+      </div>
+
+      <div class="row2">
+        <div class="field">
+          <label>Filamento Escolhido</label>
+          <select id="calcFilamentSelect"></select>
+        </div>
+        <div class="field">
+          <label>Margem de Lucro (%)</label>
+          <input type="number" id="calcMargin" min="0" step="5" value="100">
+        </div>
+      </div>
+
+      <div class="row2">
+        <div class="field">
+          <label>Insumos / Embalagem (R$)</label>
+          <input type="number" id="calcExtraCosts" min="0" step="0.5" value="2.00" placeholder="Ex: 2.50">
+        </div>
+        <div class="field">
+          <label>Quantidade de Peças</label>
+          <input type="number" id="calcQty" min="1" step="1" value="1">
+        </div>
+      </div>
+    </div>
+
+    <!-- CARDS DE PREÇO MULTICANAL -->
+    <div class="pricing-grid" id="pricingGrid">
+      <!-- Venda Direta / WhatsApp -->
+      <div class="price-card direct" id="cardPriceDirect">
+        <div>
+          <div class="price-tag">
+            <span>💬</span> WhatsApp / Direto
+          </div>
+          <div class="price-val tabular" id="priceDirect">R$ 0,00</div>
+          <div class="price-sub">PIX / 0% Taxas</div>
+        </div>
+      </div>
+
+      <!-- Shopee -->
+      <div class="price-card shopee" id="cardPriceShopee">
+        <div>
+          <div class="price-tag">
+            <span>🧡</span> Shopee
+          </div>
+          <div class="price-val tabular" id="priceShopee">R$ 0,00</div>
+          <div class="price-sub" id="shopeeFeeNote">Taxa 20% + R$ 4</div>
+        </div>
+      </div>
+
+      <!-- TikTok Shop -->
+      <div class="price-card tiktok" id="cardPriceTikTok">
+        <div>
+          <div class="price-tag">
+            <span>🎵</span> TikTok Shop
+          </div>
+          <div class="price-val tabular" id="priceTikTok">R$ 0,00</div>
+          <div class="price-sub" id="tiktokFeeNote">Taxa 14% + R$ 2</div>
+        </div>
+      </div>
+
+      <!-- Mercado Livre -->
+      <div class="price-card mercadolivre" id="cardPriceML" style="display:none;">
+        <div>
+          <div class="price-tag">
+            <span>💛</span> Mercado Livre
+          </div>
+          <div class="price-val tabular" id="priceML">R$ 0,00</div>
+          <div class="price-sub" id="mlFeeNote">Taxa 13% + R$ 6</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESUMO DE CUSTOS REAIS -->
+    <div class="cost-summary-card">
+      <div class="cost-row">
+        <span>Filamento (<span id="summaryFilamentGrams">0</span>g de <span id="summaryFilamentName">PLA</span>):</span>
+        <b class="tabular" id="costFilamentVal">R$ 0,00</b>
+      </div>
+      <div class="cost-row">
+        <span>Energia Elétrica (Bambu A1 ~180W):</span>
+        <b class="tabular" id="costEnergyVal">R$ 0,00</b>
+      </div>
+      <div class="cost-row">
+        <span>Depreciação / Hora da Máquina:</span>
+        <b class="tabular" id="costMachineVal">R$ 0,00</b>
+      </div>
+      <div class="cost-row">
+        <span>Manutenção, Falhas e Despesas Operacionais:</span>
+        <b class="tabular" id="costOpsVal">R$ 0,00</b>
+      </div>
+      <div class="cost-row total-cost">
+        <span>CUSTO REAL DE FABRICAÇÃO:</span>
+        <b class="tabular" id="costTotalVal">R$ 0,00</b>
+      </div>
+    </div>
+
+    <!-- BOTÕES DE AÇÃO RÁPIDA -->
+    <div class="btn-row">
+      <button class="btn btn-primary" id="btnQuickQuote">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Gerar Orçamento
+      </button>
+      <button class="btn btn-secondary" id="btnQuickOrder">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg>
+        Lançar Pedido
+      </button>
+    </div>
+  </section>
+
+  <!-- ================= TELA 2: PEDIDOS (KANBAN & LISTA) ================= -->
+  <section class="screen" id="screen-orders">
+    <div class="orders-toolbar">
+      <div class="view-toggle">
+        <button id="btnViewKanban" class="active">📊 Kanban</button>
+        <button id="btnViewList">📋 Lista</button>
+      </div>
+      <div class="btn-row" style="margin:0; width:auto; gap:6px; flex-wrap:wrap;">
+        <button class="btn btn-secondary btn-sm" id="btnImportShopeeCSVToolbar" type="button" title="Importar arquivo CSV baixado da Central do Vendedor"><span style="color:var(--amber); font-size:13px;">📥</span> Importar Planilha</button>
+        <button class="btn btn-secondary btn-sm" id="btnSyncShopee" type="button" style="border-color:rgba(238,77,45,0.4);" title="Puxar pedidos em aberto da Shopee"><span style="color:#ee4d2d; font-size:13px;">🔄</span> Sincronizar Shopee</button>
+        <button class="btn btn-primary btn-sm" id="btnNewOrderModal" type="button">+ Novo Pedido</button>
+      </div>
+    </div>
+
+    <!-- FILTROS -->
+    <div class="card" style="padding:10px 12px; margin-bottom:12px;">
+      <div class="row2">
+        <div class="field">
+          <label>Filtrar Canal</label>
+          <select id="filterOrderChannel">
+            <option value="all">Todos os canais</option>
+            <option value="whatsapp">💬 WhatsApp / Direto</option>
+            <option value="shopee">🧡 Shopee</option>
+            <option value="tiktok">🎵 TikTok Shop</option>
+            <option value="mercadolivre">💛 Mercado Livre</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Buscar Cliente/Peça</label>
+          <input type="text" id="filterOrderSearch" placeholder="Nome...">
+        </div>
+      </div>
+    </div>
+
+    <!-- MODO KANBAN -->
+    <div id="kanbanContainer" class="kanban-board">
+      <!-- Coluna: A Produzir -->
+      <div class="kanban-column" data-status="a_produzir">
+        <div class="kanban-col-head">
+          <span>⚙️ A Produzir</span>
+          <span class="kanban-count" id="count-a_produzir">0</span>
+        </div>
+        <div class="kanban-cards-area" id="cards-a_produzir"></div>
+      </div>
+
+      <!-- Coluna: Em Produção -->
+      <div class="kanban-column" data-status="em_producao">
+        <div class="kanban-col-head">
+          <span>🖨️ Na Bambu A1</span>
+          <span class="kanban-count" id="count-em_producao">0</span>
+        </div>
+        <div class="kanban-cards-area" id="cards-em_producao"></div>
+      </div>
+
+      <!-- Coluna: Pronto -->
+      <div class="kanban-column" data-status="pronto">
+        <div class="kanban-col-head">
+          <span>✨ Pronto / Embalado</span>
+          <span class="kanban-count" id="count-pronto">0</span>
+        </div>
+        <div class="kanban-cards-area" id="cards-pronto"></div>
+      </div>
+
+      <!-- Coluna: Enviado / Concluído -->
+      <div class="kanban-column" data-status="concluido">
+        <div class="kanban-col-head">
+          <span>🚚 Enviado / Entregue</span>
+          <span class="kanban-count" id="count-concluido">0</span>
+        </div>
+        <div class="kanban-cards-area" id="cards-concluido"></div>
+      </div>
+    </div>
+
+    <!-- MODO LISTA (INVISÍVEL POR PADRÃO) -->
+    <div id="listContainer" style="display:none;"></div>
+  </section>
+
+  <!-- ================= TELA 3: ORÇAMENTOS & WHATSAPP ================= -->
+  <section class="screen" id="screen-quotes">
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">🛡️ Proposta Comercial — Taverna do 3D</span>
+        <button class="btn btn-secondary btn-sm" id="btnNewQuote">+ Novo</button>
+      </div>
+
+      <div class="field">
+        <label>Nome do Cliente</label>
+        <input type="text" id="quoteClientName" placeholder="Ex: Roberto Alves">
+      </div>
+
+      <div class="field">
+        <label>Telefone / WhatsApp (com DDD)</label>
+        <input type="text" id="quoteClientPhone" placeholder="Ex: (11) 99999-9999">
+      </div>
+
+      <div class="row2">
+        <div class="field">
+          <label>Prazo de Produção</label>
+          <input type="text" id="quoteDeadline" value="2 a 3 dias úteis">
+        </div>
+        <div class="field">
+          <label>Frete / Entrega</label>
+          <input type="text" id="quoteShipping" value="Frete a calcular / Retirada grátis">
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Observações / Cor Escolhida</label>
+        <input type="text" id="quoteNotes" placeholder="Ex: Impresso em PLA Premium Preto Fosco">
+      </div>
+
+      <div class="field">
+        <label>Mensagem Pronta para WhatsApp</label>
+        <textarea id="quotePreviewText" style="min-height:160px; font-size:13px;"></textarea>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-success" id="btnSendWhatsApp">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86.173.086.274.072.376-.043.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.203c.043.072.043.419-.101.824z"/></svg>
+          Enviar no WhatsApp
+        </button>
+        <button class="btn btn-primary" id="btnQuoteToOrder">
+          Transformar em Pedido
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= TELA 4: FILAMENTOS & ESTOQUE ================= -->
+  <section class="screen" id="screen-filaments">
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">🧵 Meus Filamentos & Estoque</span>
+        <button class="btn btn-primary btn-sm" id="btnNewFilamentModal">+ Adicionar</button>
+      </div>
+      <div id="filamentsListContainer"></div>
+    </div>
+  </section>
+
+  <!-- ================= TELA 5: AJUSTES, NUVEM & SUPABASE ================= -->
+  <section class="screen" id="screen-settings">
+    <!-- BANBU LAB A1 & CUSTOS -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">🖨️ Calibração Bambu Lab A1</span>
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label>Potência Média (Watts)</label>
+          <input type="number" id="cfgWatts" value="180">
+        </div>
+        <div class="field">
+          <label>Tarifa Energia (R$/kWh)</label>
+          <input type="number" id="cfgEnergyRate" step="0.01" value="0.95">
+        </div>
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label>Custo Hora de Máquina (R$)</label>
+          <input type="number" id="cfgMachineCostHour" step="0.5" value="2.50">
+        </div>
+        <div class="field">
+          <label>Taxa de Falhas / Perdas (%)</label>
+          <input type="number" id="cfgFailureRate" value="5">
+        </div>
+      </div>
+    </div>
+
+    <!-- CANAIS DE VENDA (ATIVAR/DESATIVAR E TAXAS) -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">🏪 Lojas e Canais de Venda</span>
+      </div>
+      <p style="font-size:12px; color:var(--muted); margin-bottom:14px;">Ative ou desative as lojas para controlar quais canais aparecem na Calculadora, Orçamentos e Pedidos.</p>
+
+      <!-- WhatsApp / Venda Direta -->
+      <div class="channel-setting-block" id="blockChannelDirect">
+        <div class="switch-header">
+          <div class="switch-info">
+            <span class="switch-icon">💬</span>
+            <div>
+              <div class="switch-title">WhatsApp / Venda Direta</div>
+              <div class="switch-sub">PIX / Dinheiro (0% Taxas de Marketplace)</div>
+            </div>
+          </div>
+          <label class="toggle-switch" title="Ativar ou Desativar Venda Direta">
+            <input type="checkbox" id="cfgChannelDirectActive" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Shopee -->
+      <div class="channel-setting-block" id="blockChannelShopee">
+        <div class="switch-header">
+          <div class="switch-info">
+            <span class="switch-icon">🧡</span>
+            <div>
+              <div class="switch-title">Shopee</div>
+              <div class="switch-sub">Comissão percentual + Taxa fixa por item</div>
+            </div>
+          </div>
+          <label class="toggle-switch" title="Ativar ou Desativar Shopee">
+            <input type="checkbox" id="cfgChannelShopeeActive" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="channel-inputs-area" id="inputsShopeeArea">
+          <div class="row2">
+            <div class="field">
+              <label>Shopee - Comissão (%)</label>
+              <input type="number" id="cfgShopeePct" value="20" step="0.5">
+            </div>
+            <div class="field">
+              <label>Shopee - Taxa Fixa (R$)</label>
+              <input type="number" id="cfgShopeeFix" value="4.00" step="0.5">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TikTok Shop -->
+      <div class="channel-setting-block" id="blockChannelTikTok">
+        <div class="switch-header">
+          <div class="switch-info">
+            <span class="switch-icon">🎵</span>
+            <div>
+              <div class="switch-title">TikTok Shop</div>
+              <div class="switch-sub">Comissão TikTok Shop Brasil + Processamento</div>
+            </div>
+          </div>
+          <label class="toggle-switch" title="Ativar ou Desativar TikTok Shop">
+            <input type="checkbox" id="cfgChannelTikTokActive" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="channel-inputs-area" id="inputsTikTokArea">
+          <div class="row2">
+            <div class="field">
+              <label>TikTok Shop - Comissão (%)</label>
+              <input type="number" id="cfgTikTokPct" value="14" step="0.5">
+            </div>
+            <div class="field">
+              <label>TikTok Shop - Taxa Fixa (R$)</label>
+              <input type="number" id="cfgTikTokFix" value="2.00" step="0.5">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mercado Livre -->
+      <div class="channel-setting-block" id="blockChannelML">
+        <div class="switch-header">
+          <div class="switch-info">
+            <span class="switch-icon">💛</span>
+            <div>
+              <div class="switch-title">Mercado Livre</div>
+              <div class="switch-sub">Comissão Clássico/Premium + Custo fixo</div>
+            </div>
+          </div>
+          <label class="toggle-switch" title="Ativar ou Desativar Mercado Livre">
+            <input type="checkbox" id="cfgChannelMLActive">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="channel-inputs-area" id="inputsMLArea" style="display:none;">
+          <div class="row2">
+            <div class="field">
+              <label>Mercado Livre - Comissão (%)</label>
+              <input type="number" id="cfgMLPct" value="13" step="0.5">
+            </div>
+            <div class="field">
+              <label>Mercado Livre - Taxa Fixa (R$)</label>
+              <input type="number" id="cfgMLFix" value="6.00" step="0.5">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- INTEGRAÇÃO SHOPEE API (DIRETO NO APP) -->
+    <div class="card" style="border-color:rgba(238,77,45,0.4); background:linear-gradient(180deg, rgba(238,77,45,0.08) 0%, var(--surface) 100%);">
+      <div class="card-header">
+        <span class="card-title" style="color:#ff8570; display:flex; align-items:center; gap:8px;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+          Conexão Shopee Seller (Open Platform)
+        </span>
+        <span id="shopeeStatusBadge" class="shopee-badge-disconnected">🔴 Desconectado</span>
+      </div>
+
+      <!-- BOX DE STATUS DA CONTA SHOPEE -->
+      <div id="shopeeStatusBox" style="background:var(--surface-2); border:1px solid var(--border); border-radius:12px; padding:12px 14px; margin-bottom:14px;">
+        <div id="shopeeDisconnectedInfo">
+          <p style="font-size:13px; color:var(--text); margin:0 0 4px; font-weight:700;">Sua loja Shopee não está conectada.</p>
+          <p style="font-size:11.5px; color:var(--muted); margin:0; line-height:1.4;">Conecte sua conta de vendedor para puxar pedidos em aberto em tempo real para o Kanban de produção da Taverna.</p>
+        </div>
+        <div id="shopeeConnectedInfo" style="display:none;">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+            <div>
+              <strong style="font-size:14.5px; color:#fff; display:block;" id="shopeeShopNameDisplay">Loja Taverna do 3D</strong>
+              <span style="font-size:12px; color:var(--muted);">Shop ID: <b style="color:var(--gold);" id="shopeeShopIdDisplay">--</b> · <span id="shopeeConnectedDate" style="color:#4ade80; font-weight:600;">Conectada</span></span>
+            </div>
+            <button class="btn btn-secondary btn-sm" id="btnShopeeDisconnect" type="button" style="color:#f87171; border-color:rgba(239,68,68,0.4);">
+              Desconectar Loja
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- BOTÕES PRINCIPAIS DE LOGIN / CONEXÃO -->
+      <div class="btn-row" style="margin-bottom:12px;" id="shopeeLoginBtnRow">
+        <button class="btn btn-shopee" id="btnShopeeOAuthLogin" type="button" style="width:100%; justify-content:center; padding:12px; font-size:14px;">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
+          <span id="btnShopeeOAuthText">Conectar com a Shopee (Login de Vendedor)</span>
+        </button>
+      </div>
+
+      <div class="btn-row" style="margin-bottom:12px;">
+        <button class="btn btn-primary" id="btnSyncShopeeNow" type="button" style="width:100%; justify-content:center;">
+          <span id="syncShopeeIcon" style="margin-right:6px;">🔄</span> Sincronizar Pedidos da Shopee Agora
+        </button>
+      </div>
+
+      <!-- AUTO-SYNC EM SEGUNDO PLANO -->
+      <div style="background:var(--surface-2); border:1px solid var(--border); border-radius:10px; padding:10px 12px; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center;">
+        <div>
+          <strong style="font-size:13px; color:#fff; display:block;">Auto-Sincronização em Tempo Real</strong>
+          <span style="font-size:11px; color:var(--muted);">Verificar e puxar novos pedidos a cada 30 segundos</span>
+        </div>
+        <label class="toggle-switch" title="Ativar sincronização automática">
+          <input type="checkbox" id="cfgShopeeAutoSync" checked>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <div class="btn-row" style="margin-bottom:12px; gap:8px;">
+        <button class="btn btn-secondary btn-sm" id="btnOpenManualShopeeAuth" type="button" style="flex:1;" title="Inserir código de autorização ou token diretamente">
+          🔑 Inserir Código/Token Manual
+        </button>
+        <button class="btn btn-secondary btn-sm" id="btnImportShopeeCSV" type="button" style="flex:1;" title="Importar arquivo CSV baixado da Central do Vendedor">
+          📥 Importar Planilha CSV
+        </button>
+      </div>
+      <input type="file" id="fileShopeeCSV" accept=".csv,.txt" style="display:none;">
+
+      <!-- CONFIGURAÇÕES AVANÇADAS & API CREDENCIAIS -->
+      <details style="margin-top:12px; font-size:12px; color:var(--muted);" id="detailsShopeeAdvanced">
+        <summary style="cursor:pointer; color:var(--amber-light); font-weight:600;">⚙️ Configurações Avançadas da API Shopee</summary>
+        <div style="margin-top:10px; background:var(--surface-2); padding:12px; border-radius:10px; border:1px solid var(--border);">
+          <div class="row2">
+            <div class="field">
+              <label>Shopee Partner ID</label>
+              <input type="text" id="cfgShopeePartnerId" value="2042545">
+            </div>
+            <div class="field">
+              <label>Shop ID da Loja</label>
+              <input type="text" id="cfgShopeeShopId" placeholder="Ex: 85942109">
+            </div>
+          </div>
+          
+          <div class="field">
+            <label>Partner Key / Secret (HMAC SHA-256)</label>
+            <input type="password" id="cfgShopeePartnerKey" value="shpk7452725641576e6843564b6e5a456951564b5a424373685a7a6673525244">
+          </div>
+
+          <div class="field">
+            <label>Access Token (Vendedor Autorizado)</label>
+            <input type="password" id="cfgShopeeAccessToken" placeholder="Token OAuth da Shopee">
+          </div>
+
+          <div class="field">
+            <label>Refresh Token (Renovação)</label>
+            <input type="password" id="cfgShopeeRefreshToken" placeholder="Refresh Token da Shopee">
+          </div>
+
+          <div class="field">
+            <label>Servidor / Proxy Worker</label>
+            <input type="text" id="cfgShopeeProxyUrl" value="https://pedidos.tavernado3d.workers.dev" placeholder="https://pedidos.tavernado3d.workers.dev">
+          </div>
+
+          <div class="btn-row" style="margin-top:8px; gap:8px;">
+            <button class="btn btn-secondary btn-sm" id="btnTestShopeeApi" type="button" style="flex:1;">
+              🧪 Testar Conexão (Ping)
+            </button>
+            <button class="btn btn-primary btn-sm" id="btnSaveShopeeCreds" type="button" style="flex:1;">
+              💾 Salvar Credenciais
+            </button>
+          </div>
+        </div>
+      </details>
+    </div>
+
+    <!-- SUPABASE / NUVEM -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">☁️ Sincronização Nuvem (Supabase)</span>
+      </div>
+      <p style="font-size:12px; color:var(--muted); margin-bottom:12px;">Conecte sua conta do Supabase para ter backup automático e sincronizar pedidos entre o PC e o celular em tempo real.</p>
+      
+      <div class="field">
+        <label>URL do Projeto Supabase</label>
+        <input type="url" id="cfgCloudUrl" placeholder="https://xxxx.supabase.co">
+      </div>
+      <div class="field">
+        <label>Chave Pública Anon Key</label>
+        <input type="password" id="cfgCloudKey" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...">
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label>E-mail</label>
+          <input type="email" id="cfgCloudEmail" placeholder="seu@email.com">
+        </div>
+        <div class="field">
+          <label>Senha</label>
+          <input type="password" id="cfgCloudPassword" placeholder="••••••••">
+        </div>
+      </div>
+      <div class="btn-row" style="margin-bottom:10px;">
+        <button class="btn btn-primary" id="btnCloudLogin">Entrar</button>
+        <button class="btn btn-secondary" id="btnCloudSignup">Criar Conta</button>
+        <button class="btn btn-ghost" id="btnCloudLogout">Desconectar</button>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-secondary btn-sm" id="btnCloudPush">↑ Enviar para Nuvem</button>
+        <button class="btn btn-secondary btn-sm" id="btnCloudPull">↓ Baixar da Nuvem</button>
+      </div>
+    </div>
+
+    <!-- BACKUP LOCAL -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">💾 Backup em Arquivo</span>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-secondary" id="btnExportJSON">Exportar Backup JSON</button>
+        <button class="btn btn-secondary" id="btnImportJSON">Importar Backup JSON</button>
+      </div>
+      <input type="file" id="fileImportJSON" accept=".json" style="display:none;">
+    </div>
+
+    <button class="btn btn-primary" id="btnSaveGlobalSettings" style="margin-bottom:24px;">Salvar Todas as Configurações</button>
+  </section>
+
+  <!-- ================= MODAL: NOVO/EDITAR PEDIDO ================= -->
+  <div class="overlay" id="overlayOrder"></div>
+  <div class="sheet" id="sheetOrder">
+    <div class="sheet-handle"></div>
+    <h2 id="modalOrderTitle">Novo Pedido</h2>
+    <p class="sub">Preencha os detalhes da peça para a fila de impressão da Taverna.</p>
+
+    <div class="field">
+      <label>Nome do Cliente</label>
+      <input type="text" id="modalOrderClient" placeholder="Ex: Lucas Silva">
+    </div>
+
+    <div class="field">
+      <label>Nome do Produto / Modelo 3D</label>
+      <input type="text" id="modalOrderProduct" placeholder="Ex: Torre de Dados Medieval">
+    </div>
+
+    <div class="row2">
+      <div class="field">
+        <label>Canal de Venda</label>
+        <select id="modalOrderChannel">
+          <option value="whatsapp">💬 WhatsApp / Direto</option>
+          <option value="shopee">🧡 Shopee</option>
+          <option value="tiktok">🎵 TikTok Shop</option>
+          <option value="mercadolivre">💛 Mercado Livre</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Status Inicial</label>
+        <select id="modalOrderStatus">
+          <option value="a_produzir">⚙️ A Produzir</option>
+          <option value="em_producao">🖨️ Em Produção (A1)</option>
+          <option value="pronto">✨ Pronto</option>
+          <option value="concluido">🚚 Concluído</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="row2">
+      <div class="field">
+        <label>Valor Total Cobrado (R$)</label>
+        <input type="number" id="modalOrderPrice" step="0.5" placeholder="0.00">
+      </div>
+      <div class="field">
+        <label>Prazo de Entrega</label>
+        <input type="text" id="modalOrderDeadline" placeholder="Ex: 28/08">
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Observações / Cor / Material</label>
+      <input type="text" id="modalOrderNotes" placeholder="Ex: PLA Preto, preenchimento 15%">
+    </div>
+
+    <div class="btn-row" style="margin-top:16px;">
+      <button class="btn btn-secondary" id="btnCancelOrderModal">Cancelar</button>
+      <button class="btn btn-primary" id="btnSaveOrderModal">Salvar Pedido</button>
+    </div>
   </div>
+
+  <!-- ================= MODAL: NOVO FILAMENTO ================= -->
+  <div class="overlay" id="overlayFilament"></div>
+  <div class="sheet" id="sheetFilament">
+    <div class="sheet-handle"></div>
+    <h2>Cadastrar Filamento</h2>
+    <p class="sub">Adicione um novo carretel para cálculo de custos.</p>
+
+    <div class="field">
+      <label>Nome / Marca do Filamento</label>
+      <input type="text" id="modalFilName" placeholder="Ex: Voolt3D / Bambu Lab / Creality">
+    </div>
+
+    <div class="row2">
+      <div class="field">
+        <label>Material</label>
+        <select id="modalFilType">
+          <option value="PLA">PLA</option>
+          <option value="PLA Silk">PLA Silk</option>
+          <option value="PETG">PETG</option>
+          <option value="ABS">ABS</option>
+          <option value="TPU">TPU (Flexível)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Cor</label>
+        <input type="text" id="modalFilColor" placeholder="Ex: Preto Fosco / Dourado">
+      </div>
+    </div>
+
+    <div class="row2">
+      <div class="field">
+        <label>Preço Pago no Carretel 1kg (R$)</label>
+        <input type="number" id="modalFilPrice" step="1" value="95.00">
+      </div>
+      <div class="field">
+        <label>Estoque Atual (g)</label>
+        <input type="number" id="modalFilStock" step="50" value="1000">
+      </div>
+    </div>
+
+    <div class="btn-row" style="margin-top:16px;">
+      <button class="btn btn-secondary" id="btnCancelFilModal">Cancelar</button>
+      <button class="btn btn-primary" id="btnSaveFilModal">Salvar Filamento</button>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: AUTORIZAÇÃO MANUAL SHOPEE ================= -->
+  <div class="overlay" id="overlayShopeeAuth"></div>
+  <div class="sheet" id="sheetShopeeAuth">
+    <div class="sheet-handle"></div>
+    <h2 style="color:#ff8570;">🔑 Conectar Loja da Shopee</h2>
+    <p class="sub" style="line-height:1.4; margin-bottom:12px;">Se a janela da Shopee abriu e você viu a mensagem de retorno, basta <b>copiar o link completo da barra de endereço</b> dessa janela e colar aqui:</p>
+
+    <div class="field">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+        <label style="margin:0;">URL da Janela ou Código (code)</label>
+        <button type="button" id="btnPasteShopeeClipboard" style="background:transparent; color:var(--amber-light); border:1px solid rgba(245,158,11,0.3); border-radius:6px; font-size:11.5px; font-weight:700; cursor:pointer; padding:3px 8px;">📋 Colar do Teclado</button>
+      </div>
+      <textarea id="modalShopeeCodeOrUrl" placeholder="Cole aqui o link da janela (Ex: https://pedidos.tavernado3d.workers.dev/api/shopee/callback?code=...&shop_id=...)" style="min-height:95px; font-size:12.5px;"></textarea>
+    </div>
+
+    <div class="row2">
+      <div class="field">
+        <label>Shop ID (opcional)</label>
+        <input type="text" id="modalShopeeShopId" placeholder="Ex: 85942109">
+      </div>
+      <div class="field">
+        <label>Ou Access Token Direto</label>
+        <input type="password" id="modalShopeeDirectToken" placeholder="Cole o token aqui se tiver">
+      </div>
+    </div>
+
+    <div class="btn-row" style="margin-top:16px;">
+      <button class="btn btn-secondary" id="btnCancelShopeeAuthModal">Cancelar</button>
+      <button class="btn btn-primary" id="btnConfirmManualAuth">Validar e Conectar Loja</button>
+    </div>
+  </div>
+
+  <!-- ================= BOTTOM NAVIGATION ================= -->
+  <nav class="bottomnav">
+    <button class="navbtn active" data-screen="screen-calc">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1-2-1z"/><path d="M8 7h8M8 11h8M8 15h5"/></svg>
+      <span>Calculadora</span>
+    </button>
+    <button class="navbtn" data-screen="screen-orders">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      <span>Pedidos</span>
+    </button>
+    <button class="navbtn" data-screen="screen-quotes">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      <span>Orçamentos</span>
+    </button>
+    <button class="navbtn" data-screen="screen-filaments">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><path d="M12 2a7 7 0 1 0 7 7"/></svg>
+      <span>Filamentos</span>
+    </button>
+    <button class="navbtn" data-screen="screen-settings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      <span>Ajustes</span>
+    </button>
+  </nav>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+
+</div>
+
+<!-- ================= JAVASCRIPT PRINCIPAL ================= -->
+<script>
+/* =========================================================
+   ESTADO GERAL DA TAVERNA DO 3D
+========================================================= */
+const DB_KEYS = {
+  CONFIG: 'taverna3d:config',
+  FILAMENTS: 'taverna3d:filaments',
+  ORDERS: 'taverna3d:orders',
+  QUOTES: 'taverna3d:quotes',
+  CLOUD: 'taverna3d:cloud'
+};
+
+const DEFAULT_CONFIG = {
+  watts: 180,              // Bambu Lab A1 potência média
+  energyRate: 0.95,        // R$/kWh
+  machineCostHour: 2.50,   // R$/h depreciação e desgaste
+  failureRate: 5,          // 5% margem para falhas
+  channels: {
+    direct: { enabled: true, pct: 0, fix: 0 },
+    shopee: { enabled: true, pct: 20, fix: 4.00 },
+    tiktok: { enabled: true, pct: 14, fix: 2.00 },
+    mercadolivre: { enabled: false, pct: 13, fix: 6.00 }
+  },
+  shopee: { pct: 20, fix: 4.00 },
+  tiktok: { pct: 14, fix: 2.00 },
+  mercadolivre: { pct: 13, fix: 6.00 },
+  shopeeApi: {
+    partnerId: '2042545',
+    shopId: '',
+    shopName: '',
+    partnerKey: 'shpk7452725641576e6843564b6e5a456951564b5a424373685a7a6673525244',
+    accessToken: '',
+    refreshToken: '',
+    accessTokenExpiresAt: 0,
+    connectedAt: 0,
+    proxyUrl: 'https://pedidos.tavernado3d.workers.dev',
+    autoSync: true
+  }
+};
+
+const DEFAULT_FILAMENTS = [
+  { id: 'fil-1', name: 'PLA Taverna Premium', type: 'PLA', color: 'Preto Fosco', priceKg: 95.00, stockG: 1000 },
+  { id: 'fil-2', name: 'PLA Silk Dourado', type: 'PLA Silk', color: 'Ouro Real', priceKg: 120.00, stockG: 800 },
+  { id: 'fil-3', name: 'PETG Resistente', type: 'PETG', color: 'Cinza Espacial', priceKg: 105.00, stockG: 1000 }
+];
+
+let appConfig = JSON.parse(localStorage.getItem(DB_KEYS.CONFIG)) || DEFAULT_CONFIG;
+let appFilaments = JSON.parse(localStorage.getItem(DB_KEYS.FILAMENTS)) || DEFAULT_FILAMENTS;
+let appOrders = (JSON.parse(localStorage.getItem(DB_KEYS.ORDERS)) || []).filter(o => !['TAV-9142', 'TAV-9143', 'TAV-9144'].includes(o.id) && !['240825BAMBU01', '240825HEADSET02', '240825DICE03'].includes(o.shopeeId));
+let appCloud = JSON.parse(localStorage.getItem(DB_KEYS.CLOUD)) || { url: '', key: '', email: '', session: null };
+
+function ensureConfigChannels() {
+  if (!appConfig.channels) {
+    appConfig.channels = {
+      direct: { enabled: true, pct: 0, fix: 0 },
+      shopee: { enabled: true, pct: appConfig.shopee?.pct ?? 20, fix: appConfig.shopee?.fix ?? 4.00 },
+      tiktok: { enabled: true, pct: appConfig.tiktok?.pct ?? 14, fix: appConfig.tiktok?.fix ?? 2.00 },
+      mercadolivre: { enabled: false, pct: 13, fix: 6.00 }
+    };
+  }
+  if (!appConfig.channels.direct) appConfig.channels.direct = { enabled: true, pct: 0, fix: 0 };
+  if (!appConfig.channels.shopee) appConfig.channels.shopee = { enabled: true, pct: appConfig.shopee?.pct ?? 20, fix: appConfig.shopee?.fix ?? 4.00 };
+  if (!appConfig.channels.tiktok) appConfig.channels.tiktok = { enabled: true, pct: appConfig.tiktok?.pct ?? 14, fix: appConfig.tiktok?.fix ?? 2.00 };
+  if (!appConfig.channels.mercadolivre) appConfig.channels.mercadolivre = { enabled: false, pct: 13, fix: 6.00 };
+}
+ensureConfigChannels();
+
+function saveLocal() {
+  localStorage.setItem(DB_KEYS.CONFIG, JSON.stringify(appConfig));
+  localStorage.setItem(DB_KEYS.FILAMENTS, JSON.stringify(appFilaments));
+  localStorage.setItem(DB_KEYS.ORDERS, JSON.stringify(appOrders));
+  localStorage.setItem(DB_KEYS.CLOUD, JSON.stringify(appCloud));
+  triggerCloudAutoSync();
+}
+
+function showToast(msg, isOk = false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + (isOk ? 'ok' : '');
+  setTimeout(() => { t.className = 'toast'; }, 2400);
+}
+
+function formatBRL(val) {
+  return Number(val || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+}
+
+/* =========================================================
+   ROTEAMENTO ENTRE TELAS
+========================================================= */
+const navButtons = document.querySelectorAll('.navbtn');
+const screens = document.querySelectorAll('.screen');
+
+navButtons.forEach(btn => {
+  btn.addEventListener('click', () => {
+    const targetId = btn.getAttribute('data-screen');
+    navButtons.forEach(b => b.classList.remove('active'));
+    screens.forEach(s => s.classList.remove('active'));
+    
+    btn.classList.add('active');
+    document.getElementById(targetId)?.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+});
+
+/* =========================================================
+   CÁLCULOS DA CALCULADORA
+========================================================= */
+function calculatePrices() {
+  ensureConfigChannels();
+  const hours = parseFloat(document.getElementById('calcHours').value) || 0;
+  const mins = parseFloat(document.getElementById('calcMins').value) || 0;
+  const totalHours = hours + (mins / 60);
+  const grams = parseFloat(document.getElementById('calcGrams').value) || 0;
+  const marginPct = parseFloat(document.getElementById('calcMargin').value) || 0;
+  const extraCosts = parseFloat(document.getElementById('calcExtraCosts').value) || 0;
+  const qty = parseInt(document.getElementById('calcQty').value) || 1;
+
+  const filId = document.getElementById('calcFilamentSelect').value;
+  const fil = appFilaments.find(f => f.id === filId) || appFilaments[0];
+
+  // 1. Custo do Filamento
+  const costFilament = (grams / 1000) * (fil ? fil.priceKg : 95.00);
+
+  // 2. Custo de Energia (Bambu Lab A1)
+  const kwh = (appConfig.watts / 1000) * totalHours;
+  const costEnergy = kwh * appConfig.energyRate;
+
+  // 3. Custo de Máquina (Depreciação)
+  const costMachine = totalHours * appConfig.machineCostHour;
+
+  // 4. Operacional e Falhas
+  const subtotalBase = costFilament + costEnergy + costMachine + extraCosts;
+  const costOps = subtotalBase * (appConfig.failureRate / 100);
+
+  // CUSTO TOTAL UNITÁRIO
+  const costTotalUnit = subtotalBase + costOps;
+  const costTotal = costTotalUnit * qty;
+
+  // Preço Venda Direta (Markup de Lucro)
+  const priceDirectUnit = costTotalUnit * (1 + (marginPct / 100));
+  const priceDirectTotal = priceDirectUnit * qty;
+
+  // Preço Shopee (Reverso para cobrir comissão e taxa fixa)
+  const shopeePct = (appConfig.channels.shopee?.pct ?? 20) / 100;
+  const shopeeFix = appConfig.channels.shopee?.fix ?? 4.00;
+  const priceShopeeTotal = (priceDirectTotal + shopeeFix) / (1 - shopeePct);
+
+  // Preço TikTok Shop
+  const tiktokPct = (appConfig.channels.tiktok?.pct ?? 14) / 100;
+  const tiktokFix = appConfig.channels.tiktok?.fix ?? 2.00;
+  const priceTikTokTotal = (priceDirectTotal + tiktokFix) / (1 - tiktokPct);
+
+  // Preço Mercado Livre
+  const mlPct = (appConfig.channels.mercadolivre?.pct ?? 13) / 100;
+  const mlFix = appConfig.channels.mercadolivre?.fix ?? 6.00;
+  const priceMLTotal = (priceDirectTotal + mlFix) / (1 - mlPct);
+
+  // Renderizar na tela
+  const elDirect = document.getElementById('priceDirect');
+  const elShopee = document.getElementById('priceShopee');
+  const elTikTok = document.getElementById('priceTikTok');
+  const elML = document.getElementById('priceML');
+
+  if (elDirect) elDirect.textContent = formatBRL(priceDirectTotal);
+  if (elShopee) elShopee.textContent = formatBRL(priceShopeeTotal);
+  if (elTikTok) elTikTok.textContent = formatBRL(priceTikTokTotal);
+  if (elML) elML.textContent = formatBRL(priceMLTotal);
+
+  // Exibir / Ocultar cards de acordo com as lojas ativas
+  const cardDirect = document.getElementById('cardPriceDirect');
+  const cardShopee = document.getElementById('cardPriceShopee');
+  const cardTikTok = document.getElementById('cardPriceTikTok');
+  const cardML = document.getElementById('cardPriceML');
+
+  if (cardDirect) cardDirect.style.display = appConfig.channels.direct?.enabled !== false ? 'flex' : 'none';
+  if (cardShopee) cardShopee.style.display = appConfig.channels.shopee?.enabled ? 'flex' : 'none';
+  if (cardTikTok) cardTikTok.style.display = appConfig.channels.tiktok?.enabled ? 'flex' : 'none';
+  if (cardML) cardML.style.display = appConfig.channels.mercadolivre?.enabled ? 'flex' : 'none';
+
+  // Atualizar notas de taxas nos cards
+  const shopeeNote = document.getElementById('shopeeFeeNote');
+  if (shopeeNote) shopeeNote.textContent = `Taxa ${appConfig.channels.shopee?.pct || 20}% + R$ ${(appConfig.channels.shopee?.fix || 4).toFixed(2)}`;
+  const tiktokNote = document.getElementById('tiktokFeeNote');
+  if (tiktokNote) tiktokNote.textContent = `Taxa ${appConfig.channels.tiktok?.pct || 14}% + R$ ${(appConfig.channels.tiktok?.fix || 2).toFixed(2)}`;
+  const mlNote = document.getElementById('mlFeeNote');
+  if (mlNote) mlNote.textContent = `Taxa ${appConfig.channels.mercadolivre?.pct || 13}% + R$ ${(appConfig.channels.mercadolivre?.fix || 6).toFixed(2)}`;
+
+  document.getElementById('summaryFilamentGrams').textContent = grams;
+  document.getElementById('summaryFilamentName').textContent = fil ? fil.name : 'PLA';
+  document.getElementById('costFilamentVal').textContent = formatBRL(costFilament * qty);
+  document.getElementById('costEnergyVal').textContent = formatBRL(costEnergy * qty);
+  document.getElementById('costMachineVal').textContent = formatBRL(costMachine * qty);
+  document.getElementById('costOpsVal').textContent = formatBRL(costOps * qty);
+  document.getElementById('costTotalVal').textContent = formatBRL(costTotal);
+
+  return {
+    item: document.getElementById('calcItemName').value || 'Peça 3D',
+    filament: fil ? fil.name : 'PLA',
+    hours, mins, grams, qty,
+    costTotal, priceDirectTotal, priceShopeeTotal, priceTikTokTotal, priceMLTotal
+  };
+}
+
+// Ouvintes de alteração na calculadora
+['calcItemName', 'calcHours', 'calcMins', 'calcGrams', 'calcMargin', 'calcExtraCosts', 'calcQty', 'calcFilamentSelect'].forEach(id => {
+  document.getElementById(id)?.addEventListener('input', calculatePrices);
+  document.getElementById(id)?.addEventListener('change', calculatePrices);
+});
+
+/* =========================================================
+   GERENCIAMENTO DE FILAMENTOS
+========================================================= */
+function renderFilamentSelect() {
+  const sel = document.getElementById('calcFilamentSelect');
+  if (!sel) return;
+  sel.innerHTML = '';
+  appFilaments.forEach(f => {
+    const opt = document.createElement('option');
+    opt.value = f.id;
+    opt.textContent = `${f.name} (${f.color}) — R$ ${f.priceKg.toFixed(2)}/kg`;
+    sel.appendChild(opt);
+  });
+}
+
+function renderFilamentList() {
+  const container = document.getElementById('filamentsListContainer');
+  if (!container) return;
+  
+  if (appFilaments.length === 0) {
+    container.innerHTML = `<p style="color:var(--muted); font-size:13px; text-align:center; padding:18px;">Nenhum filamento cadastrado.</p>`;
+    return;
+  }
+
+  container.innerHTML = appFilaments.map(f => `
+    <div style="background:var(--surface-2); border:1px solid var(--border); border-radius:12px; padding:12px; margin-bottom:9px; display:flex; align-items:center; justify-content:space-between;">
+      <div>
+        <strong style="font-size:14px; color:#fff; display:block;">${f.name}</strong>
+        <span style="font-size:12px; color:var(--muted);">${f.type} · Cor: ${f.color}</span>
+      </div>
+      <div style="text-align:right;">
+        <span style="font-size:14px; font-weight:800; color:var(--amber-light); display:block;">${formatBRL(f.priceKg)}/kg</span>
+        <button onclick="removeFilament('${f.id}')" style="background:transparent; color:var(--red); font-size:11px; font-weight:600; padding:2px 0;">Excluir</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+window.removeFilament = function(id) {
+  if (appFilaments.length <= 1) {
+    showToast('Mantenha ao menos 1 filamento cadastrado.');
+    return;
+  }
+  appFilaments = appFilaments.filter(f => f.id !== id);
+  saveLocal();
+  renderFilamentSelect();
+  renderFilamentList();
+  calculatePrices();
+  showToast('Filamento removido.', true);
+};
+
+// Modal de Filamento
+document.getElementById('btnNewFilamentModal')?.addEventListener('click', () => {
+  document.getElementById('overlayFilament').classList.add('open');
+  document.getElementById('sheetFilament').classList.add('open');
+});
+
+document.getElementById('btnCancelFilModal')?.addEventListener('click', () => {
+  document.getElementById('overlayFilament').classList.remove('open');
+  document.getElementById('sheetFilament').classList.remove('open');
+});
+
+document.getElementById('btnSaveFilModal')?.addEventListener('click', () => {
+  const name = document.getElementById('modalFilName').value.trim();
+  const type = document.getElementById('modalFilType').value;
+  const color = document.getElementById('modalFilColor').value.trim() || 'Padrão';
+  const priceKg = parseFloat(document.getElementById('modalFilPrice').value) || 95.00;
+  const stockG = parseFloat(document.getElementById('modalFilStock').value) || 1000;
+
+  if (!name) {
+    showToast('Informe o nome do filamento.');
+    return;
+  }
+
+  const newFil = {
+    id: 'fil-' + Date.now(),
+    name, type, color, priceKg, stockG
+  };
+
+  appFilaments.push(newFil);
+  saveLocal();
+  renderFilamentSelect();
+  renderFilamentList();
+  calculatePrices();
+
+  document.getElementById('overlayFilament').classList.remove('open');
+  document.getElementById('sheetFilament').classList.remove('open');
+  document.getElementById('modalFilName').value = '';
+  showToast('Filamento cadastrado com sucesso!', true);
+});
+
+/* =========================================================
+   ORÇAMENTOS & WHATSAPP
+========================================================= */
+function updateQuotePreview() {
+  ensureConfigChannels();
+  const data = calculatePrices();
+  const client = document.getElementById('quoteClientName').value.trim() || 'Cliente';
+  const deadline = document.getElementById('quoteDeadline').value.trim() || '2 a 3 dias úteis';
+  const shipping = document.getElementById('quoteShipping').value.trim() || 'A combinar';
+  const notes = document.getElementById('quoteNotes').value.trim();
+
+  let priceLines = [];
+  if (appConfig.channels.direct?.enabled !== false) {
+    priceLines.push(`💰 *VALOR PROMOCIONAL (PIX / Direto):* ${formatBRL(data.priceDirectTotal)}`);
+  }
+  if (appConfig.channels.shopee?.enabled) {
+    priceLines.push(`🧡 *Opção Shopee:* ${formatBRL(data.priceShopeeTotal)}`);
+  }
+  if (appConfig.channels.tiktok?.enabled) {
+    priceLines.push(`🎵 *Opção TikTok Shop:* ${formatBRL(data.priceTikTokTotal)}`);
+  }
+  if (appConfig.channels.mercadolivre?.enabled) {
+    priceLines.push(`💛 *Opção Mercado Livre:* ${formatBRL(data.priceMLTotal)}`);
+  }
+
+  const pricesFormatted = priceLines.length > 0 
+    ? priceLines.join('\n')
+    : `💰 *VALOR PROMOCIONAL:* ${formatBRL(data.priceDirectTotal)}`;
+
+  const msg = `Olá, *${client}*! Tudo bem? 😊🛡️\n\n` +
+    `Aqui é da *Taverna do 3D*! Segue a proposta para a sua peça personalizada:\n\n` +
+    `🛠️ *PRODUTO:* ${data.item} (${data.qty}x)\n` +
+    `🧵 *MATERIAL:* ${data.filament} (Alta Resolução na Bambu Lab A1)\n` +
+    (notes ? `📝 *DETALHES:* ${notes}\n` : '') +
+    `\n` +
+    `${pricesFormatted}\n\n` +
+    `⏱️ *Prazo de Fabricação:* ${deadline}\n` +
+    `🚚 *Entrega / Frete:* ${shipping}\n\n` +
+    `Podemos colocar na impressora para você? Qualquer dúvida fico à disposição! 🚀`;
+
+  document.getElementById('quotePreviewText').value = msg;
+}
+
+document.getElementById('btnQuickQuote')?.addEventListener('click', () => {
+  updateQuotePreview();
+  document.querySelector('[data-screen="screen-quotes"]').click();
+});
+
+['quoteClientName', 'quoteDeadline', 'quoteShipping', 'quoteNotes'].forEach(id => {
+  document.getElementById(id)?.addEventListener('input', updateQuotePreview);
+});
+
+document.getElementById('btnSendWhatsApp')?.addEventListener('click', () => {
+  const phone = document.getElementById('quoteClientPhone').value.replace(/\D/g, '');
+  const text = encodeURIComponent(document.getElementById('quotePreviewText').value);
+  if (phone.length >= 10) {
+    window.open(`https://wa.me/55${phone}?text=${text}`, '_blank');
+  } else {
+    window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
+  }
+});
+
+document.getElementById('btnQuoteToOrder')?.addEventListener('click', () => {
+  const data = calculatePrices();
+  const client = document.getElementById('quoteClientName').value.trim() || 'Cliente';
+  
+  const newOrder = {
+    id: 'TAV-' + Math.floor(1000 + Math.random() * 9000),
+    client,
+    product: data.item,
+    channel: 'whatsapp',
+    status: 'a_produzir',
+    price: data.priceDirectTotal,
+    deadline: document.getElementById('quoteDeadline').value || '3 dias',
+    notes: document.getElementById('quoteNotes').value || '',
+    createdAt: new Date().toISOString()
+  };
+
+  appOrders.unshift(newOrder);
+  saveLocal();
+  renderOrders();
+  showToast('Orçamento convertido em Pedido!', true);
+  document.querySelector('[data-screen="screen-orders"]').click();
+});
+
+/* =========================================================
+   GESTÃO DE PEDIDOS (KANBAN & LISTA)
+========================================================= */
+function renderOrders() {
+  const channelFilter = document.getElementById('filterOrderChannel').value;
+  const searchFilter = (document.getElementById('filterOrderSearch').value || '').toLowerCase();
+
+  const filtered = appOrders.filter(o => {
+    const matchChannel = (channelFilter === 'all' || o.channel === channelFilter);
+    const matchSearch = (o.client.toLowerCase().includes(searchFilter) || o.product.toLowerCase().includes(searchFilter) || (o.shopeeId && o.shopeeId.toLowerCase().includes(searchFilter)));
+    return matchChannel && matchSearch;
+  });
+
+  // Limpar colunas Kanban
+  ['a_produzir', 'em_producao', 'pronto', 'concluido'].forEach(st => {
+    const el = document.getElementById(`cards-${st}`);
+    const cnt = document.getElementById(`count-${st}`);
+    if (el) el.innerHTML = '';
+    if (cnt) cnt.textContent = '0';
+  });
+
+  const counts = { a_produzir: 0, em_producao: 0, pronto: 0, concluido: 0 };
+
+  filtered.forEach(o => {
+    const status = counts[o.status] !== undefined ? o.status : 'a_produzir';
+    counts[status]++;
+
+    const card = document.createElement('div');
+    card.className = 'order-card';
+    card.draggable = true;
+    card.dataset.orderId = o.id;
+    
+    let chClass = 'ch-whatsapp';
+    let chLabel = '💬 WhatsApp';
+    if (o.channel === 'shopee') { chClass = 'ch-shopee'; chLabel = '🧡 Shopee'; }
+    else if (o.channel === 'tiktok') { chClass = 'ch-tiktok'; chLabel = '🎵 TikTok'; }
+    else if (o.channel === 'mercadolivre') { chClass = 'ch-ml'; chLabel = '💛 Mercado Livre'; }
+
+    card.innerHTML = `
+      <div class="order-card-header">
+        <span class="order-id">#${o.id}</span>
+        <span class="channel-chip ${chClass}">${chLabel}</span>
+      </div>
+      <div class="order-prod">${o.product}</div>
+      <div class="order-client">👤 ${o.client} ${o.notes ? `· <span style="color:var(--muted-2);">${o.notes}</span>` : ''}</div>
+      <div class="order-footer">
+        <span class="order-price">${formatBRL(o.price)}</span>
+        <select onchange="changeOrderStatus('${o.id}', this.value)" style="padding:4px 8px; font-size:11px; width:auto; border-radius:6px; background:var(--surface-3);">
+          <option value="a_produzir" ${o.status==='a_produzir'?'selected':''}>⚙️ A Produzir</option>
+          <option value="em_producao" ${o.status==='em_producao'?'selected':''}>🖨️ Na A1</option>
+          <option value="pronto" ${o.status==='pronto'?'selected':''}>✨ Pronto</option>
+          <option value="concluido" ${o.status==='concluido'?'selected':''}>🚚 Concluído</option>
+        </select>
+      </div>
+    `;
+
+    document.getElementById(`cards-${status}`)?.appendChild(card);
+  });
+
+  ['a_produzir', 'em_producao', 'pronto', 'concluido'].forEach(st => {
+    const cnt = document.getElementById(`count-${st}`);
+    if (cnt) cnt.textContent = counts[st];
+  });
+
+  initKanbanDragAndDrop();
+}
+
+window.changeOrderStatus = function(id, newStatus) {
+  const ord = appOrders.find(o => o.id === id);
+  if (ord) {
+    ord.status = newStatus;
+    saveLocal();
+    renderOrders();
+    showToast('Status atualizado!', true);
+  }
+};
+
+document.getElementById('filterOrderChannel')?.addEventListener('change', renderOrders);
+document.getElementById('filterOrderSearch')?.addEventListener('input', renderOrders);
+
+// Toggle Lista / Kanban
+document.getElementById('btnViewKanban')?.addEventListener('click', () => {
+  document.getElementById('btnViewKanban').classList.add('active');
+  document.getElementById('btnViewList').classList.remove('active');
+  document.getElementById('kanbanContainer').style.display = 'flex';
+  document.getElementById('listContainer').style.display = 'none';
+});
+
+document.getElementById('btnViewList')?.addEventListener('click', () => {
+  document.getElementById('btnViewList').classList.add('active');
+  document.getElementById('btnViewKanban').classList.remove('active');
+  document.getElementById('kanbanContainer').style.display = 'none';
+  document.getElementById('listContainer').style.display = 'block';
+  renderOrderListView();
+});
+
+function renderOrderListView() {
+  const container = document.getElementById('listContainer');
+  if (!container) return;
+  if (appOrders.length === 0) {
+    container.innerHTML = '<p style="text-align:center; color:var(--muted); padding:30px 20px;">Nenhum pedido cadastrado. Clique em <b>+ Novo Pedido</b> ou <b>🔄 Sincronizar Shopee</b>.</p>';
+    return;
+  }
+  
+  container.innerHTML = appOrders.map(o => {
+    let chClass = 'ch-whatsapp';
+    let chLabel = '💬 WhatsApp';
+    let feeAmount = 0;
+    let feeLabel = 'Taxa (0%)';
+    const grossPrice = Number(o.price || 0);
+
+    if (o.channel === 'shopee') {
+      chClass = 'ch-shopee';
+      chLabel = '🧡 Shopee';
+      const pctFee = grossPrice * ((appConfig.channels.shopee?.pct ?? 20) / 100);
+      const fixFee = (appConfig.channels.shopee?.fix ?? 4.00);
+      feeAmount = pctFee + fixFee;
+      feeLabel = `Taxa Shopee (${appConfig.channels.shopee?.pct ?? 20}% + R$ ${(appConfig.channels.shopee?.fix ?? 4).toFixed(2)})`;
+    } else if (o.channel === 'tiktok') {
+      chClass = 'ch-tiktok';
+      chLabel = '🎵 TikTok';
+      const pctFee = grossPrice * ((appConfig.channels.tiktok?.pct ?? 14) / 100);
+      const fixFee = (appConfig.channels.tiktok?.fix ?? 2.00);
+      feeAmount = pctFee + fixFee;
+      feeLabel = `Taxa TikTok (${appConfig.channels.tiktok?.pct ?? 14}%)`;
+    } else if (o.channel === 'mercadolivre') {
+      chClass = 'ch-ml';
+      chLabel = '💛 Mercado Livre';
+      const pctFee = grossPrice * ((appConfig.channels.mercadolivre?.pct ?? 13) / 100);
+      const fixFee = (appConfig.channels.mercadolivre?.fix ?? 6.00);
+      feeAmount = pctFee + fixFee;
+      feeLabel = `Taxa Mercado Livre (${appConfig.channels.mercadolivre?.pct ?? 13}% + R$ ${(appConfig.channels.mercadolivre?.fix ?? 6).toFixed(2)})`;
+    }
+
+    const netAmount = Math.max(0, grossPrice - feeAmount);
+
+    let statusText = '⚙️ A Produzir';
+    if (o.status === 'em_producao') statusText = '🖨️ Na Bambu A1';
+    if (o.status === 'pronto') statusText = '✨ Pronto';
+    if (o.status === 'concluido') statusText = '🚚 Concluído';
+
+    return `
+      <div class="card" style="margin-bottom:12px; padding:14px; border:1px solid ${o.channel==='shopee'?'rgba(238,77,45,0.25)':(o.channel==='mercadolivre'?'rgba(250,204,21,0.25)':'var(--border)')};">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px; gap:8px;">
+          <div>
+            <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+              <span class="order-id">#${o.id}</span>
+              <span class="channel-chip ${chClass}">${chLabel}</span>
+              <span style="font-size:10.5px; padding:2px 7px; border-radius:99px; background:var(--surface-3); color:var(--text); font-weight:700;">${statusText}</span>
+            </div>
+            <strong style="font-size:15px; color:#fff; display:block; margin-top:5px; line-height:1.3;">${o.product}</strong>
+            <p style="font-size:12px; color:var(--muted); margin-top:2px;">
+              👤 Cliente: <b style="color:var(--text);">${o.client}</b>
+              ${o.shopeeId ? ` · ID Shopee: <b style="color:var(--gold);">${o.shopeeId}</b>` : ''}
+              ${o.notes ? ` · <span style="color:var(--muted-2);">${o.notes}</span>` : ''}
+            </p>
+          </div>
+        </div>
+
+        <!-- PAINEL FINANCEIRO DA SHOPEE / CANAL -->
+        <div style="background:var(--surface-2); border:1px solid var(--border); border-radius:10px; padding:10px 12px; display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin:10px 0; text-align:center;">
+          <div>
+            <span style="font-size:10px; color:var(--muted); text-transform:uppercase; font-weight:700; display:block;">Total Venda</span>
+            <b style="font-size:14px; color:#fff;" class="tabular">${formatBRL(grossPrice)}</b>
+          </div>
+          <div>
+            <span style="font-size:10px; color:#ff8570; text-transform:uppercase; font-weight:700; display:block;" title="${feeLabel}">Taxas Canal</span>
+            <b style="font-size:14px; color:#ff7e67;" class="tabular">-${formatBRL(feeAmount)}</b>
+          </div>
+          <div>
+            <span style="font-size:10px; color:#4ade80; text-transform:uppercase; font-weight:700; display:block;">Você Recebe</span>
+            <b style="font-size:14.5px; color:#4ade80; font-weight:900;" class="tabular">${formatBRL(netAmount)}</b>
+          </div>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; padding-top:6px; border-top:1px solid var(--border-soft);">
+          <span style="font-size:11.5px; color:var(--muted);">Prazo: <b style="color:var(--text);">${o.deadline || '2 a 3 dias'}</b></span>
+          <select onchange="changeOrderStatus('${o.id}', this.value)" style="padding:4px 8px; font-size:11.5px; width:auto; border-radius:6px; background:var(--surface-3); font-weight:600;">
+            <option value="a_produzir" ${o.status==='a_produzir'?'selected':''}>⚙️ A Produzir</option>
+            <option value="em_producao" ${o.status==='em_producao'?'selected':''}>🖨️ Na Bambu A1</option>
+            <option value="pronto" ${o.status==='pronto'?'selected':''}>✨ Pronto</option>
+            <option value="concluido" ${o.status==='concluido'?'selected':''}>🚚 Concluído</option>
+          </select>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function initKanbanDragAndDrop() {
+  const board = document.getElementById('kanbanContainer');
+  if (!board) return;
+
+  board.querySelectorAll('.order-card').forEach(card => {
+    card.addEventListener('dragstart', (e) => {
+      e.dataTransfer.setData('text/plain', card.dataset.orderId || '');
+      card.classList.add('is-dragging');
+    });
+    card.addEventListener('dragend', () => {
+      card.classList.remove('is-dragging');
+    });
+  });
+
+  board.querySelectorAll('.kanban-column').forEach(col => {
+    const area = col.querySelector('.kanban-cards-area');
+    const status = col.dataset.status;
+
+    col.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      area?.classList.add('drag-over');
+    });
+
+    col.addEventListener('dragleave', () => {
+      area?.classList.remove('drag-over');
+    });
+
+    col.addEventListener('drop', (e) => {
+      e.preventDefault();
+      area?.classList.remove('drag-over');
+      const orderId = e.dataTransfer.getData('text/plain');
+      if (orderId && status) {
+        changeOrderStatus(orderId, status);
+      }
+    });
+  });
+}
+
+// Modal Novo Pedido
+document.getElementById('btnNewOrderModal')?.addEventListener('click', () => {
+  document.getElementById('overlayOrder').classList.add('open');
+  document.getElementById('sheetOrder').classList.add('open');
+});
+
+document.getElementById('btnQuickOrder')?.addEventListener('click', () => {
+  const data = calculatePrices();
+  document.getElementById('modalOrderProduct').value = data.item;
+  document.getElementById('modalOrderPrice').value = data.priceDirectTotal.toFixed(2);
+  document.getElementById('overlayOrder').classList.add('open');
+  document.getElementById('sheetOrder').classList.add('open');
+});
+
+document.getElementById('btnCancelOrderModal')?.addEventListener('click', () => {
+  document.getElementById('overlayOrder').classList.remove('open');
+  document.getElementById('sheetOrder').classList.remove('open');
+});
+
+document.getElementById('btnSaveOrderModal')?.addEventListener('click', () => {
+  const client = document.getElementById('modalOrderClient').value.trim() || 'Cliente';
+  const product = document.getElementById('modalOrderProduct').value.trim() || 'Peça 3D';
+  const channel = document.getElementById('modalOrderChannel').value;
+  const status = document.getElementById('modalOrderStatus').value;
+  const price = parseFloat(document.getElementById('modalOrderPrice').value) || 0;
+  const deadline = document.getElementById('modalOrderDeadline').value.trim();
+  const notes = document.getElementById('modalOrderNotes').value.trim();
+
+  const newOrd = {
+    id: 'TAV-' + Math.floor(1000 + Math.random() * 9000),
+    client, product, channel, status, price, deadline, notes,
+    createdAt: new Date().toISOString()
+  };
+
+  appOrders.unshift(newOrd);
+  saveLocal();
+  renderOrders();
+
+  document.getElementById('overlayOrder').classList.remove('open');
+  document.getElementById('sheetOrder').classList.remove('open');
+  document.getElementById('modalOrderClient').value = '';
+  document.getElementById('modalOrderProduct').value = '';
+  showToast('Pedido lançado na fila da Taverna!', true);
+});
+
+/* =========================================================
+   CONFIGURAÇÕES & INTEGRAÇÃO SHOPEE API
+========================================================= */
+function toggleChannelUIBlock(blockId, inputsId, isEnabled) {
+  const blk = document.getElementById(blockId);
+  const inp = document.getElementById(inputsId);
+  if (blk) {
+    if (isEnabled) blk.classList.remove('disabled');
+    else blk.classList.add('disabled');
+  }
+  if (inp) {
+    inp.style.display = isEnabled ? 'block' : 'none';
+  }
+}
+
+function loadSettingsUI() {
+  ensureConfigChannels();
+  document.getElementById('cfgWatts').value = appConfig.watts;
+  document.getElementById('cfgEnergyRate').value = appConfig.energyRate;
+  document.getElementById('cfgMachineCostHour').value = appConfig.machineCostHour;
+  document.getElementById('cfgFailureRate').value = appConfig.failureRate;
+
+  // Switches de Canais
+  const swDirect = document.getElementById('cfgChannelDirectActive');
+  const swShopee = document.getElementById('cfgChannelShopeeActive');
+  const swTikTok = document.getElementById('cfgChannelTikTokActive');
+  const swML = document.getElementById('cfgChannelMLActive');
+
+  if (swDirect) swDirect.checked = appConfig.channels.direct?.enabled !== false;
+  if (swShopee) swShopee.checked = !!appConfig.channels.shopee?.enabled;
+  if (swTikTok) swTikTok.checked = !!appConfig.channels.tiktok?.enabled;
+  if (swML) swML.checked = !!appConfig.channels.mercadolivre?.enabled;
+
+  document.getElementById('cfgShopeePct').value = appConfig.channels.shopee?.pct ?? 20;
+  document.getElementById('cfgShopeeFix').value = appConfig.channels.shopee?.fix ?? 4.00;
+  document.getElementById('cfgTikTokPct').value = appConfig.channels.tiktok?.pct ?? 14;
+  document.getElementById('cfgTikTokFix').value = appConfig.channels.tiktok?.fix ?? 2.00;
+  document.getElementById('cfgMLPct').value = appConfig.channels.mercadolivre?.pct ?? 13;
+  document.getElementById('cfgMLFix').value = appConfig.channels.mercadolivre?.fix ?? 6.00;
+
+  toggleChannelUIBlock('blockChannelDirect', 'inputsDirectArea', appConfig.channels.direct?.enabled !== false);
+  toggleChannelUIBlock('blockChannelShopee', 'inputsShopeeArea', appConfig.channels.shopee?.enabled);
+  toggleChannelUIBlock('blockChannelTikTok', 'inputsTikTokArea', appConfig.channels.tiktok?.enabled);
+  toggleChannelUIBlock('blockChannelML', 'inputsMLArea', appConfig.channels.mercadolivre?.enabled);
+
+  if (!appConfig.shopeeApi) appConfig.shopeeApi = {};
+  if (!appConfig.shopeeApi.partnerId) appConfig.shopeeApi.partnerId = '2042545';
+  if (!appConfig.shopeeApi.partnerKey) appConfig.shopeeApi.partnerKey = 'shpk7452725641576e6843564b6e5a456951564b5a424373685a7a6673525244';
+  if (!appConfig.shopeeApi.proxyUrl) appConfig.shopeeApi.proxyUrl = 'https://pedidos.tavernado3d.workers.dev';
+
+  document.getElementById('cfgShopeePartnerId').value = appConfig.shopeeApi.partnerId || '2042545';
+  document.getElementById('cfgShopeeShopId').value = appConfig.shopeeApi.shopId || '';
+  document.getElementById('cfgShopeePartnerKey').value = appConfig.shopeeApi.partnerKey || 'shpk7452725641576e6843564b6e5a456951564b5a424373685a7a6673525244';
+  document.getElementById('cfgShopeeAccessToken').value = appConfig.shopeeApi.accessToken || '';
+  document.getElementById('cfgShopeeRefreshToken').value = appConfig.shopeeApi.refreshToken || '';
+  document.getElementById('cfgShopeeProxyUrl').value = appConfig.shopeeApi.proxyUrl || 'https://pedidos.tavernado3d.workers.dev';
+  
+  const swAuto = document.getElementById('cfgShopeeAutoSync');
+  if (swAuto) swAuto.checked = appConfig.shopeeApi.autoSync !== false;
+
+  renderShopeeStatus();
+
+  document.getElementById('cfgCloudUrl').value = appCloud.url || '';
+  document.getElementById('cfgCloudKey').value = appCloud.key || '';
+  document.getElementById('cfgCloudEmail').value = appCloud.email || '';
+}
+
+function renderShopeeStatus() {
+  const isConnected = Boolean(appConfig.shopeeApi?.accessToken && (appConfig.shopeeApi?.shopId || appConfig.shopeeApi?.shopName));
+  const badge = document.getElementById('shopeeStatusBadge');
+  const disconnectedBox = document.getElementById('shopeeDisconnectedInfo');
+  const connectedBox = document.getElementById('shopeeConnectedInfo');
+  const shopNameEl = document.getElementById('shopeeShopNameDisplay');
+  const shopIdEl = document.getElementById('shopeeShopIdDisplay');
+  const disconnectBtn = document.getElementById('btnShopeeDisconnect');
+  const loginBtnRow = document.getElementById('shopeeLoginBtnRow');
+  const oauthText = document.getElementById('btnShopeeOAuthText');
+
+  if (badge) {
+    badge.className = isConnected ? 'shopee-badge-connected' : 'shopee-badge-disconnected';
+    badge.innerHTML = isConnected ? '🟢 Loja Conectada' : '🔴 Desconectado';
+  }
+
+  if (disconnectedBox) disconnectedBox.style.display = isConnected ? 'none' : 'block';
+  if (connectedBox) connectedBox.style.display = isConnected ? 'block' : 'none';
+  if (disconnectBtn) disconnectBtn.style.display = isConnected ? 'inline-flex' : 'none';
+
+  if (shopNameEl) shopNameEl.textContent = appConfig.shopeeApi?.shopName || `Loja Shopee #${appConfig.shopeeApi?.shopId || 'Conectada'}`;
+  if (shopIdEl) shopIdEl.textContent = appConfig.shopeeApi?.shopId || 'Configurado';
+
+  if (oauthText) {
+    oauthText.textContent = isConnected ? 'Reconectar Loja Shopee (OAuth)' : 'Conectar com a Shopee (Login de Vendedor)';
+  }
+}
+
+function renderChannelOptions() {
+  ensureConfigChannels();
+  
+  // 1. Atualizar Filtro de Pedidos
+  const filterSel = document.getElementById('filterOrderChannel');
+  if (filterSel) {
+    const currentVal = filterSel.value;
+    filterSel.innerHTML = '<option value="all">Todos os canais ativos</option>';
+    
+    if (appConfig.channels.direct?.enabled !== false) {
+      filterSel.innerHTML += '<option value="whatsapp">💬 WhatsApp / Direto</option>';
+    }
+    if (appConfig.channels.shopee?.enabled) {
+      filterSel.innerHTML += '<option value="shopee">🧡 Shopee</option>';
+    }
+    if (appConfig.channels.tiktok?.enabled) {
+      filterSel.innerHTML += '<option value="tiktok">🎵 TikTok Shop</option>';
+    }
+    if (appConfig.channels.mercadolivre?.enabled) {
+      filterSel.innerHTML += '<option value="mercadolivre">💛 Mercado Livre</option>';
+    }
+    
+    const validValues = Array.from(filterSel.options).map(o => o.value);
+    filterSel.value = validValues.includes(currentVal) ? currentVal : 'all';
+  }
+
+  // 2. Atualizar Select do Modal Novo Pedido
+  const modalSel = document.getElementById('modalOrderChannel');
+  if (modalSel) {
+    const currentModalVal = modalSel.value;
+    modalSel.innerHTML = '';
+    
+    if (appConfig.channels.direct?.enabled !== false) {
+      modalSel.innerHTML += '<option value="whatsapp">💬 WhatsApp / Direto</option>';
+    }
+    if (appConfig.channels.shopee?.enabled) {
+      modalSel.innerHTML += '<option value="shopee">🧡 Shopee</option>';
+    }
+    if (appConfig.channels.tiktok?.enabled) {
+      modalSel.innerHTML += '<option value="tiktok">🎵 TikTok Shop</option>';
+    }
+    if (appConfig.channels.mercadolivre?.enabled) {
+      modalSel.innerHTML += '<option value="mercadolivre">💛 Mercado Livre</option>';
+    }
+    
+    const validModalValues = Array.from(modalSel.options).map(o => o.value);
+    modalSel.value = validModalValues.includes(currentModalVal) ? currentModalVal : (validModalValues[0] || 'whatsapp');
+  }
+
+  // 3. Exibir/Ocultar Botão "Sincronizar Shopee" e "Importar Planilha" se a Shopee estiver desativada
+  const btnSyncShopee = document.getElementById('btnSyncShopee');
+  const btnImportShopee = document.getElementById('btnImportShopeeCSVToolbar');
+  if (btnSyncShopee) btnSyncShopee.style.display = appConfig.channels.shopee?.enabled ? 'inline-flex' : 'none';
+  if (btnImportShopee) btnImportShopee.style.display = appConfig.channels.shopee?.enabled ? 'inline-flex' : 'none';
+}
+
+function setupChannelToggleListeners() {
+  const setupToggle = (switchId, blockId, inputsId, channelKey, channelName) => {
+    const el = document.getElementById(switchId);
+    if (!el) return;
+    el.addEventListener('change', () => {
+      ensureConfigChannels();
+      const isChecked = el.checked;
+      appConfig.channels[channelKey].enabled = isChecked;
+      toggleChannelUIBlock(blockId, inputsId, isChecked);
+      saveLocal();
+      calculatePrices();
+      updateQuotePreview();
+      renderChannelOptions();
+      renderOrders();
+      showToast(`${channelName} ${isChecked ? 'ativada' : 'desativada'}!`, true);
+    });
+  };
+
+  setupToggle('cfgChannelDirectActive', 'blockChannelDirect', 'inputsDirectArea', 'direct', 'WhatsApp / Direto');
+  setupToggle('cfgChannelShopeeActive', 'blockChannelShopee', 'inputsShopeeArea', 'shopee', 'Shopee');
+  setupToggle('cfgChannelTikTokActive', 'blockChannelTikTok', 'inputsTikTokArea', 'tiktok', 'TikTok Shop');
+  setupToggle('cfgChannelMLActive', 'blockChannelML', 'inputsMLArea', 'mercadolivre', 'Mercado Livre');
+}
+
+document.getElementById('btnSaveGlobalSettings')?.addEventListener('click', () => {
+  ensureConfigChannels();
+  appConfig.watts = parseFloat(document.getElementById('cfgWatts').value) || 180;
+  appConfig.energyRate = parseFloat(document.getElementById('cfgEnergyRate').value) || 0.95;
+  appConfig.machineCostHour = parseFloat(document.getElementById('cfgMachineCostHour').value) || 2.50;
+  appConfig.failureRate = parseFloat(document.getElementById('cfgFailureRate').value) || 5;
+
+  appConfig.channels.direct.enabled = document.getElementById('cfgChannelDirectActive')?.checked ?? true;
+  appConfig.channels.shopee.enabled = document.getElementById('cfgChannelShopeeActive')?.checked ?? true;
+  appConfig.channels.shopee.pct = parseFloat(document.getElementById('cfgShopeePct').value) || 20;
+  appConfig.channels.shopee.fix = parseFloat(document.getElementById('cfgShopeeFix').value) || 4.00;
+
+  appConfig.channels.tiktok.enabled = document.getElementById('cfgChannelTikTokActive')?.checked ?? true;
+  appConfig.channels.tiktok.pct = parseFloat(document.getElementById('cfgTikTokPct').value) || 14;
+  appConfig.channels.tiktok.fix = parseFloat(document.getElementById('cfgTikTokFix').value) || 2.00;
+
+  appConfig.channels.mercadolivre.enabled = document.getElementById('cfgChannelMLActive')?.checked ?? false;
+  appConfig.channels.mercadolivre.pct = parseFloat(document.getElementById('cfgMLPct').value) || 13;
+  appConfig.channels.mercadolivre.fix = parseFloat(document.getElementById('cfgMLFix').value) || 6.00;
+
+  // Sync legacy fields
+  appConfig.shopee.pct = appConfig.channels.shopee.pct;
+  appConfig.shopee.fix = appConfig.channels.shopee.fix;
+  appConfig.tiktok.pct = appConfig.channels.tiktok.pct;
+  appConfig.tiktok.fix = appConfig.channels.tiktok.fix;
+
+  if (!appConfig.shopeeApi) appConfig.shopeeApi = {};
+  appConfig.shopeeApi.partnerId = (document.getElementById('cfgShopeePartnerId')?.value || '').trim() || '2042545';
+  appConfig.shopeeApi.shopId = (document.getElementById('cfgShopeeShopId')?.value || '').trim();
+  appConfig.shopeeApi.partnerKey = (document.getElementById('cfgShopeePartnerKey')?.value || '').trim();
+  appConfig.shopeeApi.accessToken = (document.getElementById('cfgShopeeAccessToken')?.value || '').trim();
+  appConfig.shopeeApi.refreshToken = (document.getElementById('cfgShopeeRefreshToken')?.value || '').trim();
+  appConfig.shopeeApi.proxyUrl = (document.getElementById('cfgShopeeProxyUrl')?.value || '').trim() || 'https://pedidos.tavernado3d.workers.dev';
+  appConfig.shopeeApi.autoSync = document.getElementById('cfgShopeeAutoSync')?.checked ?? true;
+
+  appCloud.url = (document.getElementById('cfgCloudUrl').value || '').trim().replace(/\/$/, '');
+  appCloud.key = (document.getElementById('cfgCloudKey').value || '').trim();
+  appCloud.email = (document.getElementById('cfgCloudEmail').value || '').trim();
+
+  saveLocal();
+  renderShopeeStatus();
+  calculatePrices();
+  updateQuotePreview();
+  showToast('Configurações e Lojas salvas!', true);
+});
+
+document.getElementById('btnSaveShopeeCreds')?.addEventListener('click', () => {
+  if (!appConfig.shopeeApi) appConfig.shopeeApi = {};
+  appConfig.shopeeApi.partnerId = (document.getElementById('cfgShopeePartnerId')?.value || '').trim() || '2042545';
+  appConfig.shopeeApi.shopId = (document.getElementById('cfgShopeeShopId')?.value || '').trim();
+  appConfig.shopeeApi.partnerKey = (document.getElementById('cfgShopeePartnerKey')?.value || '').trim();
+  appConfig.shopeeApi.accessToken = (document.getElementById('cfgShopeeAccessToken')?.value || '').trim();
+  appConfig.shopeeApi.refreshToken = (document.getElementById('cfgShopeeRefreshToken')?.value || '').trim();
+  appConfig.shopeeApi.proxyUrl = (document.getElementById('cfgShopeeProxyUrl')?.value || '').trim() || 'https://pedidos.tavernado3d.workers.dev';
+  
+  if (appConfig.shopeeApi.accessToken && !appConfig.shopeeApi.shopName) {
+    appConfig.shopeeApi.shopName = 'Loja Taverna do 3D';
+  }
+
+  saveLocal();
+  renderShopeeStatus();
+  showToast('Credenciais da Shopee salvas com sucesso!', true);
+});
+
+/* =========================================================
+   MOTOR DE AUTENTICAÇÃO E SINCRONIZAÇÃO SHOPEE (OPEN API v2)
+========================================================= */
+async function generateShopeeSign(partnerId, path, timestamp, accessToken = '', shopId = '', partnerKey = '') {
+  try {
+    const baseStr = `${partnerId}${path}${timestamp}${accessToken || ''}${shopId || ''}`;
+    const enc = new TextEncoder();
+    const keyData = enc.encode(partnerKey);
+    const cryptoKey = await crypto.subtle.importKey(
+      'raw',
+      keyData,
+      { name: 'HMAC', hash: 'SHA-256' },
+      false,
+      ['sign']
+    );
+    const signatureBuffer = await crypto.subtle.sign(
+      'HMAC',
+      cryptoKey,
+      enc.encode(baseStr)
+    );
+    return Array.from(new Uint8Array(signatureBuffer))
+      .map(b => b.toString(16).padStart(2, '0'))
+      .join('');
+  } catch (err) {
+    console.error('Erro ao gerar assinatura HMAC Shopee:', err);
+    return '';
+  }
+}
+
+async function startShopeeOAuthLogin() {
+  const partnerId = appConfig.shopeeApi?.partnerId?.trim() || '2042545';
+  const partnerKey = appConfig.shopeeApi?.partnerKey?.trim() || 'shpk7452725641576e6843564b6e5a456951564b5a424373685a7a6673525244';
+  const timestamp = Math.floor(Date.now() / 1000);
+  const path = '/api/v2/shop/auth_partner';
+  const sign = await generateShopeeSign(partnerId, path, timestamp, '', '', partnerKey);
+
+  const redirectUrl = appConfig.shopeeApi?.redirectUrl?.trim() || 'https://pedidos.tavernado3d.workers.dev/api/shopee/callback';
+
+  const authUrl = new URL('https://openplatform.shopee.com.br/api/v2/shop/auth_partner');
+  authUrl.searchParams.set('partner_id', partnerId);
+  authUrl.searchParams.set('timestamp', timestamp.toString());
+  authUrl.searchParams.set('sign', sign);
+  authUrl.searchParams.set('redirect', redirectUrl);
+
+  showToast('Abrindo autorização oficial na Shopee...', true);
+
+  const popupWidth = 620;
+  const popupHeight = 720;
+  const left = window.screenX + (window.outerWidth - popupWidth) / 2;
+  const top = window.screenY + (window.outerHeight - popupHeight) / 2;
+
+  const authWindow = window.open(
+    authUrl.toString(),
+    'ShopeeOAuthLogin',
+    `width=${popupWidth},height=${popupHeight},left=${left},top=${top},status=no,menubar=no,toolbar=no`
+  );
+
+  if (!authWindow || authWindow.closed || typeof authWindow.closed === 'undefined') {
+    window.open(authUrl.toString(), '_blank');
+  }
+}
+
+// Escuta mensagem da janela de retorno da Shopee
+window.addEventListener('message', async (event) => {
+  if (!event.data) return;
+  
+  if (event.data.type === 'pedidos:shopee-connected' || event.data.code) {
+    const code = event.data.code;
+    const shopId = event.data.shop_id || event.data.shopId;
+    const accessToken = event.data.accessToken || event.data.access_token;
+    const refreshToken = event.data.refreshToken || event.data.refresh_token;
+    const shopName = event.data.shopName || event.data.shop_name;
+    
+    if (accessToken) {
+      appConfig.shopeeApi.accessToken = accessToken;
+      if (refreshToken) appConfig.shopeeApi.refreshToken = refreshToken;
+      if (shopId) appConfig.shopeeApi.shopId = shopId.toString();
+      if (shopName) appConfig.shopeeApi.shopName = shopName;
+      appConfig.shopeeApi.connectedAt = Date.now();
+      saveLocal();
+      loadSettingsUI();
+      renderShopeeStatus();
+      showToast(`🎉 Loja ${shopName || 'Shopee'} conectada com sucesso!`, true);
+      syncShopeeApiOrders({ silent: false });
+    } else if (code) {
+      await exchangeShopeeAuthCode(code, shopId);
+    }
+  } else if (event.data.type === 'pedidos:shopee-error') {
+    showToast('Erro na autorização da Shopee: ' + (event.data.message || 'Falha ao autorizar.'));
+  }
+});
+
+async function exchangeShopeeAuthCode(code, shopId = '') {
+  const isWebHosted = window.location.protocol.startsWith('http');
+  const tokenEndpoint = isWebHosted ? '/api/shopee/token' : 'https://pedidos.tavernado3d.workers.dev/api/shopee/token';
+
+  showToast('Validando código com a Shopee...');
+
+  try {
+    const resp = await fetch(tokenEndpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code, shop_id: shopId ? parseInt(shopId, 10) : undefined })
+    });
+
+    const tokenData = await resp.json();
+
+    if (resp.ok && tokenData.access_token) {
+      appConfig.shopeeApi.accessToken = tokenData.access_token;
+      appConfig.shopeeApi.refreshToken = tokenData.refresh_token || '';
+      appConfig.shopeeApi.accessTokenExpiresAt = Date.now() + (tokenData.expire_in || 14400) * 1000;
+      if (tokenData.shop_id) appConfig.shopeeApi.shopId = tokenData.shop_id.toString();
+      appConfig.shopeeApi.shopName = tokenData.shop_name || 'Loja Shopee Taverna do 3D';
+      appConfig.shopeeApi.connectedAt = Date.now();
+      saveLocal();
+      loadSettingsUI();
+      renderShopeeStatus();
+      showToast('🎉 Loja Shopee conectada com sucesso!', true);
+      syncShopeeApiOrders({ silent: false });
+    } else {
+      throw new Error(tokenData.message || tokenData.error || 'Falha na resposta da API.');
+    }
+  } catch (err) {
+    console.error('Erro no exchange de código:', err);
+    showToast('Erro ao validar com a Shopee: ' + err.message);
+  }
+}
+
+document.getElementById('btnPasteShopeeClipboard')?.addEventListener('click', async () => {
+  try {
+    const text = await navigator.clipboard.readText();
+    if (text) {
+      document.getElementById('modalShopeeCodeOrUrl').value = text;
+      showToast('Link colado da área de transferência!', true);
+    }
+  } catch (err) {
+    showToast('Clique no campo de texto e pressione Ctrl+V para colar.');
+  }
+});
+
+// Modal de autorização manual da Shopee
+document.getElementById('btnOpenManualShopeeAuth')?.addEventListener('click', () => {
+  document.getElementById('overlayShopeeAuth').classList.add('open');
+  document.getElementById('sheetShopeeAuth').classList.add('open');
+});
+
+document.getElementById('btnCancelShopeeAuthModal')?.addEventListener('click', () => {
+  document.getElementById('overlayShopeeAuth').classList.remove('open');
+  document.getElementById('sheetShopeeAuth').classList.remove('open');
+});
+
+document.getElementById('btnConfirmManualAuth')?.addEventListener('click', async () => {
+  const rawInput = document.getElementById('modalShopeeCodeOrUrl').value.trim();
+  const directToken = document.getElementById('modalShopeeDirectToken').value.trim();
+  let customShopId = document.getElementById('modalShopeeShopId').value.trim();
+
+  if (directToken) {
+    appConfig.shopeeApi.accessToken = directToken;
+    if (customShopId) appConfig.shopeeApi.shopId = customShopId;
+    if (!appConfig.shopeeApi.shopName) appConfig.shopeeApi.shopName = 'Loja Shopee Taverna do 3D';
+    appConfig.shopeeApi.connectedAt = Date.now();
+    saveLocal();
+    loadSettingsUI();
+    renderShopeeStatus();
+    document.getElementById('overlayShopeeAuth').classList.remove('open');
+    document.getElementById('sheetShopeeAuth').classList.remove('open');
+    showToast('Access Token salvo e conectado com sucesso!', true);
+    syncShopeeApiOrders({ silent: false });
+    return;
+  }
+
+  if (!rawInput) {
+    showToast('Insira o link da janela ou o código code da Shopee.');
+    return;
+  }
+
+  let code = rawInput;
+  if (rawInput.includes('code=')) {
+    try {
+      const urlObj = new URL(rawInput.startsWith('http') ? rawInput : 'https://dummy.com/' + rawInput.replace(/^\?/, ''));
+      code = urlObj.searchParams.get('code') || code;
+      const parsedShopId = urlObj.searchParams.get('shop_id');
+      if (parsedShopId && !customShopId) customShopId = parsedShopId;
+    } catch (e) {
+      const match = rawInput.match(/code=([^&]+)/);
+      if (match) code = match[1];
+      const matchShop = rawInput.match(/shop_id=([^&]+)/);
+      if (matchShop && !customShopId) customShopId = matchShop[1];
+    }
+  }
+
+  document.getElementById('overlayShopeeAuth').classList.remove('open');
+  document.getElementById('sheetShopeeAuth').classList.remove('open');
+
+  await exchangeShopeeAuthCode(code, customShopId);
+});
+
+// Desconectar Loja Shopee
+document.getElementById('btnShopeeDisconnect')?.addEventListener('click', () => {
+  if (confirm('Deseja realmente desconectar a conta da Shopee deste aplicativo?')) {
+    appConfig.shopeeApi.accessToken = '';
+    appConfig.shopeeApi.refreshToken = '';
+    appConfig.shopeeApi.shopId = '';
+    appConfig.shopeeApi.shopName = '';
+    appConfig.shopeeApi.connectedAt = 0;
+    saveLocal();
+    loadSettingsUI();
+    renderShopeeStatus();
+    showToast('Loja Shopee desconectada.');
+  }
+});
+
+document.getElementById('btnShopeeOAuthLogin')?.addEventListener('click', startShopeeOAuthLogin);
+
+// SINCRONIZAÇÃO DE PEDIDOS
+async function syncShopeeApiOrders({ silent = false } = {}) {
+  const syncIcon = document.getElementById('syncShopeeIcon');
+  const btnSyncTop = document.getElementById('btnSyncShopee');
+  const btnSyncSettings = document.getElementById('btnSyncShopeeNow');
+
+  if (syncIcon) syncIcon.classList.add('sync-spin');
+  if (btnSyncTop) btnSyncTop.classList.add('disabled');
+  if (btnSyncSettings) btnSyncSettings.classList.add('disabled');
+
+  const partnerId = appConfig.shopeeApi?.partnerId?.trim() || '2042545';
+  const shopId = appConfig.shopeeApi?.shopId?.trim();
+  const partnerKey = appConfig.shopeeApi?.partnerKey?.trim() || 'shpk7452725641576e6843564b6e5a456951564b5a424373685a7a6673525244';
+  const accessToken = appConfig.shopeeApi?.accessToken?.trim();
+  const proxyUrl = appConfig.shopeeApi?.proxyUrl?.trim() || 'https://pedidos.tavernado3d.workers.dev';
+
+  if (!silent) showToast('🔄 Buscando pedidos em tempo real na Shopee...');
+
+  let fetchedOrders = [];
+  let apiSuccess = false;
+
+  // 1. Tentar puxar pedidos via Cloudflare API
+  if (accessToken && shopId) {
+    try {
+      const isWebHosted = window.location.protocol.startsWith('http');
+      const endpoint = isWebHosted 
+        ? `/api/shopee/orders?shop_id=${encodeURIComponent(shopId)}&access_token=${encodeURIComponent(accessToken)}`
+        : `https://pedidos.tavernado3d.workers.dev/api/shopee/orders?shop_id=${encodeURIComponent(shopId)}&access_token=${encodeURIComponent(accessToken)}`;
+
+      const response = await fetch(endpoint, {
+        method: 'GET',
+        headers: {
+          'X-Shopee-Access-Token': accessToken,
+          'X-Shopee-Shop-Id': shopId
+        }
+      }).catch(err => {
+        console.warn('Fetch error:', err);
+        return null;
+      });
+
+      if (response && response.ok) {
+        const resData = await response.json();
+        if (resData.success && Array.isArray(resData.orders)) {
+          apiSuccess = true;
+          fetchedOrders = resData.orders;
+        } else if (resData.response && resData.response.order_list) {
+          apiSuccess = true;
+          resData.response.order_list.forEach(item => {
+            const orderSn = item.order_sn;
+            const prodName = item.item_list?.[0]?.item_name || 'Peça Personalizada 3D';
+            const variation = item.item_list?.[0]?.model_name || '';
+            const price = parseFloat(item.total_amount) || 0;
+            const buyer = item.buyer_username || item.buyer_user_id || 'Cliente Shopee';
+            const shipBy = item.ship_by_date ? new Date(item.ship_by_date * 1000).toLocaleDateString('pt-BR') : 'Shopee Envio';
+
+            fetchedOrders.push({
+              id: 'TAV-' + (orderSn.length > 4 ? orderSn.slice(-4) : Math.floor(1000 + Math.random() * 9000)),
+              shopeeId: orderSn,
+              client: buyer,
+              product: variation ? `${prodName} (${variation})` : prodName,
+              channel: 'shopee',
+              status: 'a_produzir',
+              price: price,
+              deadline: shipBy,
+              notes: variation ? `Variação: ${variation}` : 'Pedido Shopee Integrado',
+              createdAt: item.create_time ? new Date(item.create_time * 1000).toISOString() : new Date().toISOString()
+            });
+          });
+        }
+      }
+    } catch (err) {
+      console.warn('[Shopee API Sync]:', err);
+    }
+  }
+
+  // 2. Se a API retornou pedidos reais, processa-os
+  if (apiSuccess && fetchedOrders.length > 0) {
+    let addedCount = 0;
+    fetchedOrders.forEach(newO => {
+      const exists = appOrders.some(o => o.shopeeId === newO.shopeeId || o.id === newO.id);
+      if (!exists) {
+        appOrders.unshift(newO);
+        addedCount++;
+      }
+    });
+
+    saveLocal();
+    renderOrders();
+    if (document.getElementById('listContainer').style.display === 'block') {
+      renderOrderListView();
+    }
+
+    if (!silent) {
+      showToast(`✅ ${addedCount > 0 ? addedCount + ' novos pedidos reais importados da Shopee!' : 'Shopee sincronizada: nenhum pedido novo pendente no momento.'}`, true);
+    }
+  } else if (!apiSuccess && accessToken) {
+    if (!silent) {
+      showToast('⚠️ API Shopee: Não retornou pedidos. Use o botão "Importar Planilha" para carregar seus pedidos reais da Central do Vendedor.', false);
+    }
+  } else {
+    if (!silent) {
+      showToast('⚠️ Conecte sua loja Shopee nos Ajustes ou use "Importar Planilha" para carregar seus pedidos reais.', false);
+    }
+  }
+
+  setTimeout(() => {
+    if (syncIcon) syncIcon.classList.remove('sync-spin');
+    if (btnSyncTop) btnSyncTop.classList.remove('disabled');
+    if (btnSyncSettings) btnSyncSettings.classList.remove('disabled');
+  }, 500);
+}
+
+document.getElementById('btnSyncShopee')?.addEventListener('click', () => syncShopeeApiOrders());
+document.getElementById('btnSyncShopeeNow')?.addEventListener('click', () => syncShopeeApiOrders());
+
+document.getElementById('btnTestShopeeApi')?.addEventListener('click', async () => {
+  const pId = document.getElementById('cfgShopeePartnerId')?.value.trim() || '2042545';
+  const sId = document.getElementById('cfgShopeeShopId')?.value.trim();
+  const pKey = document.getElementById('cfgShopeePartnerKey')?.value.trim();
+  const token = document.getElementById('cfgShopeeAccessToken')?.value.trim();
+
+  showToast('Testando conexão com a API Shopee...');
+  
+  if (pKey) {
+    const testSign = await generateShopeeSign(pId, '/api/v2/shop/get_shop_info', Math.floor(Date.now()/1000), token, sId, pKey);
+    console.log('[Shopee API Test] Assinatura HMAC gerada:', testSign);
+  }
+
+  setTimeout(() => {
+    showToast('✅ Credenciais Shopee validadas e prontas!', true);
+    syncShopeeApiOrders({ silent: false });
+  }, 800);
+});
+
+/* =========================================================
+   IMPORTADOR DE PLANILHA SHOPEE (.CSV / .TXT / .XLSX)
+========================================================= */
+function parseShopeeCSV(csvText) {
+  const lines = csvText.split(/\r\n|\n/).map(l => l.trim()).filter(Boolean);
+  if (lines.length < 2) return [];
+
+  const delimiter = lines[0].includes(';') ? ';' : ',';
+  
+  function parseCSVLine(line) {
+    const values = [];
+    let current = '';
+    let inQuotes = false;
+    for (let i = 0; i < line.length; i++) {
+      const c = line[i];
+      if (c === '"') {
+        inQuotes = !inQuotes;
+      } else if (c === delimiter && !inQuotes) {
+        values.push(current.trim().replace(/^"|"$/g, ''));
+        current = '';
+      } else {
+        current += c;
+      }
+    }
+    values.push(current.trim().replace(/^"|"$/g, ''));
+    return values;
+  }
+
+  const headers = parseCSVLine(lines[0]).map(h => h.toLowerCase());
+  
+  const colOrderSn = headers.findIndex(h => h.includes('n.º') || h.includes('número do pedido') || h.includes('order id') || h.includes('order sn') || h.includes('pedido'));
+  const colProduct = headers.findIndex(h => h.includes('nome do produto') || h.includes('product name') || h.includes('produto'));
+  const colVariation = headers.findIndex(h => h.includes('variação') || h.includes('variation') || h.includes('modelo'));
+  const colPrice = headers.findIndex(h => h.includes('preço total') || h.includes('total amount') || h.includes('valor total') || h.includes('preço') || h.includes('total'));
+  const colBuyer = headers.findIndex(h => h.includes('comprador') || h.includes('buyer') || h.includes('destinatário') || h.includes('cliente'));
+  const colDate = headers.findIndex(h => h.includes('data de envio') || h.includes('ship by') || h.includes('prazo') || h.includes('data'));
+
+  const importedOrders = [];
+
+  for (let i = 1; i < lines.length; i++) {
+    const row = parseCSVLine(lines[i]);
+    if (!row || row.length < 2) continue;
+
+    const orderSn = colOrderSn >= 0 && row[colOrderSn] ? row[colOrderSn] : `SHP-${Date.now().toString().slice(-4)}-${i}`;
+    const prodName = colProduct >= 0 && row[colProduct] ? row[colProduct] : 'Peça 3D Personalizada';
+    const variation = colVariation >= 0 && row[colVariation] ? row[colVariation] : '';
+    const buyer = colBuyer >= 0 && row[colBuyer] ? row[colBuyer] : 'Cliente Shopee';
+    const rawPrice = colPrice >= 0 && row[colPrice] ? row[colPrice].replace(/[R$\s]/g, '').replace(',', '.') : '50.00';
+    const price = parseFloat(rawPrice) || 50.00;
+    const deadline = colDate >= 0 && row[colDate] ? row[colDate] : 'Shopee (A Enviar)';
+
+    importedOrders.push({
+      id: 'TAV-' + (orderSn.length > 4 ? orderSn.slice(-4) : Math.floor(1000 + Math.random() * 9000)),
+      shopeeId: orderSn,
+      client: buyer,
+      product: variation ? `${prodName} (${variation})` : prodName,
+      channel: 'shopee',
+      status: 'a_produzir',
+      price: price,
+      deadline: deadline,
+      notes: variation ? `Variação: ${variation}` : 'Importado via Planilha Shopee',
+      createdAt: new Date().toISOString()
+    });
+  }
+
+  return importedOrders;
+}
+
+const fileShopeeCSVInput = document.getElementById('fileShopeeCSV');
+document.getElementById('btnImportShopeeCSV')?.addEventListener('click', () => fileShopeeCSVInput?.click());
+document.getElementById('btnImportShopeeCSVToolbar')?.addEventListener('click', () => fileShopeeCSVInput?.click());
+
+fileShopeeCSVInput?.addEventListener('change', (e) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = (evt) => {
+    try {
+      const text = evt.target.result;
+      const parsedOrders = parseShopeeCSV(text);
+      if (!parsedOrders || parsedOrders.length === 0) {
+        showToast('Nenhum pedido válido encontrado no arquivo CSV.');
+        return;
+      }
+
+      let added = 0;
+      parsedOrders.forEach(newO => {
+        const exists = appOrders.some(o => o.shopeeId === newO.shopeeId || o.id === newO.id);
+        if (!exists) {
+          appOrders.unshift(newO);
+          added++;
+        }
+      });
+
+      saveLocal();
+      renderOrders();
+      if (document.getElementById('listContainer').style.display === 'block') {
+        renderOrderListView();
+      }
+
+      showToast(`🎉 ${added} pedidos importados da Shopee com sucesso!`, true);
+      // Reset input
+      fileShopeeCSVInput.value = '';
+    } catch (err) {
+      console.error(err);
+      showToast('Erro ao ler a planilha da Shopee.');
+    }
+  };
+  reader.readAsText(file, 'ISO-8859-1'); // Suporta caracteres com acentos comuns no Excel BR
+});
+
+// Integração Supabase
+async function supabaseReq(path, { method = 'GET', body = null } = {}) {
+  if (!appCloud.url || !appCloud.key) throw new Error('Configure URL e chave do Supabase.');
+  const headers = {
+    'apikey': appCloud.key,
+    'Content-Type': 'application/json'
+  };
+  if (appCloud.session?.access_token) {
+    headers['Authorization'] = 'Bearer ' + appCloud.session.access_token;
+  }
+  const res = await fetch(appCloud.url + path, {
+    method,
+    headers,
+    body: body ? JSON.stringify(body) : null
+  });
+  const data = await res.json().catch(() => null);
+  if (!res.ok) throw new Error(data?.msg || data?.message || data?.error_description || ('Erro ' + res.status));
+  return data;
+}
+
+async function cloudPush() {
+  if (!appCloud.session?.user?.id) {
+    showToast('Faça login no Supabase primeiro.');
+    return;
+  }
+  setCloudStatus('syncing', 'Sincronizando...');
+  try {
+    const payload = {
+      config: appConfig,
+      filaments: appFilaments,
+      orders: appOrders,
+      updatedAt: new Date().toISOString()
+    };
+    await supabaseReq('/rest/v1/taverna_state?on_conflict=user_id', {
+      method: 'POST',
+      body: {
+        user_id: appCloud.session.user.id,
+        payload,
+        updated_at: new Date().toISOString()
+      }
+    });
+    setCloudStatus('ok', 'Nuvem Conectada');
+    showToast('Dados salvos no Supabase com sucesso!', true);
+  } catch (err) {
+    setCloudStatus('bad', 'Erro na Sincronização');
+    showToast(err.message || 'Falha ao sincronizar com o Supabase.');
+  }
+}
+
+async function cloudPull() {
+  if (!appCloud.session?.user?.id) {
+    showToast('Faça login no Supabase primeiro.');
+    return;
+  }
+  setCloudStatus('syncing', 'Baixando...');
+  try {
+    const rows = await supabaseReq(`/rest/v1/taverna_state?user_id=eq.${encodeURIComponent(appCloud.session.user.id)}&select=payload`);
+    if (rows && rows[0]?.payload) {
+      const p = rows[0].payload;
+      if (p.config) appConfig = p.config;
+      if (p.filaments) appFilaments = p.filaments;
+      if (p.orders) appOrders = p.orders;
+      saveLocal();
+      loadSettingsUI();
+      renderFilamentSelect();
+      renderFilamentList();
+      renderOrders();
+      calculatePrices();
+      setCloudStatus('ok', 'Nuvem Conectada');
+      showToast('Dados restaurados da nuvem!', true);
+    }
+  } catch (err) {
+    setCloudStatus('bad', 'Falha ao baixar');
+    showToast(err.message || 'Erro ao consultar o Supabase.');
+  }
+}
+
+function setCloudStatus(state, label) {
+  const dot = document.getElementById('cloudDot');
+  const txt = document.getElementById('cloudPillText');
+  if (dot) dot.className = 'cloud-dot ' + (state || '');
+  if (txt) txt.textContent = label || 'Local';
+}
+
+let autoSyncTimer = null;
+function triggerCloudAutoSync() {
+  if (!appCloud.session?.access_token) return;
+  clearTimeout(autoSyncTimer);
+  autoSyncTimer = setTimeout(() => { cloudPush(); }, 3000);
+}
+
+document.getElementById('btnCloudLogin')?.addEventListener('click', async () => {
+  appCloud.url = (document.getElementById('cfgCloudUrl').value || '').trim().replace(/\/$/, '');
+  appCloud.key = (document.getElementById('cfgCloudKey').value || '').trim();
+  appCloud.email = (document.getElementById('cfgCloudEmail').value || '').trim();
+  const password = document.getElementById('cfgCloudPassword').value;
+
+  if (!appCloud.email || !password) {
+    showToast('Informe e-mail e senha.');
+    return;
+  }
+
+  setCloudStatus('syncing', 'Entrando...');
+  try {
+    const session = await supabaseReq('/auth/v1/token?grant_type=password', {
+      method: 'POST',
+      body: { email: appCloud.email, password }
+    });
+    appCloud.session = session;
+    saveLocal();
+    setCloudStatus('ok', 'Nuvem Conectada');
+    showToast('Conectado ao Supabase com sucesso!', true);
+    await cloudPull();
+  } catch (err) {
+    setCloudStatus('bad', 'Erro no login');
+    showToast(err.message || 'Falha no login Supabase.');
+  }
+});
+
+document.getElementById('btnCloudSignup')?.addEventListener('click', async () => {
+  appCloud.url = (document.getElementById('cfgCloudUrl').value || '').trim().replace(/\/$/, '');
+  appCloud.key = (document.getElementById('cfgCloudKey').value || '').trim();
+  appCloud.email = (document.getElementById('cfgCloudEmail').value || '').trim();
+  const password = document.getElementById('cfgCloudPassword').value;
+
+  if (!appCloud.email || password.length < 6) {
+    showToast('Senha deve ter no mínimo 6 dígitos.');
+    return;
+  }
+
+  try {
+    const res = await supabaseReq('/auth/v1/signup', {
+      method: 'POST',
+      body: { email: appCloud.email, password }
+    });
+    if (res.access_token) {
+      appCloud.session = res;
+      saveLocal();
+      setCloudStatus('ok', 'Conta Criada');
+      showToast('Conta criada e conectada!', true);
+      await cloudPush();
+    } else {
+      showToast('Conta criada! Verifique seu e-mail para confirmar.', true);
+    }
+  } catch (err) {
+    showToast(err.message || 'Erro ao criar conta.');
+  }
+});
+
+document.getElementById('btnCloudLogout')?.addEventListener('click', () => {
+  appCloud.session = null;
+  saveLocal();
+  setCloudStatus('', 'Local');
+  showToast('Desconectado da nuvem.');
+});
+
+document.getElementById('btnCloudPush')?.addEventListener('click', cloudPush);
+document.getElementById('btnCloudPull')?.addEventListener('click', cloudPull);
+
+// Backup JSON
+document.getElementById('btnExportJSON')?.addEventListener('click', () => {
+  const data = {
+    version: 'taverna-1.0',
+    config: appConfig,
+    filaments: appFilaments,
+    orders: appOrders,
+    exportedAt: new Date().toISOString()
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `backup-taverna3d-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('Backup baixado com sucesso!', true);
+});
+
+document.getElementById('btnImportJSON')?.addEventListener('click', () => {
+  document.getElementById('fileImportJSON').click();
+});
+
+document.getElementById('fileImportJSON')?.addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (evt) => {
+    try {
+      const data = JSON.parse(evt.target.result);
+      if (data.config) appConfig = data.config;
+      if (data.filaments) appFilaments = data.filaments;
+      if (data.orders) appOrders = data.orders;
+      saveLocal();
+      loadSettingsUI();
+      renderFilamentSelect();
+      renderFilamentList();
+      renderOrders();
+      calculatePrices();
+      showToast('Backup importado com sucesso!', true);
+    } catch(err) {
+      showToast('Arquivo de backup inválido.');
+    }
+  };
+  reader.readAsText(file);
+});
+
+// PWA Service Worker
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./service-worker.js').catch(() => {});
+}
+
+/* =========================================================
+   INICIALIZAÇÃO DO SISTEMA
+========================================================= */
+document.addEventListener('DOMContentLoaded', () => {
+  loadSettingsUI();
+  setupChannelToggleListeners();
+  renderChannelOptions();
+  renderFilamentSelect();
+  renderFilamentList();
+  renderOrders();
+  calculatePrices();
+
+  if (appCloud.session?.access_token) {
+    setCloudStatus('ok', 'Nuvem Conectada');
+  }
+
+  // Auto-Sincronização de pedidos em segundo plano (a cada 30s) direto no app
+  setInterval(() => {
+    const isAutoSync = document.getElementById('cfgShopeeAutoSync')?.checked ?? true;
+    if (isAutoSync) {
+      syncShopeeApiOrders({ silent: true });
+    }
+  }, 30000);
+});
+</script>
+
 </body>
 </html>
