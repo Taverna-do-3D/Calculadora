@@ -1,3 +1,4 @@
+worker.js
 _worker.js
 .assetsignore
 .git
@@ -5,7 +6,6 @@ _worker.js
 .gemini
 scratch
 node_modules
-functions
 wrangler.toml
 wrangler.jsonc
 package.json
