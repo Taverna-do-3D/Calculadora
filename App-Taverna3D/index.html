@@ -1751,28 +1751,31 @@ select {
   <div class="overlay" id="overlayShopeeAuth"></div>
   <div class="sheet" id="sheetShopeeAuth">
     <div class="sheet-handle"></div>
-    <h2 style="color:#ff8570;">🔑 Conexão Manual da Shopee</h2>
-    <p class="sub">Se você autorizou o app na Shopee e possui o código de retorno (<code style="color:var(--amber-light);">code</code>) ou o Access Token, cole abaixo:</p>
+    <h2 style="color:#ff8570;">🔑 Conectar Loja da Shopee</h2>
+    <p class="sub" style="line-height:1.4; margin-bottom:12px;">Se a janela da Shopee abriu e você viu a mensagem de retorno, basta <b>copiar o link completo da barra de endereço</b> dessa janela e colar aqui:</p>
 
     <div class="field">
-      <label>URL de Redirecionamento da Shopee ou Código (code)</label>
-      <textarea id="modalShopeeCodeOrUrl" placeholder="Ex: https://pedidos.tavernado3d.workers.dev/api/shopee/callback?code=415272...&shop_id=85942109 ou apenas o código 415272..." style="min-height:90px; font-size:12.5px;"></textarea>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+        <label style="margin:0;">URL da Janela ou Código (code)</label>
+        <button type="button" id="btnPasteShopeeClipboard" style="background:transparent; color:var(--amber-light); border:1px solid rgba(245,158,11,0.3); border-radius:6px; font-size:11.5px; font-weight:700; cursor:pointer; padding:3px 8px;">📋 Colar do Teclado</button>
+      </div>
+      <textarea id="modalShopeeCodeOrUrl" placeholder="Cole aqui o link da janela (Ex: https://pedidos.tavernado3d.workers.dev/api/shopee/callback?code=...&shop_id=...)" style="min-height:95px; font-size:12.5px;"></textarea>
     </div>
 
     <div class="row2">
       <div class="field">
-        <label>Shop ID (opcional se estiver na URL)</label>
+        <label>Shop ID (opcional)</label>
         <input type="text" id="modalShopeeShopId" placeholder="Ex: 85942109">
       </div>
       <div class="field">
         <label>Ou Access Token Direto</label>
-        <input type="password" id="modalShopeeDirectToken" placeholder="Cole o token aqui">
+        <input type="password" id="modalShopeeDirectToken" placeholder="Cole o token aqui se tiver">
       </div>
     </div>
 
     <div class="btn-row" style="margin-top:16px;">
       <button class="btn btn-secondary" id="btnCancelShopeeAuthModal">Cancelar</button>
-      <button class="btn btn-primary" id="btnConfirmManualAuth">Validar e Conectar</button>
+      <button class="btn btn-primary" id="btnConfirmManualAuth">Validar e Conectar Loja</button>
     </div>
   </div>
 
@@ -2785,6 +2788,18 @@ async function exchangeShopeeAuthCode(code, shopId = '') {
   }
 }
 
+document.getElementById('btnPasteShopeeClipboard')?.addEventListener('click', async () => {
+  try {
+    const text = await navigator.clipboard.readText();
+    if (text) {
+      document.getElementById('modalShopeeCodeOrUrl').value = text;
+      showToast('Link colado da área de transferência!', true);
+    }
+  } catch (err) {
+    showToast('Clique no campo de texto e pressione Ctrl+V para colar.');
+  }
+});
+
 // Modal de autorização manual da Shopee
 document.getElementById('btnOpenManualShopeeAuth')?.addEventListener('click', () => {
   document.getElementById('overlayShopeeAuth').classList.add('open');
@@ -2817,7 +2832,7 @@ document.getElementById('btnConfirmManualAuth')?.addEventListener('click', async
   }
 
   if (!rawInput) {
-    showToast('Insira a URL de retorno ou o código code da Shopee.');
+    showToast('Insira o link da janela ou o código code da Shopee.');
     return;
   }
 
