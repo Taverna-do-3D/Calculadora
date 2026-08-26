@@ -1,0 +1,29 @@
+{
+  "name": "Taverna do 3D",
+  "short_name": "Taverna 3D",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#120f0d",
+  "theme_color": "#120f0d",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "./assets/taverna-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./assets/taverna-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./assets/taverna-logo.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

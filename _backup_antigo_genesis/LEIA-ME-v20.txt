@@ -1,0 +1,49 @@
+GENESIS 3D — V20 COMPLETE
+
+ALTERAÇÕES
+
+1. Pedidos
+- A visualização em Lista passa a ser o padrão.
+- Kanban continua disponível e pode ser escolhido manualmente.
+
+2. Imagens
+- Criado Genesis ImageManager central.
+- A imagem agora é materializada e persistida antes de salvar.
+- Corrigidos os fluxos:
+  Calculadora → Histórico
+  Calculadora → Orçamento
+  Calculadora → Pedido direto
+  Orçamento → Pedido
+- Registros antigos sem imagem tentam recuperar a foto pelo produto/modelo conhecido.
+
+3. WhatsApp / orçamento
+- Mensagem compacta aplicada automaticamente.
+- Frete maior que zero: "Frete: R$ XX,XX".
+- Frete zero, vazio ou não informado: "Frete Grátis".
+- Removida a frase "Qualquer dúvida, estou à disposição.".
+
+4. Insights
+- Nomes longos recebem reticências.
+- Valores permanecem dentro do card e da tela.
+
+5. Teclado no iPhone
+- O campo focado sobe automaticamente acima do teclado.
+- O scroll continua pertencendo à layer/modal ativa.
+- A interface se reajusta ao abrir e fechar o teclado.
+
+6. Valores em reais
+- Campos financeiros operacionais usam entrada estilo banco:
+  1 = 0,01
+  10 = 0,10
+  100 = 1,00
+  1000 = 10,00
+- Aplicado a preços, frete, valores pagos e dados financeiros da Shopee.
+
+7. Shopee
+- OCR e anexação de prints continuam disponíveis.
+- Adicionado preenchimento manual sem OCR.
+- Prints podem continuar anexados como referência.
+
+8. Compatibilidade
+- Mantidas integrações MakerWorld, Bambu Handy, Thingiverse, Cloud/Supabase,
+  custo progressivo, Liquid Glass, scroll por layers e PWA.

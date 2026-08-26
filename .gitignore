@@ -1,0 +1,15 @@
+# Temporary & scratch files
+scratch/
+.gemini/
+.vscode/
+.idea/
+
+# OS generated files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
+
+# Logs
+*.log
