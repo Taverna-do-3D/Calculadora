@@ -142,21 +142,23 @@ export default {
           return jsonResponse({ success: false, error: data.message || 'Erro ao buscar impressoras.' }, bambuRes.status);
         }
 
-        const rawDevices = data.devices || [];
+        const rawDevices = data.devices || data.data || [];
         const devices = rawDevices.map(d => ({
-          dev_id: d.dev_id || d.devId || d.sn || '',
-          name: d.name || d.dev_name || 'Bambu Lab A1',
-          model: d.dev_model_name || d.dev_product_name || 'A1',
+          dev_id: d.dev_id || d.devId || d.sn || d.device_id || d.deviceId || '',
+          name: d.name || d.dev_name || d.nick_name || 'Bambu Lab A1',
+          model: d.dev_model_name || d.dev_product_name || d.model || 'A1',
           online: Boolean(d.online),
-          access_code: d.dev_access_code || '',
-          nozzle_diameter: d.nozzle_diameter || 0.4,
+          access_code: d.dev_access_code || d.access_code || '',
+          nozzle_diameter: Number(d.nozzle_diameter || 0.4),
           is_printing: d.print_status === 'RUNNING' || d.print_status === 'PRINTING',
           print_status: d.print_status || (d.online ? 'IDLE' : 'OFFLINE'),
+          raw: d,
         }));
 
         return jsonResponse({
           success: true,
           devices,
+          raw: data,
         });
       } catch (err) {
         return jsonResponse({ success: false, error: 'Erro ao comunicar com Bambu Cloud: ' + err.message }, 500);
@@ -174,8 +176,15 @@ export default {
         }
 
         // 3.1 Consulta tarefas ativas, status de vínculo e versão na nuvem Bambu
-        const [taskRes, bindRes, devRes] = await Promise.allSettled([
-          fetch(`https://api.bambulab.com/v1/iot-service/api/user/device/task?dev_id=${dev_id}`, {
+        const [taskRes1, taskRes2, bindRes, devRes] = await Promise.allSettled([
+          fetch(`https://api.bambulab.com/v1/iot-service/api/user/device/task?dev_id=${encodeURIComponent(dev_id)}`, {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'User-Agent': 'BambuStudio/01.09.03.50',
+              'Accept': 'application/json',
+            }
+          }).then(r => r.json()).catch(() => ({})),
+          fetch(`https://api.bambulab.com/v1/iot-service/api/user/device/task?deviceId=${encodeURIComponent(dev_id)}`, {
             headers: {
               'Authorization': `Bearer ${token}`,
               'User-Agent': 'BambuStudio/01.09.03.50',
@@ -189,7 +198,7 @@ export default {
               'Accept': 'application/json',
             }
           }).then(r => r.json()).catch(() => ({})),
-          fetch(`https://api.bambulab.com/v1/iot-service/api/user/device/version?dev_id=${dev_id}`, {
+          fetch(`https://api.bambulab.com/v1/iot-service/api/user/device/version?dev_id=${encodeURIComponent(dev_id)}`, {
             headers: {
               'Authorization': `Bearer ${token}`,
               'User-Agent': 'BambuStudio/01.09.03.50',
@@ -198,24 +207,27 @@ export default {
           }).then(r => r.json()).catch(() => ({}))
         ]);
 
-        const taskData = taskRes.status === 'fulfilled' ? taskRes.value : {};
+        const taskData1 = taskRes1.status === 'fulfilled' ? taskRes1.value : {};
+        const taskData2 = taskRes2.status === 'fulfilled' ? taskRes2.value : {};
         const bindData = bindRes.status === 'fulfilled' ? bindRes.value : {};
         const devData = devRes.status === 'fulfilled' ? devRes.value : {};
 
         // Extrai dispositivo específico da lista vinculada
-        const rawDevices = bindData.devices || [];
-        const thisDevice = rawDevices.find(d => (d.dev_id === dev_id || d.sn === dev_id)) || rawDevices[0] || null;
+        const rawDevices = bindData.devices || bindData.data || [];
+        const thisDevice = rawDevices.find(d => (d.dev_id === dev_id || d.sn === dev_id || d.device_id === dev_id)) || rawDevices[0] || null;
 
         // Extrai dados da tarefa atual
-        const currentTask = taskData.hits?.[0] || taskData.tasks?.[0] || taskData.task || null;
+        const hits = taskData1.hits || taskData1.tasks || taskData2.hits || taskData2.tasks || [];
+        const currentTask = hits[0] || taskData1.task || taskData2.task || null;
 
         return jsonResponse({
           success: true,
           dev_id,
           device: thisDevice,
           task: currentTask,
+          all_tasks: hits,
           version: devData,
-          raw: { taskData, bindData, devData },
+          raw: { taskData1, taskData2, bindData, devData },
         });
       } catch (err) {
         return jsonResponse({ success: false, error: err.message }, 500);

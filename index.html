@@ -3636,23 +3636,26 @@ function updateBambuUI() {
   }
 
   // Câmera / Imagem da Peça
+  const camBox = document.getElementById('bambuCamBox');
   const camImg = document.getElementById('bambuCamImg');
   const camPlaceholder = document.getElementById('bambuCamPlaceholder');
   const camBadge = document.getElementById('bambuCamBadgeLabel');
+  
+  if (camBox && appBambu.connected) {
+    camBox.style.display = 'block';
+  }
+
   if (camImg && camPlaceholder) {
     if (appBambu.camUrl) {
       camImg.style.display = 'block';
       camImg.src = appBambu.camUrl;
       camPlaceholder.style.display = 'none';
       if (camBadge) camBadge.textContent = appBambu.state === 'RUNNING' ? 'IMPRIMINDO' : 'AO VIVO';
-    } else if (appBambu.state === 'RUNNING' || appBambu.state === 'PRINTING') {
-      camImg.style.display = 'block';
-      camPlaceholder.style.display = 'none';
-      if (camBadge) camBadge.textContent = 'IMPRIMINDO';
     } else {
-      camImg.style.display = 'none';
-      camPlaceholder.style.display = 'block';
-      if (camBadge) camBadge.textContent = appBambu.connected ? 'STANDBY' : 'OFFLINE';
+      camImg.style.display = 'block';
+      camImg.src = 'assets/taverna-bg.jpg';
+      camPlaceholder.style.display = 'none';
+      if (camBadge) camBadge.textContent = appBambu.connected ? 'AO VIVO' : 'OFFLINE';
     }
   }
 
@@ -3685,13 +3688,38 @@ async function syncBambuTelemetry(silent = true) {
   if (!appBambu.connected) return;
 
   try {
-    if (appBambu.mode === 'cloud' && appBambu.token && appBambu.devId) {
+    if (appBambu.mode === 'cloud' && appBambu.token) {
+      // Se devId ainda não foi salvo, buscar na lista de dispositivos
+      if (!appBambu.devId) {
+        const dRes = await fetch('/api/bambu/devices', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token: appBambu.token })
+        });
+        const dData = await dRes.json().catch(() => ({}));
+        if (dData.success && dData.devices && dData.devices.length > 0) {
+          const firstDev = dData.devices[0];
+          appBambu.devId = firstDev.dev_id;
+          appBambu.devName = firstDev.name;
+          appBambu.model = firstDev.model;
+          appBambu.online = Boolean(firstDev.online);
+          saveBambuState();
+        }
+      }
+
+      if (!appBambu.devId) {
+        console.warn('Nenhuma impressora encontrada na conta.');
+        return;
+      }
+
       const res = await fetch('/api/bambu/telemetry', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token: appBambu.token, dev_id: appBambu.devId })
       });
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
+      console.log('[Bambu Telemetria Data]', data);
+
       if (data.success) {
         // Dispositivo vinculado
         if (data.device) {
