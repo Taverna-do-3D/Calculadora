@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Taverna 3D">
-<meta name="theme-color" content="#231911">
+<meta name="theme-color" content="#543f2d">
 <link rel="apple-touch-icon" href="assets/taverna-192.png">
 <link rel="icon" type="image/png" href="assets/taverna-192.png">
 <link rel="manifest" href="manifest.json">
@@ -19,12 +19,12 @@
 
 <style>
 :root {
-  --bg: #231911;
-  --bg-subtle: #1c130c;
-  --surface: #312317;
-  --surface-2: #3d2d1f;
-  --surface-3: #4a3727;
-  --surface-glass: rgba(49, 35, 23, 0.96);
+  --bg: #382a1e;
+  --bg-subtle: #2d2117;
+  --surface: #543f2d;
+  --surface-2: #654d38;
+  --surface-3: #755a42;
+  --surface-glass: rgba(84, 63, 45, 0.96);
   
   --amber: #f59e0b;
   --amber-light: #fcd34d;
@@ -33,13 +33,13 @@
   --gold: #e5b25d;
   --gold-light: #fef08a;
   
-  --text: #fdf6e7;
-  --text-dim: #dfcdb4;
-  --muted: #b89f81;
-  --muted-2: #8f775c;
+  --text: #fff8eb;
+  --text-dim: #ebd8bd;
+  --muted: #cbb497;
+  --muted-2: #a48c6f;
   
-  --border: #5c422a;
-  --border-soft: #44301e;
+  --border: #7c5e44;
+  --border-soft: #634a35;
   --border-glow: rgba(245, 158, 11, 0.45);
   
   --green: #10b981;
@@ -73,9 +73,9 @@
 html, body {
   background-color: var(--bg);
   background-image: 
-    radial-gradient(circle at 50% -10%, rgba(245, 158, 11, 0.15) 0%, transparent 60%),
-    radial-gradient(circle at 10% 90%, rgba(180, 83, 9, 0.10) 0%, transparent 45%),
-    linear-gradient(180deg, #2b1f15 0%, #1a120b 100%);
+    radial-gradient(circle at 50% -10%, rgba(245, 158, 11, 0.16) 0%, transparent 60%),
+    radial-gradient(circle at 10% 90%, rgba(180, 83, 9, 0.12) 0%, transparent 45%),
+    linear-gradient(180deg, #443324 0%, #2a1f16 100%);
   color: var(--text);
   font-family: var(--font-ui);
   min-height: 100vh;
@@ -112,9 +112,9 @@ input, select, textarea {
 ========================================================= */
 .topbar {
   padding: calc(14px + env(safe-area-inset-top)) 18px 14px;
-  background: linear-gradient(180deg, rgba(46, 33, 22, 0.98) 0%, rgba(30, 21, 13, 0.98) 100%);
-  border-bottom: 2px solid #6b4d2f;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(254, 215, 120, 0.15);
+  background: linear-gradient(180deg, rgba(84, 63, 45, 0.98) 0%, rgba(60, 44, 30, 0.98) 100%);
+  border-bottom: 2px solid #856344;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(254, 215, 120, 0.2);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   position: sticky;
@@ -176,8 +176,8 @@ input, select, textarea {
   display: inline-flex;
   align-items: center;
   gap: 3px;
-  background: rgba(245, 158, 11, 0.16);
-  border: 1px solid rgba(245, 158, 11, 0.4);
+  background: rgba(245, 158, 11, 0.18);
+  border: 1px solid rgba(245, 158, 11, 0.45);
   padding: 1px 7px;
   border-radius: 99px;
   font-size: 9.5px;
@@ -198,9 +198,9 @@ input, select, textarea {
   gap: 6px;
   padding: 6px 12px;
   border-radius: 99px;
-  background: linear-gradient(180deg, #38291b 0%, #251a10 100%);
-  border: 1px solid #63472d;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 2px 8px rgba(0, 0, 0, 0.35);
+  background: linear-gradient(180deg, #543f2d 0%, #3e2d1f 100%);
+  border: 1px solid #7c5e44;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 2px 8px rgba(0, 0, 0, 0.35);
   font-size: 11px;
   font-weight: 700;
   color: var(--text-dim);
@@ -261,11 +261,11 @@ input, select, textarea {
   width: 100%;
   max-width: 620px;
   z-index: 50;
-  background: linear-gradient(180deg, rgba(46, 33, 22, 0.98) 0%, rgba(26, 18, 11, 0.99) 100%);
+  background: linear-gradient(180deg, rgba(84, 63, 45, 0.98) 0%, rgba(54, 39, 26, 0.99) 100%);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border-top: 1.5px solid #6b4d2f;
-  box-shadow: 0 -4px 25px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(254, 215, 120, 0.15);
+  border-top: 1.5px solid #856344;
+  box-shadow: 0 -4px 25px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(254, 215, 120, 0.18);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -280,7 +280,7 @@ input, select, textarea {
   justify-content: center;
   gap: 2px;
   background: transparent;
-  color: #cfbca4;
+  color: #dfcdb6;
   padding: 5px 1px;
   border-radius: var(--radius-md);
   transition: all 0.15s ease;
@@ -310,7 +310,7 @@ input, select, textarea {
   font-size: 10px;
   font-weight: 700;
   letter-spacing: -0.01em;
-  color: #ddcca8;
+  color: #ebd9be;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -335,16 +335,16 @@ input, select, textarea {
 }
 
 /* =========================================================
-   CARDS, FORMS & BUTTONS (ESTILO PERGAMINHO ENVELHECIDO DE TAVERNA)
+   CARDS, FORMS & BUTTONS (ESTILO #543f2d)
 ========================================================= */
 .card {
-  background: linear-gradient(180deg, #38291b 0%, #2b1f14 100%);
-  border: 1px solid #5c422a;
+  background: linear-gradient(180deg, #543f2d 0%, #463425 100%);
+  border: 1px solid #7c5e44;
   border-radius: var(--radius-lg);
   padding: 16px;
   margin-bottom: 14px;
   position: relative;
-  box-shadow: inset 0 1px 0 rgba(254, 215, 120, 0.1), 0 6px 20px rgba(0, 0, 0, 0.35);
+  box-shadow: inset 0 1px 0 rgba(254, 215, 120, 0.15), 0 6px 20px rgba(0, 0, 0, 0.3);
 }
 
 .card::before {
@@ -363,7 +363,7 @@ input, select, textarea {
   justify-content: space-between;
   margin-bottom: 14px;
   padding-bottom: 8px;
-  border-bottom: 1px solid #4a3421;
+  border-bottom: 1px solid #684e36;
 }
 
 .card-title {
@@ -423,8 +423,8 @@ input, select, textarea {
 
 input[type=number], input[type=text], input[type=tel], input[type=url], input[type=email], input[type=password], input[type=search], input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=button]):not([type=submit]), select, textarea {
   width: 100%;
-  background: #1c140c;
-  border: 1px solid #543c26;
+  background: #2b1e14;
+  border: 1px solid #6b4f35;
   border-radius: var(--radius-sm);
   padding: 12px 14px;
   color: var(--text);
@@ -440,7 +440,7 @@ input[type=number], input[type=text], input[type=tel], input[type=url], input[ty
 input:focus, select:focus, textarea:focus {
   border-color: var(--amber);
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4), 0 0 10px var(--amber-glow);
-  background: #251b11;
+  background: #35261a;
   color: #ffffff;
 }
 
@@ -489,20 +489,20 @@ select {
 }
 
 .btn-secondary {
-  background: linear-gradient(180deg, #433121 0%, #2f2115 100%);
+  background: linear-gradient(180deg, #654d38 0%, #4c3726 100%);
   color: var(--text);
-  border: 1px solid #6b4d2f;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 3px 10px rgba(0, 0, 0, 0.3);
+  border: 1px solid #856344;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 3px 10px rgba(0, 0, 0, 0.25);
 }
 
 .btn-secondary:hover {
-  background: linear-gradient(180deg, #4f3b29 0%, #39281a 100%);
-  border-color: #85613c;
+  background: linear-gradient(180deg, #745840 0%, #57402c 100%);
+  border-color: #9c7551;
 }
 
 .btn-secondary:active {
   transform: scale(0.98);
-  background: #271a10;
+  background: #3e2c1e;
 }
 
 .btn-success {
@@ -517,15 +517,15 @@ select {
 }
 
 .btn-danger {
-  background: rgba(239, 68, 68, 0.15);
-  color: #f87171;
-  border: 1px solid rgba(239, 68, 68, 0.35);
+  background: rgba(239, 68, 68, 0.18);
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.4);
 }
 
 .btn-ghost {
   background: transparent;
   color: var(--muted);
-  border: 1px dashed #6b4d2f;
+  border: 1px dashed #7c5e44;
 }
 
 .btn-sm {
@@ -546,7 +546,7 @@ select {
 
 .hairline {
   height: 1px;
-  background: #4a3421;
+  background: #684e36;
   margin: 14px 0;
 }
 
@@ -571,22 +571,22 @@ select {
   padding: 13px 12px;
   position: relative;
   overflow: hidden;
-  border: 1px solid #6b4d2f;
+  border: 1px solid #7c5e44;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   transition: all 0.2s ease;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 4px 14px rgba(0, 0, 0, 0.35);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 4px 14px rgba(0, 0, 0, 0.3);
 }
 
 .price-card.direct {
-  background: linear-gradient(165deg, rgba(245, 158, 11, 0.2) 0%, rgba(43, 31, 20, 0.95) 100%);
-  border-color: rgba(245, 158, 11, 0.5);
+  background: linear-gradient(165deg, rgba(245, 158, 11, 0.25) 0%, rgba(68, 51, 36, 0.95) 100%);
+  border-color: rgba(245, 158, 11, 0.6);
 }
 
 .price-card.shopee {
-  background: linear-gradient(165deg, rgba(238, 77, 45, 0.18) 0%, rgba(43, 31, 20, 0.95) 100%);
-  border-color: rgba(238, 77, 45, 0.45);
+  background: linear-gradient(165deg, rgba(238, 77, 45, 0.22) 0%, rgba(68, 51, 36, 0.95) 100%);
+  border-color: rgba(238, 77, 45, 0.5);
 }
 
 .price-tag {
@@ -623,12 +623,12 @@ select {
    SWITCHES & CONTROLE DE LOJAS
 ========================================================= */
 .channel-setting-block {
-  background: #2d1f14;
-  border: 1px solid #543c26;
+  background: #463425;
+  border: 1px solid #6e523b;
   border-radius: var(--radius-md);
   padding: 12px;
   margin-bottom: 10px;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
   transition: all 0.2s ease;
 }
 
@@ -686,8 +686,8 @@ select {
   position: absolute;
   cursor: pointer;
   inset: 0;
-  background-color: #1a120b;
-  border: 1px solid #6b4d2f;
+  background-color: #2b1e14;
+  border: 1px solid #7c5e44;
   transition: 0.22s ease;
   border-radius: 24px;
 }
@@ -718,17 +718,17 @@ select {
 .channel-inputs-area {
   margin-top: 10px;
   padding-top: 10px;
-  border-top: 1px solid #44301e;
+  border-top: 1px solid #5c422a;
   animation: fadeIn 0.2s ease;
 }
 
 .cost-summary-card {
-  background: linear-gradient(180deg, #332518 0%, #251a10 100%);
-  border: 1px solid #63472d;
+  background: linear-gradient(180deg, #4c3727 0%, #3a2b1e 100%);
+  border: 1px solid #7c5e44;
   border-radius: var(--radius-md);
   padding: 13px 15px;
   margin-bottom: 14px;
-  box-shadow: inset 0 1px 0 rgba(254, 215, 120, 0.1), 0 4px 14px rgba(0, 0, 0, 0.35);
+  box-shadow: inset 0 1px 0 rgba(254, 215, 120, 0.12), 0 4px 14px rgba(0, 0, 0, 0.3);
 }
 
 .cost-row {
@@ -737,7 +737,7 @@ select {
   padding: 6px 0;
   font-size: 12.5px;
   color: var(--muted);
-  border-bottom: 1px solid #44301e;
+  border-bottom: 1px solid #5c422a;
 }
 
 .cost-row:last-child {
@@ -771,8 +771,8 @@ select {
 
 .view-toggle {
   display: flex;
-  background: #1c140c;
-  border: 1px solid #543c26;
+  background: #2b1e14;
+  border: 1px solid #6b4f35;
   border-radius: var(--radius-sm);
   padding: 2px;
 }
@@ -815,7 +815,7 @@ select {
 }
 
 .kanban-cards-area.drag-over {
-  background: rgba(245, 158, 11, 0.12);
+  background: rgba(245, 158, 11, 0.15);
   border: 1px dashed var(--amber);
   border-radius: var(--radius-md);
 }
@@ -834,20 +834,20 @@ select {
 }
 
 .kanban-board::-webkit-scrollbar-thumb {
-  background: #543c26;
+  background: #6b4f35;
   border-radius: 3px;
 }
 
 .kanban-column {
   min-width: 265px;
   width: 265px;
-  background: linear-gradient(180deg, #2b1f14 0%, #1f150d 100%);
-  border: 1px solid #5a3f28;
+  background: linear-gradient(180deg, #443324 0%, #34261a 100%);
+  border: 1px solid #70533b;
   border-radius: var(--radius-lg);
   padding: 12px;
   flex-shrink: 0;
   scroll-snap-align: start;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 4px 14px rgba(0, 0, 0, 0.35);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 4px 14px rgba(0, 0, 0, 0.3);
 }
 
 .kanban-col-head {
@@ -862,12 +862,12 @@ select {
   text-transform: uppercase;
   letter-spacing: 0.05em;
   padding-bottom: 6px;
-  border-bottom: 1px solid #44301e;
+  border-bottom: 1px solid #5c422a;
 }
 
 .kanban-count {
-  background: #38291b;
-  border: 1px solid #6b4d2f;
+  background: #543f2d;
+  border: 1px solid #7c5e44;
   padding: 2px 7px;
   border-radius: 99px;
   font-size: 10.5px;
@@ -883,14 +883,14 @@ select {
 }
 
 .order-card {
-  background: linear-gradient(180deg, #38291b 0%, #291d12 100%);
-  border: 1px solid #5c422a;
+  background: linear-gradient(180deg, #543f2d 0%, #443223 100%);
+  border: 1px solid #7c5e44;
   border-radius: var(--radius-md);
   padding: 12px;
   cursor: pointer;
   transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
   position: relative;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 3px 10px rgba(0, 0, 0, 0.3);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 3px 10px rgba(0, 0, 0, 0.25);
 }
 
 .order-card:active {
@@ -932,7 +932,7 @@ select {
   justify-content: space-between;
   font-size: 12px;
   padding-top: 6px;
-  border-top: 1px solid #44301e;
+  border-top: 1px solid #5c422a;
 }
 
 .order-price {
@@ -968,10 +968,10 @@ select {
   bottom: 0;
   max-height: 92vh;
   overflow-y: auto;
-  background: linear-gradient(180deg, #332518 0%, #1f160e 100%);
+  background: linear-gradient(180deg, #543f2d 0%, #3a2b1e 100%);
   border-radius: 22px 22px 0 0;
-  border-top: 2px solid #6b4d2f;
-  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.75), inset 0 1px 0 rgba(254, 215, 120, 0.15);
+  border-top: 2px solid #856344;
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.75), inset 0 1px 0 rgba(254, 215, 120, 0.2);
   transform: translateY(100%);
   transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
   z-index: 80;
@@ -987,7 +987,7 @@ select {
 .sheet-handle {
   width: 44px;
   height: 4px;
-  background: #6b4d2f;
+  background: #856344;
   border-radius: 2px;
   margin: 4px auto 14px;
 }
@@ -1015,7 +1015,7 @@ select {
   left: 50%;
   bottom: calc(96px + env(safe-area-inset-bottom));
   transform: translateX(-50%) translateY(20px);
-  background: #332518;
+  background: #463425;
   border: 1px solid var(--border-glow);
   color: var(--text);
   font-weight: 800;
@@ -1045,13 +1045,13 @@ select {
    BAMBU LAB A1 LIVE TELEMETRY & CAMERA WIDGET (FORJA CONECTADA)
 ========================================================= */
 .bambu-card {
-  background: linear-gradient(180deg, #38291b 0%, #291d12 100%);
-  border: 1px solid #63472d;
+  background: linear-gradient(180deg, #543f2d 0%, #443223 100%);
+  border: 1px solid #7c5e44;
   border-radius: var(--radius-lg);
   padding: 16px;
   margin-bottom: 14px;
   position: relative;
-  box-shadow: inset 0 1px 0 rgba(254, 215, 120, 0.12), 0 6px 22px rgba(0, 0, 0, 0.4);
+  box-shadow: inset 0 1px 0 rgba(254, 215, 120, 0.15), 0 6px 22px rgba(0, 0, 0, 0.35);
 }
 
 .bambu-header {
@@ -1060,7 +1060,7 @@ select {
   justify-content: space-between;
   margin-bottom: 12px;
   padding-bottom: 8px;
-  border-bottom: 1px solid #4a3421;
+  border-bottom: 1px solid #684e36;
   flex-wrap: wrap;
   gap: 8px;
 }
@@ -1121,12 +1121,12 @@ select {
 }
 
 .bambu-progress-box {
-  background: #1f160e;
-  border: 1px solid #4e3723;
+  background: #36281c;
+  border: 1px solid #634a35;
   border-radius: var(--radius-md);
   padding: 12px;
   margin-bottom: 12px;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 .bambu-progress-header {
@@ -1155,12 +1155,12 @@ select {
 
 .bambu-bar-track {
   height: 10px;
-  background: #2d1f14;
+  background: #3f2f22;
   border-radius: 999px;
   overflow: hidden;
   position: relative;
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.6);
-  border: 1px solid #5a3e26;
+  border: 1px solid #6b4f35;
   margin-bottom: 8px;
 }
 
@@ -1197,8 +1197,8 @@ select {
 }
 
 .bambu-gauge-card {
-  background: #251a10;
-  border: 1px solid #4e3723;
+  background: #3c2d20;
+  border: 1px solid #634a35;
   border-radius: var(--radius-sm);
   padding: 8px 10px;
   text-align: center;
@@ -1231,8 +1231,8 @@ select {
 
 /* AMS Lite */
 .bambu-ams-box {
-  background: #1f160e;
-  border: 1px solid #4e3723;
+  background: #36281c;
+  border: 1px solid #634a35;
   border-radius: var(--radius-md);
   padding: 10px 12px;
   margin-bottom: 12px;
@@ -1257,8 +1257,8 @@ select {
 }
 
 .bambu-ams-slot {
-  background: #2c1e13;
-  border: 1px solid #543c26;
+  background: #463425;
+  border: 1px solid #6e523b;
   border-radius: var(--radius-sm);
   padding: 6px 4px;
   text-align: center;
@@ -1268,7 +1268,7 @@ select {
 .bambu-ams-slot.active {
   border-color: var(--amber);
   box-shadow: 0 0 8px rgba(245, 158, 11, 0.4);
-  background: #3a281a;
+  background: #543f2d;
 }
 
 .bambu-ams-spool {
@@ -1276,7 +1276,7 @@ select {
   height: 18px;
   border-radius: 50%;
   margin: 0 auto 4px;
-  border: 2px solid #7c5c3e;
+  border: 2px solid #856344;
   box-shadow: 0 2px 5px rgba(0,0,0,0.4);
 }
 
@@ -1291,8 +1291,8 @@ select {
 
 /* Câmera da A1 - Olho da Forja */
 .bambu-camera-box {
-  background: #120c07;
-  border: 1px solid #63472d;
+  background: #1e150d;
+  border: 1px solid #7c5e44;
   border-radius: var(--radius-md);
   overflow: hidden;
   margin-bottom: 12px;
@@ -1302,7 +1302,7 @@ select {
 .bambu-camera-screen {
   width: 100%;
   height: 220px;
-  background: radial-gradient(circle at center, #2e1d10 0%, #0d0905 100%);
+  background: radial-gradient(circle at center, #38291b 0%, #171009 100%);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1344,8 +1344,8 @@ select {
 }
 
 .bambu-cam-btn {
-  background: rgba(30, 21, 13, 0.85);
-  border: 1px solid #63472d;
+  background: rgba(46, 33, 22, 0.85);
+  border: 1px solid #7c5e44;
   color: var(--text);
   font-size: 11px;
   font-weight: 700;
