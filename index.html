@@ -2095,26 +2095,22 @@ if (quotePhoneInput) {
   document.getElementById(id)?.addEventListener('input', updateQuotePreview);
 });
 
-// Envio direto para o WhatsApp do cliente
+// Envio inteligente para o WhatsApp do cliente (compatível 100% com Desktop e Mobile)
 document.getElementById('btnSendWhatsApp')?.addEventListener('click', () => {
   const phoneInput = document.getElementById('quoteClientPhone');
   const rawPhone = (phoneInput?.value || '').replace(/\D/g, '');
   
-  if (!rawPhone) {
-    showToast('⚠️ Digite o WhatsApp do cliente no campo acima para enviar direto!');
-    phoneInput?.focus();
-    return;
-  }
-  
   let phone = '';
-  if (rawPhone.startsWith('55') && (rawPhone.length === 12 || rawPhone.length === 13)) {
-    phone = rawPhone;
-  } else if (rawPhone.length === 10 || rawPhone.length === 11) {
-    phone = '55' + rawPhone;
-  } else {
-    showToast('⚠️ Número incompleto. Digite o DDD + Telefone (ex: 11 99999-9999).');
-    phoneInput?.focus();
-    return;
+  if (rawPhone.length > 0) {
+    if (rawPhone.startsWith('55') && (rawPhone.length === 12 || rawPhone.length === 13)) {
+      phone = rawPhone;
+    } else if (rawPhone.length === 10 || rawPhone.length === 11) {
+      phone = '55' + rawPhone;
+    } else {
+      showToast('⚠️ Número incompleto. Digite o DDD + Telefone (ex: 11 99999-9999).');
+      phoneInput?.focus();
+      return;
+    }
   }
   
   const textMsg = document.getElementById('quotePreviewText')?.value || '';
@@ -2124,10 +2120,22 @@ document.getElementById('btnSendWhatsApp')?.addEventListener('click', () => {
   }
   
   const encodedText = encodeURIComponent(textMsg);
-  // wa.me abre diretamente a conversa com o numero especificado tanto no celular quanto no PC
-  const targetUrl = `https://wa.me/${phone}?text=${encodedText}`;
+  const isMobile = /Android|iPhone|iPad|iPod|Windows Phone/i.test(navigator.userAgent);
   
-  showToast('Abrindo conversa direta com o cliente...', true);
+  let targetUrl = '';
+  if (isMobile) {
+    // No celular, abre o app nativo do WhatsApp direto no contato
+    targetUrl = phone 
+      ? `https://api.whatsapp.com/send?phone=${phone}&text=${encodedText}`
+      : `https://api.whatsapp.com/send?text=${encodedText}`;
+  } else {
+    // No computador / desktop, web.whatsapp.com direto abre a conversa com o cliente SEM quebrar emojis!
+    targetUrl = phone 
+      ? `https://web.whatsapp.com/send/?phone=${phone}&text=${encodedText}`
+      : `https://web.whatsapp.com/send/?text=${encodedText}`;
+  }
+  
+  showToast(phone ? 'Abrindo conversa com o cliente no WhatsApp...' : 'Abrindo WhatsApp para selecionar o contato...', true);
   window.open(targetUrl, '_blank');
 });
 
