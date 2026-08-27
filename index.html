@@ -2113,14 +2113,22 @@ document.getElementById('btnSendWhatsApp')?.addEventListener('click', () => {
   }
   
   const encodedText = encodeURIComponent(textMsg);
+  const isMobile = /Android|iPhone|iPad|iPod|Windows Phone/i.test(navigator.userAgent);
   
-  if (phone) {
-    showToast('Abrindo conversa no WhatsApp...', true);
-    window.open(`https://api.whatsapp.com/send?phone=${phone}&text=${encodedText}`, '_blank');
+  let targetUrl = '';
+  if (isMobile) {
+    targetUrl = phone 
+      ? `https://api.whatsapp.com/send?phone=${phone}&text=${encodedText}`
+      : `https://api.whatsapp.com/send?text=${encodedText}`;
   } else {
-    showToast('Abrindo WhatsApp para selecionar o contato...', true);
-    window.open(`https://api.whatsapp.com/send?text=${encodedText}`, '_blank');
+    // No computador / desktop, web.whatsapp.com direto evita a página intermediária da Meta com bug de UTF-8
+    targetUrl = phone 
+      ? `https://web.whatsapp.com/send?phone=${phone}&text=${encodedText}`
+      : `https://web.whatsapp.com/send?text=${encodedText}`;
   }
+  
+  showToast(phone ? 'Abrindo conversa no WhatsApp...' : 'Abrindo WhatsApp para selecionar o contato...', true);
+  window.open(targetUrl, '_blank');
 });
 
 // Copiar mensagem para a área de transferência
