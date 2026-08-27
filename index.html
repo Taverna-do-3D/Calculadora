@@ -2027,31 +2027,31 @@ function updateQuotePreview() {
     priceLines.push(`💰 *VALOR PROMOCIONAL (PIX / Direto):* ${formatBRL(data.priceDirectTotal)}`);
   }
   if (appConfig.channels.shopee?.enabled) {
-    priceLines.push(`🧡 *Opção Shopee:* ${formatBRL(data.priceShopeeTotal)}`);
+    priceLines.push(`🛒 *Opção Shopee:* ${formatBRL(data.priceShopeeTotal)}`);
   }
   if (appConfig.channels.tiktok?.enabled) {
     priceLines.push(`🎵 *Opção TikTok Shop:* ${formatBRL(data.priceTikTokTotal)}`);
   }
   if (appConfig.channels.mercadolivre?.enabled) {
-    priceLines.push(`💛 *Opção Mercado Livre:* ${formatBRL(data.priceMLTotal)}`);
+    priceLines.push(`⭐ *Opção Mercado Livre:* ${formatBRL(data.priceMLTotal)}`);
   }
 
   const pricesFormatted = priceLines.length > 0 
     ? priceLines.join('\n')
     : `💰 *VALOR PROMOCIONAL:* ${formatBRL(data.priceDirectTotal)}`;
 
-  const clientGreeting = client ? `Olá, *${client}*! Tudo bem? 😊🛡️` : `Olá! Tudo bem? 😊🛡️`;
-  const prodLine = data.item && data.item !== 'Peça 3D' ? `🛠️ *PRODUTO:* ${data.item} (${data.qty}x)\n` : `🛠️ *PRODUTO:* Peça Personalizada (${data.qty}x)\n`;
-  const filLine = data.filament && data.filament !== '—' && data.filament !== 'Nenhum' ? `🧵 *MATERIAL:* ${data.filament} (Alta Resolução na Bambu Lab A1)\n` : `🧵 *MATERIAL:* Impressão 3D na Bambu Lab A1\n`;
+  const clientGreeting = client ? `Olá, *${client}*! Tudo bem? 👋` : `Olá! Tudo bem? 👋`;
+  const prodLine = data.item && data.item !== 'Peça 3D' ? `📦 *PRODUTO:* ${data.item} (${data.qty}x)\n` : `📦 *PRODUTO:* Peça Personalizada (${data.qty}x)\n`;
+  const filLine = data.filament && data.filament !== '—' && data.filament !== 'Nenhum' ? `🎨 *MATERIAL:* ${data.filament} (Alta Resolução Bambu Lab A1)\n` : `🎨 *MATERIAL:* Impressão 3D na Bambu Lab A1\n`;
 
   const msg = `${clientGreeting}\n\n` +
     `Aqui é da *Taverna do 3D*! Segue a proposta para a sua peça personalizada:\n\n` +
     prodLine +
     filLine +
-    (notes ? `📝 *DETALHES:* ${notes}\n` : '') +
+    (notes ? `📌 *DETALHES:* ${notes}\n` : '') +
     `\n` +
     `${pricesFormatted}\n\n` +
-    `⏱️ *Prazo de Fabricação:* ${deadline}\n` +
+    `⏳ *Prazo de Fabricação:* ${deadline}\n` +
     `🚚 *Entrega / Frete:* ${shipping}\n\n` +
     `Podemos colocar na impressora para você? Qualquer dúvida fico à disposição! 🚀`;
 
@@ -2107,7 +2107,7 @@ document.getElementById('btnSendWhatsApp')?.addEventListener('click', () => {
   
   if (phone) {
     showToast('Abrindo conversa no WhatsApp...', true);
-    window.open(`https://wa.me/${phone}?text=${encodedText}`, '_blank');
+    window.open(`https://api.whatsapp.com/send?phone=${phone}&text=${encodedText}`, '_blank');
   } else {
     showToast('Abrindo WhatsApp para selecionar o contato...', true);
     window.open(`https://api.whatsapp.com/send?text=${encodedText}`, '_blank');
