@@ -151,20 +151,36 @@ export default {
           return jsonResponse({ success: false, error: 'Token e ID da impressora são obrigatórios.' }, 400);
         }
 
-        // Consulta info do dispositivo na nuvem
-        const statusRes = await fetch(`https://api.bambulab.com/v1/iot-service/api/user/device/version?dev_id=${dev_id}`, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'User-Agent': 'BambuStudio/01.09.03.50',
-          }
-        });
+        // 3.1 Consulta tarefas ativas na nuvem (nome do arquivo, progresso, etc)
+        const [taskRes, devRes] = await Promise.allSettled([
+          fetch(`https://api.bambulab.com/v1/iot-service/api/user/device/task?dev_id=${dev_id}`, {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'User-Agent': 'BambuStudio/01.09.03.50',
+              'Accept': 'application/json',
+            }
+          }).then(r => r.json()).catch(() => ({})),
+          fetch(`https://api.bambulab.com/v1/iot-service/api/user/device/version?dev_id=${dev_id}`, {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'User-Agent': 'BambuStudio/01.09.03.50',
+              'Accept': 'application/json',
+            }
+          }).then(r => r.json()).catch(() => ({}))
+        ]);
 
-        const statusData = await statusRes.json().catch(() => ({}));
+        const taskData = taskRes.status === 'fulfilled' ? taskRes.value : {};
+        const devData = devRes.status === 'fulfilled' ? devRes.value : {};
+
+        // Extrai dados da tarefa atual
+        const currentTask = taskData.hits?.[0] || taskData.tasks?.[0] || taskData.task || null;
 
         return jsonResponse({
           success: true,
           dev_id,
-          raw: statusData,
+          task: currentTask,
+          version: devData,
+          raw: { taskData, devData },
         });
       } catch (err) {
         return jsonResponse({ success: false, error: err.message }, 500);
