@@ -259,18 +259,21 @@ input, select, textarea {
 
 .bottomnav {
   position: fixed;
-  left: 0;
-  right: 0;
-  z-index: 40;
-  background: rgba(18, 13, 9, 0.96);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border-top: 1px solid #4d3824;
-  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.6);
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 620px;
+  z-index: 50;
+  background: linear-gradient(180deg, rgba(28, 21, 15, 0.98) 0%, rgba(14, 10, 7, 0.99) 100%);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 2px solid #5a4128;
+  box-shadow: 0 -4px 25px rgba(0, 0, 0, 0.8);
   display: flex;
+  align-items: center;
+  justify-content: space-between;
   padding: 6px 4px calc(6px + env(safe-area-inset-bottom));
-  max-width: 680px;
-  margin: 0 auto;
 }
 
 .navbtn {
@@ -286,12 +289,16 @@ input, select, textarea {
   border-radius: var(--radius-md);
   transition: all 0.15s ease;
   min-width: 0;
+  cursor: pointer;
+  border: none;
+  text-align: center;
+  text-decoration: none;
 }
 
 .navbtn svg, .navbtn .nav-icon {
-  width: 19px;
-  height: 19px;
-  font-size: 19px;
+  width: 20px;
+  height: 20px;
+  font-size: 20px;
   line-height: 1;
   display: flex;
   align-items: center;
@@ -300,12 +307,14 @@ input, select, textarea {
 }
 
 .navbtn span.nav-label {
-  font-size: 10px;
+  font-size: 9.5px;
   font-weight: 700;
   letter-spacing: -0.01em;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  max-width: 100%;
+  display: block;
 }
 
 .navbtn.active {
