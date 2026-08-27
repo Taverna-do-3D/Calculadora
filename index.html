@@ -1727,15 +1727,28 @@ function saveLocal() {
   triggerCloudAutoSync();
 }
 
+function escapeHTML(str) {
+  if (str === null || str === undefined) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
 function showToast(msg, isOk = false) {
   const t = document.getElementById('toast');
+  if (!t) return;
   t.textContent = msg;
   t.className = 'toast show ' + (isOk ? 'ok' : '');
   setTimeout(() => { t.className = 'toast'; }, 2400);
 }
 
 function formatBRL(val) {
-  return Number(val || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  const num = Number(val);
+  const safeNum = isNaN(num) || !isFinite(num) ? 0 : num;
+  return safeNum.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 }
 
 /* =========================================================
@@ -1761,30 +1774,30 @@ navButtons.forEach(btn => {
 ========================================================= */
 function calculatePrices() {
   ensureConfigChannels();
-  const hours = parseFloat(document.getElementById('calcHours').value) || 0;
-  const mins = parseFloat(document.getElementById('calcMins').value) || 0;
+  const hours = Math.max(0, parseFloat(document.getElementById('calcHours')?.value) || 0);
+  const mins = Math.max(0, parseFloat(document.getElementById('calcMins')?.value) || 0);
   const totalHours = hours + (mins / 60);
-  const grams = parseFloat(document.getElementById('calcGrams').value) || 0;
-  const marginPct = parseFloat(document.getElementById('calcMargin').value) || 0;
-  const extraCosts = parseFloat(document.getElementById('calcExtraCosts').value) || 0;
-  const qty = parseInt(document.getElementById('calcQty').value) || 1;
+  const grams = Math.max(0, parseFloat(document.getElementById('calcGrams')?.value) || 0);
+  const marginPct = Math.max(0, parseFloat(document.getElementById('calcMargin')?.value) || 0);
+  const extraCosts = Math.max(0, parseFloat(document.getElementById('calcExtraCosts')?.value) || 0);
+  const qty = Math.max(1, parseInt(document.getElementById('calcQty')?.value) || 1);
 
-  const filId = document.getElementById('calcFilamentSelect').value;
+  const filId = document.getElementById('calcFilamentSelect')?.value;
   const fil = appFilaments.find(f => f.id === filId) || appFilaments[0];
 
   // 1. Custo do Filamento
-  const costFilament = (grams / 1000) * (fil ? fil.priceKg : 95.00);
+  const costFilament = (grams / 1000) * (fil ? (Number(fil.priceKg) || 95.00) : 95.00);
 
   // 2. Custo de Energia (Bambu Lab A1)
-  const kwh = (appConfig.watts / 1000) * totalHours;
-  const costEnergy = kwh * appConfig.energyRate;
+  const kwh = ((Number(appConfig.watts) || 180) / 1000) * totalHours;
+  const costEnergy = kwh * (Number(appConfig.energyRate) || 0.95);
 
   // 3. Custo de Máquina (Depreciação)
-  const costMachine = totalHours * appConfig.machineCostHour;
+  const costMachine = totalHours * (Number(appConfig.machineCostHour) || 2.50);
 
   // 4. Operacional e Falhas
   const subtotalBase = costFilament + costEnergy + costMachine + extraCosts;
-  const costOps = subtotalBase * (appConfig.failureRate / 100);
+  const costOps = subtotalBase * ((Number(appConfig.failureRate) || 5) / 100);
 
   // CUSTO TOTAL UNITÁRIO
   const costTotalUnit = subtotalBase + costOps;
@@ -1795,18 +1808,18 @@ function calculatePrices() {
   const priceDirectTotal = priceDirectUnit * qty;
 
   // Preço Shopee (Reverso para cobrir comissão e taxa fixa)
-  const shopeePct = (appConfig.channels.shopee?.pct ?? 20) / 100;
-  const shopeeFix = appConfig.channels.shopee?.fix ?? 4.00;
+  const shopeePct = Math.min(0.99, (appConfig.channels.shopee?.pct ?? 20) / 100);
+  const shopeeFix = Math.max(0, appConfig.channels.shopee?.fix ?? 4.00);
   const priceShopeeTotal = (priceDirectTotal + shopeeFix) / (1 - shopeePct);
 
   // Preço TikTok Shop
-  const tiktokPct = (appConfig.channels.tiktok?.pct ?? 14) / 100;
-  const tiktokFix = appConfig.channels.tiktok?.fix ?? 2.00;
+  const tiktokPct = Math.min(0.99, (appConfig.channels.tiktok?.pct ?? 14) / 100);
+  const tiktokFix = Math.max(0, appConfig.channels.tiktok?.fix ?? 2.00);
   const priceTikTokTotal = (priceDirectTotal + tiktokFix) / (1 - tiktokPct);
 
   // Preço Mercado Livre
-  const mlPct = (appConfig.channels.mercadolivre?.pct ?? 13) / 100;
-  const mlFix = appConfig.channels.mercadolivre?.fix ?? 6.00;
+  const mlPct = Math.min(0.99, (appConfig.channels.mercadolivre?.pct ?? 13) / 100);
+  const mlFix = Math.max(0, appConfig.channels.mercadolivre?.fix ?? 6.00);
   const priceMLTotal = (priceDirectTotal + mlFix) / (1 - mlPct);
 
   // Renderizar na tela
@@ -1888,12 +1901,12 @@ function renderFilamentList() {
   container.innerHTML = appFilaments.map(f => `
     <div style="background:var(--surface-2); border:1px solid var(--border); border-radius:12px; padding:12px; margin-bottom:9px; display:flex; align-items:center; justify-content:space-between;">
       <div>
-        <strong style="font-size:14px; color:#fff; display:block;">${f.name}</strong>
-        <span style="font-size:12px; color:var(--muted);">${f.type} · Cor: ${f.color}</span>
+        <strong style="font-size:14px; color:#fff; display:block;">${escapeHTML(f.name)}</strong>
+        <span style="font-size:12px; color:var(--muted);">${escapeHTML(f.type)} · Cor: ${escapeHTML(f.color)}</span>
       </div>
       <div style="text-align:right;">
         <span style="font-size:14px; font-weight:800; color:var(--amber-light); display:block;">${formatBRL(f.priceKg)}/kg</span>
-        <button onclick="removeFilament('${f.id}')" style="background:transparent; color:var(--red); font-size:11px; font-weight:600; padding:2px 0;">Excluir</button>
+        <button onclick="removeFilament('${escapeHTML(f.id)}')" style="background:transparent; color:var(--red); font-size:11px; font-weight:600; padding:2px 0; cursor:pointer;">Excluir</button>
       </div>
     </div>
   `).join('');
@@ -2041,12 +2054,16 @@ document.getElementById('btnQuoteToOrder')?.addEventListener('click', () => {
    GESTÃO DE PEDIDOS (KANBAN & LISTA)
 ========================================================= */
 function renderOrders() {
-  const channelFilter = document.getElementById('filterOrderChannel').value;
-  const searchFilter = (document.getElementById('filterOrderSearch').value || '').toLowerCase();
+  const channelFilter = document.getElementById('filterOrderChannel')?.value || 'all';
+  const searchFilter = (document.getElementById('filterOrderSearch')?.value || '').toLowerCase().trim();
 
   const filtered = appOrders.filter(o => {
     const matchChannel = (channelFilter === 'all' || o.channel === channelFilter);
-    const matchSearch = (o.client.toLowerCase().includes(searchFilter) || o.product.toLowerCase().includes(searchFilter) || (o.shopeeId && o.shopeeId.toLowerCase().includes(searchFilter)));
+    const clientStr = String(o.client || '').toLowerCase();
+    const prodStr = String(o.product || '').toLowerCase();
+    const idStr = String(o.id || '').toLowerCase();
+    const shopeeStr = String(o.shopeeId || '').toLowerCase();
+    const matchSearch = !searchFilter || clientStr.includes(searchFilter) || prodStr.includes(searchFilter) || idStr.includes(searchFilter) || shopeeStr.includes(searchFilter);
     return matchChannel && matchSearch;
   });
 
@@ -2075,16 +2092,24 @@ function renderOrders() {
     else if (o.channel === 'tiktok') { chClass = 'ch-tiktok'; chLabel = '🎵 TikTok'; }
     else if (o.channel === 'mercadolivre') { chClass = 'ch-ml'; chLabel = '💛 Mercado Livre'; }
 
+    const safeId = escapeHTML(o.id);
+    const safeClient = escapeHTML(o.client || 'Cliente');
+    const safeProduct = escapeHTML(o.product || 'Peça 3D');
+    const safeNotes = o.notes ? escapeHTML(o.notes) : '';
+
     card.innerHTML = `
       <div class="order-card-header">
-        <span class="order-id">#${o.id}</span>
-        <span class="channel-chip ${chClass}">${chLabel}</span>
+        <span class="order-id">#${safeId}</span>
+        <div style="display:flex; align-items:center; gap:4px;">
+          <span class="channel-chip ${chClass}">${chLabel}</span>
+          <button onclick="removeOrder('${safeId}')" title="Excluir pedido" style="background:transparent; border:none; color:var(--muted-2); font-size:12px; cursor:pointer; padding:1px 3px;">✕</button>
+        </div>
       </div>
-      <div class="order-prod">${o.product}</div>
-      <div class="order-client">👤 ${o.client} ${o.notes ? `· <span style="color:var(--muted-2);">${o.notes}</span>` : ''}</div>
+      <div class="order-prod">${safeProduct}</div>
+      <div class="order-client">👤 ${safeClient} ${safeNotes ? `· <span style="color:var(--muted-2);">${safeNotes}</span>` : ''}</div>
       <div class="order-footer">
         <span class="order-price">${formatBRL(o.price)}</span>
-        <select onchange="changeOrderStatus('${o.id}', this.value)" style="padding:4px 8px; font-size:11px; width:auto; border-radius:6px; background:var(--surface-3);">
+        <select onchange="changeOrderStatus('${safeId}', this.value)" style="padding:4px 8px; font-size:11px; width:auto; border-radius:6px; background:var(--surface-3); font-weight:600;">
           <option value="a_produzir" ${o.status==='a_produzir'?'selected':''}>⚙️ A Produzir</option>
           <option value="em_producao" ${o.status==='em_producao'?'selected':''}>🖨️ Na A1</option>
           <option value="pronto" ${o.status==='pronto'?'selected':''}>✨ Pronto</option>
@@ -2110,7 +2135,22 @@ window.changeOrderStatus = function(id, newStatus) {
     ord.status = newStatus;
     saveLocal();
     renderOrders();
+    if (document.getElementById('listContainer')?.style.display === 'block') {
+      renderOrderListView();
+    }
     showToast('Status atualizado!', true);
+  }
+};
+
+window.removeOrder = function(id) {
+  if (confirm('Deseja realmente remover este pedido?')) {
+    appOrders = appOrders.filter(o => o.id !== id);
+    saveLocal();
+    renderOrders();
+    if (document.getElementById('listContainer')?.style.display === 'block') {
+      renderOrderListView();
+    }
+    showToast('Pedido removido com sucesso.', true);
   }
 };
 
@@ -2137,7 +2177,7 @@ function renderOrderListView() {
   const container = document.getElementById('listContainer');
   if (!container) return;
   if (appOrders.length === 0) {
-    container.innerHTML = '<p style="text-align:center; color:var(--muted); padding:30px 20px;">Nenhum pedido cadastrado. Clique em <b>+ Novo Pedido</b> ou <b>🔄 Sincronizar Shopee</b>.</p>';
+    container.innerHTML = '<p style="text-align:center; color:var(--muted); padding:30px 20px;">Nenhum pedido cadastrado. Clique em <b>+ Novo Pedido</b> ou <b>📥 Importar Planilha</b>.</p>';
     return;
   }
   
@@ -2178,22 +2218,30 @@ function renderOrderListView() {
     if (o.status === 'pronto') statusText = '✨ Pronto';
     if (o.status === 'concluido') statusText = '🚚 Concluído';
 
+    const safeId = escapeHTML(o.id);
+    const safeClient = escapeHTML(o.client || 'Cliente');
+    const safeProduct = escapeHTML(o.product || 'Peça 3D');
+    const safeShopeeId = o.shopeeId ? escapeHTML(o.shopeeId) : '';
+    const safeNotes = o.notes ? escapeHTML(o.notes) : '';
+    const safeDeadline = o.deadline ? escapeHTML(o.deadline) : '2 a 3 dias';
+
     return `
       <div class="card" style="margin-bottom:12px; padding:14px; border:1px solid ${o.channel==='shopee'?'rgba(238,77,45,0.25)':(o.channel==='mercadolivre'?'rgba(250,204,21,0.25)':'var(--border)')};">
         <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px; gap:8px;">
           <div>
             <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
-              <span class="order-id">#${o.id}</span>
+              <span class="order-id">#${safeId}</span>
               <span class="channel-chip ${chClass}">${chLabel}</span>
               <span style="font-size:10.5px; padding:2px 7px; border-radius:99px; background:var(--surface-3); color:var(--text); font-weight:700;">${statusText}</span>
             </div>
-            <strong style="font-size:15px; color:#fff; display:block; margin-top:5px; line-height:1.3;">${o.product}</strong>
+            <strong style="font-size:15px; color:#fff; display:block; margin-top:5px; line-height:1.3;">${safeProduct}</strong>
             <p style="font-size:12px; color:var(--muted); margin-top:2px;">
-              👤 Cliente: <b style="color:var(--text);">${o.client}</b>
-              ${o.shopeeId ? ` · ID Shopee: <b style="color:var(--gold);">${o.shopeeId}</b>` : ''}
-              ${o.notes ? ` · <span style="color:var(--muted-2);">${o.notes}</span>` : ''}
+              👤 Cliente: <b style="color:var(--text);">${safeClient}</b>
+              ${safeShopeeId ? ` · Ref: <b style="color:var(--gold);">${safeShopeeId}</b>` : ''}
+              ${safeNotes ? ` · <span style="color:var(--muted-2);">${safeNotes}</span>` : ''}
             </p>
           </div>
+          <button onclick="removeOrder('${safeId}')" style="background:transparent; border:none; color:var(--red); font-size:12px; cursor:pointer; font-weight:700; padding:4px;">Excluir</button>
         </div>
 
         <!-- PAINEL FINANCEIRO DA SHOPEE / CANAL -->
@@ -2213,8 +2261,8 @@ function renderOrderListView() {
         </div>
 
         <div style="display:flex; justify-content:space-between; align-items:center; padding-top:6px; border-top:1px solid var(--border-soft);">
-          <span style="font-size:11.5px; color:var(--muted);">Prazo: <b style="color:var(--text);">${o.deadline || '2 a 3 dias'}</b></span>
-          <select onchange="changeOrderStatus('${o.id}', this.value)" style="padding:4px 8px; font-size:11.5px; width:auto; border-radius:6px; background:var(--surface-3); font-weight:600;">
+          <span style="font-size:11.5px; color:var(--muted);">Prazo: <b style="color:var(--text);">${safeDeadline}</b></span>
+          <select onchange="changeOrderStatus('${safeId}', this.value)" style="padding:4px 8px; font-size:11.5px; width:auto; border-radius:6px; background:var(--surface-3); font-weight:600;">
             <option value="a_produzir" ${o.status==='a_produzir'?'selected':''}>⚙️ A Produzir</option>
             <option value="em_producao" ${o.status==='em_producao'?'selected':''}>🖨️ Na Bambu A1</option>
             <option value="pronto" ${o.status==='pronto'?'selected':''}>✨ Pronto</option>
@@ -2771,15 +2819,25 @@ document.getElementById('btnImportJSON')?.addEventListener('click', () => {
 });
 
 document.getElementById('fileImportJSON')?.addEventListener('change', (e) => {
-  const file = e.target.files[0];
+  const file = e.target.files?.[0];
   if (!file) return;
   const reader = new FileReader();
   reader.onload = (evt) => {
     try {
       const data = JSON.parse(evt.target.result);
-      if (data.config) appConfig = data.config;
-      if (data.filaments) appFilaments = data.filaments;
-      if (data.orders) appOrders = data.orders;
+      if (typeof data !== 'object' || data === null) {
+        throw new Error('Formato JSON inválido.');
+      }
+      if (data.config && typeof data.config === 'object') {
+        appConfig = Object.assign({}, DEFAULT_CONFIG, data.config);
+        if (appConfig.shopeeApi) delete appConfig.shopeeApi;
+      }
+      if (Array.isArray(data.filaments)) {
+        appFilaments = data.filaments.filter(f => f && f.id && f.name);
+      }
+      if (Array.isArray(data.orders)) {
+        appOrders = data.orders.filter(o => o && o.id);
+      }
       saveLocal();
       loadSettingsUI();
       renderFilamentSelect();
@@ -2788,7 +2846,7 @@ document.getElementById('fileImportJSON')?.addEventListener('change', (e) => {
       calculatePrices();
       showToast('Backup importado com sucesso!', true);
     } catch(err) {
-      showToast('Arquivo de backup inválido.');
+      showToast('Arquivo de backup inválido ou corrompido.');
     }
   };
   reader.readAsText(file);
