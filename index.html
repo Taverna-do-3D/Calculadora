@@ -1721,10 +1721,19 @@ const DEFAULT_FILAMENTS = [
   { id: 'fil-3', name: 'PETG Resistente', type: 'PETG', color: 'Cinza Espacial', priceKg: 105.00, stockG: 1000 }
 ];
 
+const DEFAULT_CLOUD = {
+  url: 'https://hfjlgzwagiipyggerlwn.supabase.co',
+  key: 'sb_publishable_g_BIJWWF4r2ABzgy6zby4A_9q0mya2T',
+  email: '',
+  session: null
+};
+
 let appConfig = JSON.parse(localStorage.getItem(DB_KEYS.CONFIG)) || DEFAULT_CONFIG;
 let appFilaments = JSON.parse(localStorage.getItem(DB_KEYS.FILAMENTS)) || DEFAULT_FILAMENTS;
 let appOrders = (JSON.parse(localStorage.getItem(DB_KEYS.ORDERS)) || []).filter(o => !['TAV-9142', 'TAV-9143', 'TAV-9144'].includes(o.id) && !['240825BAMBU01', '240825HEADSET02', '240825DICE03'].includes(o.shopeeId));
-let appCloud = JSON.parse(localStorage.getItem(DB_KEYS.CLOUD)) || { url: '', key: '', email: '', session: null };
+let appCloud = JSON.parse(localStorage.getItem(DB_KEYS.CLOUD)) || DEFAULT_CLOUD;
+if (!appCloud.url) appCloud.url = DEFAULT_CLOUD.url;
+if (!appCloud.key) appCloud.key = DEFAULT_CLOUD.key;
 
 function ensureConfigChannels() {
   if (!appConfig.channels) {
