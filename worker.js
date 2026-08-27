@@ -163,7 +163,7 @@ function speedModeName(level) {
 }
 
 function normalizeBambuTelemetry(report) {
-  const p = report?.print || report?.pushing || report || {};
+  const p = report?.print || {};
   const state = String(p.gcode_state || p.print_status || p.state || '').toUpperCase() || null;
   const remainingMins = nullableNumber(p.mc_remaining_time ?? p.remaining_time ?? p.remain_time);
   const speedPct = nullableNumber(p.spd_mag ?? p.speed_mag ?? p.speed_pct);
@@ -246,10 +246,10 @@ async function fetchBambuMqttReport({ token, devId, userId }) {
         if (!published || published.topic !== reportTopic) continue;
         try {
           const json = JSON.parse(published.payload);
-          if (json?.print || json?.pushing) return json;
+          if (json?.print && typeof json.print === 'object') return json;
         } catch (_) {}
       }
-    })(), 8000, 'A A1 não enviou a telemetria completa a tempo.');
+    })(), 10000, 'A A1 não enviou o bloco print da telemetria a tempo.');
 
     return { report, userId: uid, telemetry: normalizeBambuTelemetry(report) };
   } finally {
@@ -424,7 +424,7 @@ export default {
         return new HTMLRewriter()
           .on('body', {
             element(element) {
-              element.append('<script src="/bambu-telemetry-patch.js?v=3"></script>', { html: true });
+              element.append('<script src="/bambu-telemetry-patch.js?v=4"></script>', { html: true });
             },
           })
           .transform(assetResponse);
