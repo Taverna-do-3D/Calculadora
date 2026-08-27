@@ -1550,7 +1550,7 @@ select {
           <div class="row2">
             <div class="field">
               <label>Shopee Partner ID</label>
-              <input type="text" id="cfgShopeePartnerId" value="2042545">
+              <input type="text" id="cfgShopeePartnerId" value="2042983">
             </div>
             <div class="field">
               <label>Shop ID da Loja</label>
@@ -1560,7 +1560,7 @@ select {
           
           <div class="field">
             <label>Partner Key / Secret (HMAC SHA-256)</label>
-            <input type="password" id="cfgShopeePartnerKey" value="shpk7452725641576e6843564b6e5a456951564b5a424373685a7a6673525244">
+            <input type="password" id="cfgShopeePartnerKey" value="shpk79597677764c5643766e655763466b66436d5152684c516f6d4378666b59">
           </div>
 
           <div class="field">
@@ -1836,10 +1836,10 @@ const DEFAULT_CONFIG = {
   tiktok: { pct: 14, fix: 2.00 },
   mercadolivre: { pct: 13, fix: 6.00 },
   shopeeApi: {
-    partnerId: '2042545',
+    partnerId: '2042983',
     shopId: '',
     shopName: '',
-    partnerKey: 'shpk7452725641576e6843564b6e5a456951564b5a424373685a7a6673525244',
+    partnerKey: 'shpk79597677764c5643766e655763466b66436d5152684c516f6d4378666b59',
     accessToken: '',
     refreshToken: '',
     accessTokenExpiresAt: 0,
@@ -2512,13 +2512,13 @@ function loadSettingsUI() {
   toggleChannelUIBlock('blockChannelML', 'inputsMLArea', appConfig.channels.mercadolivre?.enabled);
 
   if (!appConfig.shopeeApi) appConfig.shopeeApi = {};
-  if (!appConfig.shopeeApi.partnerId) appConfig.shopeeApi.partnerId = '2042545';
-  if (!appConfig.shopeeApi.partnerKey) appConfig.shopeeApi.partnerKey = 'shpk7452725641576e6843564b6e5a456951564b5a424373685a7a6673525244';
+  if (!appConfig.shopeeApi.partnerId) appConfig.shopeeApi.partnerId = '2042983';
+  if (!appConfig.shopeeApi.partnerKey) appConfig.shopeeApi.partnerKey = 'shpk79597677764c5643766e655763466b66436d5152684c516f6d4378666b59';
   if (!appConfig.shopeeApi.proxyUrl) appConfig.shopeeApi.proxyUrl = 'https://pedidos.tavernado3d.workers.dev';
 
-  document.getElementById('cfgShopeePartnerId').value = appConfig.shopeeApi.partnerId || '2042545';
+  document.getElementById('cfgShopeePartnerId').value = appConfig.shopeeApi.partnerId || '2042983';
   document.getElementById('cfgShopeeShopId').value = appConfig.shopeeApi.shopId || '';
-  document.getElementById('cfgShopeePartnerKey').value = appConfig.shopeeApi.partnerKey || 'shpk7452725641576e6843564b6e5a456951564b5a424373685a7a6673525244';
+  document.getElementById('cfgShopeePartnerKey').value = appConfig.shopeeApi.partnerKey || 'shpk79597677764c5643766e655763466b66436d5152684c516f6d4378666b59';
   document.getElementById('cfgShopeeAccessToken').value = appConfig.shopeeApi.accessToken || '';
   document.getElementById('cfgShopeeRefreshToken').value = appConfig.shopeeApi.refreshToken || '';
   document.getElementById('cfgShopeeProxyUrl').value = appConfig.shopeeApi.proxyUrl || 'https://pedidos.tavernado3d.workers.dev';
@@ -2668,7 +2668,7 @@ document.getElementById('btnSaveGlobalSettings')?.addEventListener('click', () =
   appConfig.tiktok.fix = appConfig.channels.tiktok.fix;
 
   if (!appConfig.shopeeApi) appConfig.shopeeApi = {};
-  appConfig.shopeeApi.partnerId = (document.getElementById('cfgShopeePartnerId')?.value || '').trim() || '2042545';
+  appConfig.shopeeApi.partnerId = (document.getElementById('cfgShopeePartnerId')?.value || '').trim() || '2042983';
   appConfig.shopeeApi.shopId = (document.getElementById('cfgShopeeShopId')?.value || '').trim();
   appConfig.shopeeApi.partnerKey = (document.getElementById('cfgShopeePartnerKey')?.value || '').trim();
   appConfig.shopeeApi.accessToken = (document.getElementById('cfgShopeeAccessToken')?.value || '').trim();
@@ -2689,7 +2689,7 @@ document.getElementById('btnSaveGlobalSettings')?.addEventListener('click', () =
 
 document.getElementById('btnSaveShopeeCreds')?.addEventListener('click', () => {
   if (!appConfig.shopeeApi) appConfig.shopeeApi = {};
-  appConfig.shopeeApi.partnerId = (document.getElementById('cfgShopeePartnerId')?.value || '').trim() || '2042545';
+  appConfig.shopeeApi.partnerId = (document.getElementById('cfgShopeePartnerId')?.value || '').trim() || '2042983';
   appConfig.shopeeApi.shopId = (document.getElementById('cfgShopeeShopId')?.value || '').trim();
   appConfig.shopeeApi.partnerKey = (document.getElementById('cfgShopeePartnerKey')?.value || '').trim();
   appConfig.shopeeApi.accessToken = (document.getElementById('cfgShopeeAccessToken')?.value || '').trim();
@@ -2735,8 +2735,8 @@ async function generateShopeeSign(partnerId, path, timestamp, accessToken = '', 
 }
 
 async function startShopeeOAuthLogin() {
-  const partnerId = appConfig.shopeeApi?.partnerId?.trim() || '2042545';
-  const partnerKey = appConfig.shopeeApi?.partnerKey?.trim() || 'shpk7452725641576e6843564b6e5a456951564b5a424373685a7a6673525244';
+  const partnerId = appConfig.shopeeApi?.partnerId?.trim() || '2042983';
+  const partnerKey = appConfig.shopeeApi?.partnerKey?.trim() || 'shpk79597677764c5643766e655763466b66436d5152684c516f6d4378666b59';
   const timestamp = Math.floor(Date.now() / 1000);
   const path = '/api/v2/shop/auth_partner';
   const sign = await generateShopeeSign(partnerId, path, timestamp, '', '', partnerKey);
@@ -2929,9 +2929,9 @@ async function syncShopeeApiOrders({ silent = false } = {}) {
   if (btnSyncTop) btnSyncTop.classList.add('disabled');
   if (btnSyncSettings) btnSyncSettings.classList.add('disabled');
 
-  const partnerId = appConfig.shopeeApi?.partnerId?.trim() || '2042545';
+  const partnerId = appConfig.shopeeApi?.partnerId?.trim() || '2042983';
   const shopId = appConfig.shopeeApi?.shopId?.trim();
-  const partnerKey = appConfig.shopeeApi?.partnerKey?.trim() || 'shpk7452725641576e6843564b6e5a456951564b5a424373685a7a6673525244';
+  const partnerKey = appConfig.shopeeApi?.partnerKey?.trim() || 'shpk79597677764c5643766e655763466b66436d5152684c516f6d4378666b59';
   const accessToken = appConfig.shopeeApi?.accessToken?.trim();
   const proxyUrl = appConfig.shopeeApi?.proxyUrl?.trim() || 'https://pedidos.tavernado3d.workers.dev';
 
@@ -3035,7 +3035,7 @@ document.getElementById('btnSyncShopee')?.addEventListener('click', () => syncSh
 document.getElementById('btnSyncShopeeNow')?.addEventListener('click', () => syncShopeeApiOrders());
 
 document.getElementById('btnTestShopeeApi')?.addEventListener('click', async () => {
-  const pId = document.getElementById('cfgShopeePartnerId')?.value.trim() || '2042545';
+  const pId = document.getElementById('cfgShopeePartnerId')?.value.trim() || '2042983';
   const sId = document.getElementById('cfgShopeeShopId')?.value.trim();
   const pKey = document.getElementById('cfgShopeePartnerKey')?.value.trim();
   const token = document.getElementById('cfgShopeeAccessToken')?.value.trim();

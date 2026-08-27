@@ -13,3 +13,5 @@ $RECYCLE.BIN/
 
 # Logs
 *.log
+.wrangler/
+node_modules/

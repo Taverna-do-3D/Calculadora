@@ -1,5 +1,5 @@
-const DEFAULT_PARTNER_ID = 2042545;
-const DEFAULT_PARTNER_KEY = 'shpk7452725641576e6843564b6e5a456951564b5a424373685a7a6673525244';
+const DEFAULT_PARTNER_ID = 2042983;
+const DEFAULT_PARTNER_KEY = 'shpk79597677764c5643766e655763466b66436d5152684c516f6d4378666b59';
 const SHOPEE_HOST = 'https://openplatform.shopee.com.br';
 const SHOPEE_BACKUP_HOST = 'https://partner.shopeemobile.com';
 
@@ -158,7 +158,7 @@ export default {
     // 1. INICIAR LOGIN SHOPEE (OAUTH)
     if (url.pathname === '/api/shopee/auth') {
       const creds = getCredentials(env);
-      const redirectUrl = env.SHOPEE_REDIRECT_URL || 'https://pedidos.tavernado3d.workers.dev/api/shopee/callback';
+      const redirectUrl = env.SHOPEE_REDIRECT_URL || url.searchParams.get('redirect') || `${url.origin}/api/shopee/callback`;
       const path = '/api/v2/shop/auth_partner';
 
       const authUrl = await buildSignedUrl(path, creds);
