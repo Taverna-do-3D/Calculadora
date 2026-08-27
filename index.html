@@ -261,16 +261,15 @@ input, select, textarea {
   position: fixed;
   left: 0;
   right: 0;
-  bottom: 0;
-  z-index: 50;
-  background: linear-gradient(180deg, rgba(28, 21, 15, 0.97) 0%, rgba(14, 10, 7, 0.99) 100%);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-top: 2px solid #5a4128;
+  z-index: 40;
+  background: rgba(18, 13, 9, 0.96);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-top: 1px solid #4d3824;
   box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.6);
   display: flex;
-  padding: 7px 8px calc(7px + env(safe-area-inset-bottom));
-  max-width: 620px;
+  padding: 6px 4px calc(6px + env(safe-area-inset-bottom));
+  max-width: 680px;
   margin: 0 auto;
 }
 
@@ -280,18 +279,19 @@ input, select, textarea {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 3px;
+  gap: 2px;
   background: transparent;
   color: var(--muted);
-  padding: 6px 2px;
+  padding: 5px 1px;
   border-radius: var(--radius-md);
   transition: all 0.15s ease;
+  min-width: 0;
 }
 
 .navbtn svg, .navbtn .nav-icon {
-  width: 20px;
-  height: 20px;
-  font-size: 20px;
+  width: 19px;
+  height: 19px;
+  font-size: 19px;
   line-height: 1;
   display: flex;
   align-items: center;
@@ -300,9 +300,12 @@ input, select, textarea {
 }
 
 .navbtn span.nav-label {
-  font-size: 10.5px;
+  font-size: 10px;
   font-weight: 700;
-  letter-spacing: 0.02em;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .navbtn.active {
@@ -310,7 +313,7 @@ input, select, textarea {
 }
 
 .navbtn.active svg, .navbtn.active .nav-icon {
-  transform: scale(1.22);
+  transform: scale(1.18);
   filter: drop-shadow(0 0 8px var(--amber-glow));
 }
 
@@ -1361,112 +1364,8 @@ select {
     </div>
   </header>
 
-  <!-- ================= TELA 1: CALCULADORA ================= -->
+  <!-- ================= TELA 1: CALCULADORA (FORJA 3D) ================= -->
   <section class="screen active" id="screen-calc">
-
-    <!-- ================= FORJA CONECTADA (BAMBU LAB A1) ================= -->
-    <div class="bambu-card" id="bambuLiveCard">
-      <div class="bambu-header">
-        <div class="bambu-title">
-          <span>🖨️ Forja Conectada</span>
-          <span class="bambu-status-badge printing" id="bambuStatusBadge">
-            <span class="bambu-pulse-dot"></span>
-            <span id="bambuStatusText">Imprimindo</span>
-          </span>
-        </div>
-        <div style="display:flex; gap:6px;">
-          <button class="btn btn-secondary btn-sm" id="btnToggleBambuCam" type="button" style="padding:5px 10px; font-size:11px;">
-            👁️ Câmera
-          </button>
-          <button class="btn btn-primary btn-sm" id="btnOpenBambuModal" type="button" style="padding:5px 10px; font-size:11px;">
-            ⚙️ Conectar A1
-          </button>
-        </div>
-      </div>
-
-      <!-- CÂMERA AO VIVO (OLHO DA FORJA) -->
-      <div class="bambu-camera-box" id="bambuCamBox" style="display:none;">
-        <div class="bambu-camera-screen" id="bambuCamScreen">
-          <div class="bambu-cam-live-badge">
-            <span class="bambu-pulse-dot" style="background:#fff;"></span> AO VIVO
-          </div>
-          <img id="bambuCamImg" src="assets/taverna-bg.jpg" alt="Câmera Bambu Lab A1">
-          <div class="bambu-cam-actions">
-            <button class="bambu-cam-btn" id="btnRefreshCam" type="button" title="Atualizar Foto">🔄 Atualizar</button>
-            <button class="bambu-cam-btn" id="btnFullCam" type="button" title="Tela Cheia">⛶ Tela Cheia</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- PROGRESSO & ARQUIVO -->
-      <div class="bambu-progress-box">
-        <div class="bambu-progress-header">
-          <div class="bambu-filename" id="bambuFileName" title="Arquivo em impressão">
-            🐉 Dragao_Articulado_v2.3mf
-          </div>
-          <div class="bambu-pct-text" id="bambuPctText">68%</div>
-        </div>
-        <div class="bambu-bar-track">
-          <div class="bambu-bar-fill" id="bambuBarFill" style="width: 68%;"></div>
-        </div>
-        <div class="bambu-time-row">
-          <span id="bambuTimeRemaining">⏱️ Restam: <b>1h 14m</b></span>
-          <span id="bambuLayerText">📐 Camada: <b>184 / 270</b></span>
-          <span id="bambuEtaText">🎯 Término: <b>18:45</b></span>
-        </div>
-      </div>
-
-      <!-- MANÔMETROS TÉRMICOS & VELOCIDADE -->
-      <div class="bambu-gauges-grid">
-        <div class="bambu-gauge-card">
-          <div class="bambu-gauge-label">🔥 Bico (Nozzle)</div>
-          <div class="bambu-gauge-val" id="bambuNozzleTemp" style="color:#ff8570;">220°C</div>
-          <div class="bambu-gauge-sub" id="bambuNozzleTarget">Alvo: 220°C</div>
-        </div>
-        <div class="bambu-gauge-card">
-          <div class="bambu-gauge-label">🛡️ Mesa (Bed)</div>
-          <div class="bambu-gauge-val" id="bambuBedTemp" style="color:#fbbf24;">60°C</div>
-          <div class="bambu-gauge-sub" id="bambuBedTarget">Alvo: 60°C</div>
-        </div>
-        <div class="bambu-gauge-card">
-          <div class="bambu-gauge-label">💨 Ventoinha</div>
-          <div class="bambu-gauge-val" id="bambuFanSpeed" style="color:#60a5fa;">100%</div>
-          <div class="bambu-gauge-sub">Resfriamento</div>
-        </div>
-        <div class="bambu-gauge-card">
-          <div class="bambu-gauge-label">⚡ Velocidade</div>
-          <div class="bambu-gauge-val" id="bambuSpeedMode" style="color:var(--amber-light);">Padrão</div>
-          <div class="bambu-gauge-sub" id="bambuSpeedPct">100% (1.0x)</div>
-        </div>
-      </div>
-
-      <!-- AMS LITE (4 CARRETÉIS DE FILAMENTO) -->
-      <div class="bambu-ams-box">
-        <div class="bambu-ams-title">
-          <span>🎨 AMS Lite — Filamentos Carregados</span>
-          <span style="font-size:10px; color:var(--muted); font-weight:600;" id="bambuAmsActiveSlot">Slot 2 em uso</span>
-        </div>
-        <div class="bambu-ams-slots" id="bambuAmsSlots">
-          <div class="bambu-ams-slot" id="amsSlot0">
-            <div class="bambu-ams-spool" style="background:#111111;"></div>
-            <div class="bambu-ams-slot-name">1: PLA Preto</div>
-          </div>
-          <div class="bambu-ams-slot active" id="amsSlot1">
-            <div class="bambu-ams-spool" style="background:#f59e0b; box-shadow:0 0 8px rgba(245,158,11,0.8);"></div>
-            <div class="bambu-ams-slot-name">2: Silk Ouro</div>
-          </div>
-          <div class="bambu-ams-slot" id="amsSlot2">
-            <div class="bambu-ams-spool" style="background:#ef4444;"></div>
-            <div class="bambu-ams-slot-name">3: PLA Rubro</div>
-          </div>
-          <div class="bambu-ams-slot" id="amsSlot3">
-            <div class="bambu-ams-spool" style="background:#ffffff;"></div>
-            <div class="bambu-ams-slot-name">4: PLA Branco</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <div class="card">
       <div class="card-header">
         <span class="card-title">
@@ -1583,7 +1482,129 @@ select {
     </div>
   </section>
 
-  <!-- ================= TELA 2: PEDIDOS (KANBAN & LISTA) ================= -->
+  <!-- ================= TELA: BAMBU LAB A1 (FORJA CONECTADA) ================= -->
+  <section class="screen" id="screen-bambu">
+
+    <!-- FORJA CONECTADA (BAMBU LAB A1) -->
+    <div class="bambu-card" id="bambuLiveCard">
+      <div class="bambu-header">
+        <div class="bambu-title">
+          <span>🖨️ Forja Conectada (Bambu A1)</span>
+          <span class="bambu-status-badge printing" id="bambuStatusBadge">
+            <span class="bambu-pulse-dot"></span>
+            <span id="bambuStatusText">Imprimindo</span>
+          </span>
+        </div>
+        <div style="display:flex; gap:6px;">
+          <button class="btn btn-secondary btn-sm" id="btnToggleBambuCam" type="button" style="padding:5px 10px; font-size:11px;">
+            👁️ Câmera
+          </button>
+          <button class="btn btn-primary btn-sm" id="btnOpenBambuModal" type="button" style="padding:5px 10px; font-size:11px;">
+            ⚙️ Conectar A1
+          </button>
+        </div>
+      </div>
+
+      <!-- CÂMERA AO VIVO (OLHO DA FORJA) -->
+      <div class="bambu-camera-box" id="bambuCamBox" style="display:none;">
+        <div class="bambu-camera-screen" id="bambuCamScreen">
+          <div class="bambu-cam-live-badge">
+            <span class="bambu-pulse-dot" style="background:#fff;"></span> AO VIVO
+          </div>
+          <img id="bambuCamImg" src="assets/taverna-bg.jpg" alt="Câmera Bambu Lab A1">
+          <div class="bambu-cam-actions">
+            <button class="bambu-cam-btn" id="btnRefreshCam" type="button" title="Atualizar Foto">🔄 Atualizar</button>
+            <button class="bambu-cam-btn" id="btnFullCam" type="button" title="Tela Cheia">⛶ Tela Cheia</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- PROGRESSO & ARQUIVO -->
+      <div class="bambu-progress-box">
+        <div class="bambu-progress-header">
+          <div class="bambu-filename" id="bambuFileName" title="Arquivo em impressão">
+            🐉 Dragao_Articulado_v2.3mf
+          </div>
+          <div class="bambu-pct-text" id="bambuPctText">68%</div>
+        </div>
+        <div class="bambu-bar-track">
+          <div class="bambu-bar-fill" id="bambuBarFill" style="width: 68%;"></div>
+        </div>
+        <div class="bambu-time-row">
+          <span id="bambuTimeRemaining">⏱️ Restam: <b>1h 14m</b></span>
+          <span id="bambuLayerText">📐 Camada: <b>184 / 270</b></span>
+          <span id="bambuEtaText">🎯 Término: <b>18:45</b></span>
+        </div>
+      </div>
+
+      <!-- MANÔMETROS TÉRMICOS & VELOCIDADE -->
+      <div class="bambu-gauges-grid">
+        <div class="bambu-gauge-card">
+          <div class="bambu-gauge-label">🔥 Bico (Nozzle)</div>
+          <div class="bambu-gauge-val" id="bambuNozzleTemp" style="color:#ff8570;">220°C</div>
+          <div class="bambu-gauge-sub" id="bambuNozzleTarget">Alvo: 220°C</div>
+        </div>
+        <div class="bambu-gauge-card">
+          <div class="bambu-gauge-label">🛡️ Mesa (Bed)</div>
+          <div class="bambu-gauge-val" id="bambuBedTemp" style="color:#fbbf24;">60°C</div>
+          <div class="bambu-gauge-sub" id="bambuBedTarget">Alvo: 60°C</div>
+        </div>
+        <div class="bambu-gauge-card">
+          <div class="bambu-gauge-label">💨 Ventoinha</div>
+          <div class="bambu-gauge-val" id="bambuFanSpeed" style="color:#60a5fa;">100%</div>
+          <div class="bambu-gauge-sub">Resfriamento</div>
+        </div>
+        <div class="bambu-gauge-card">
+          <div class="bambu-gauge-label">⚡ Velocidade</div>
+          <div class="bambu-gauge-val" id="bambuSpeedMode" style="color:var(--amber-light);">Padrão</div>
+          <div class="bambu-gauge-sub" id="bambuSpeedPct">100% (1.0x)</div>
+        </div>
+      </div>
+
+      <!-- AMS LITE (4 CARRETÉIS DE FILAMENTO) -->
+      <div class="bambu-ams-box">
+        <div class="bambu-ams-title">
+          <span>🎨 AMS Lite — Filamentos Carregados</span>
+          <span style="font-size:10px; color:var(--muted); font-weight:600;" id="bambuAmsActiveSlot">Slot 2 em uso</span>
+        </div>
+        <div class="bambu-ams-slots" id="bambuAmsSlots">
+          <div class="bambu-ams-slot" id="amsSlot0">
+            <div class="bambu-ams-spool" style="background:#111111;"></div>
+            <div class="bambu-ams-slot-name">1: PLA Preto</div>
+          </div>
+          <div class="bambu-ams-slot active" id="amsSlot1">
+            <div class="bambu-ams-spool" style="background:#f59e0b; box-shadow:0 0 8px rgba(245,158,11,0.8);"></div>
+            <div class="bambu-ams-slot-name">2: Silk Ouro</div>
+          </div>
+          <div class="bambu-ams-slot" id="amsSlot2">
+            <div class="bambu-ams-spool" style="background:#ef4444;"></div>
+            <div class="bambu-ams-slot-name">3: PLA Rubro</div>
+          </div>
+          <div class="bambu-ams-slot" id="amsSlot3">
+            <div class="bambu-ams-spool" style="background:#ffffff;"></div>
+            <div class="bambu-ams-slot-name">4: PLA Branco</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AÇÕES RÁPIDAS DA FORJA -->
+    <div class="card" style="margin-top:14px;">
+      <div class="card-header">
+        <span class="card-title">⚡ Ações Rápidas da Forja</span>
+      </div>
+      <div class="btn-row" style="margin-top:8px;">
+        <button class="btn btn-secondary btn-sm" type="button" onclick="document.querySelector('[data-screen=\'screen-calc\']')?.click();">
+          ⚒️ Novo Cálculo de Custo
+        </button>
+        <button class="btn btn-secondary btn-sm" type="button" onclick="document.querySelector('[data-screen=\'screen-filaments\']')?.click();">
+          💎 Gerenciar Filamentos
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= TELA 3: PEDIDOS (KANBAN & LISTA) ================= -->
   <section class="screen" id="screen-orders">
     <div class="orders-toolbar">
       <div class="view-toggle">
@@ -2049,6 +2070,10 @@ create policy "Users can manage their own state"
       <span class="nav-icon">⚒️</span>
       <span class="nav-label">Forja 3D</span>
     </button>
+    <button class="navbtn" data-screen="screen-bambu">
+      <span class="nav-icon">🖨️</span>
+      <span class="nav-label">Bambu A1</span>
+    </button>
     <button class="navbtn" data-screen="screen-orders">
       <span class="nav-icon">📖</span>
       <span class="nav-label">Pedidos</span>
@@ -2185,6 +2210,9 @@ navButtons.forEach(btn => {
     document.getElementById(targetId)?.classList.add('active');
     if (targetId === 'screen-quotes') {
       updateQuotePreview();
+    }
+    if (targetId === 'screen-bambu') {
+      updateBambuUI();
     }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   });
