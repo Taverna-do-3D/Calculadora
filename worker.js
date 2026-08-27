@@ -173,9 +173,16 @@ export default {
           return jsonResponse({ success: false, error: 'Token e ID da impressora são obrigatórios.' }, 400);
         }
 
-        // 3.1 Consulta tarefas ativas na nuvem (nome do arquivo, progresso, etc)
-        const [taskRes, devRes] = await Promise.allSettled([
+        // 3.1 Consulta tarefas ativas, status de vínculo e versão na nuvem Bambu
+        const [taskRes, bindRes, devRes] = await Promise.allSettled([
           fetch(`https://api.bambulab.com/v1/iot-service/api/user/device/task?dev_id=${dev_id}`, {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'User-Agent': 'BambuStudio/01.09.03.50',
+              'Accept': 'application/json',
+            }
+          }).then(r => r.json()).catch(() => ({})),
+          fetch(`https://api.bambulab.com/v1/iot-service/api/user/bind`, {
             headers: {
               'Authorization': `Bearer ${token}`,
               'User-Agent': 'BambuStudio/01.09.03.50',
@@ -192,7 +199,12 @@ export default {
         ]);
 
         const taskData = taskRes.status === 'fulfilled' ? taskRes.value : {};
+        const bindData = bindRes.status === 'fulfilled' ? bindRes.value : {};
         const devData = devRes.status === 'fulfilled' ? devRes.value : {};
+
+        // Extrai dispositivo específico da lista vinculada
+        const rawDevices = bindData.devices || [];
+        const thisDevice = rawDevices.find(d => (d.dev_id === dev_id || d.sn === dev_id)) || rawDevices[0] || null;
 
         // Extrai dados da tarefa atual
         const currentTask = taskData.hits?.[0] || taskData.tasks?.[0] || taskData.task || null;
@@ -200,9 +212,10 @@ export default {
         return jsonResponse({
           success: true,
           dev_id,
+          device: thisDevice,
           task: currentTask,
           version: devData,
-          raw: { taskData, devData },
+          raw: { taskData, bindData, devData },
         });
       } catch (err) {
         return jsonResponse({ success: false, error: err.message }, 500);

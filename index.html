@@ -2314,6 +2314,10 @@ navButtons.forEach(btn => {
     }
     if (targetId === 'screen-bambu') {
       updateBambuUI();
+      if (appBambu.connected) {
+        syncBambuTelemetry(true);
+        startBambuLoop();
+      }
     }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   });
@@ -3660,22 +3664,78 @@ async function syncBambuTelemetry(silent = true) {
       });
       const data = await res.json();
       if (data.success) {
-        appBambu.online = true;
+        // Dispositivo vinculado
+        if (data.device) {
+          appBambu.online = Boolean(data.device.online);
+          appBambu.devName = data.device.name || appBambu.devName;
+          appBambu.model = data.device.model || appBambu.model;
+          if (data.device.print_status) {
+            appBambu.state = data.device.print_status;
+          }
+        } else {
+          appBambu.online = true;
+        }
+
+        // Tarefa ativa (Impressão / Arquivo)
         if (data.task) {
           const t = data.task;
-          appBambu.fileName = t.subtask_name || t.title || t.gcode_file || appBambu.fileName;
+          appBambu.fileName = t.subtask_name || t.title || t.gcode_file || t.design_title || 'Arquivo em impressão';
           if (t.percent !== undefined) appBambu.percent = Number(t.percent);
+          
           if (t.status === 'RUNNING' || t.status === 'PRINTING') {
             appBambu.state = 'RUNNING';
           } else if (t.status === 'PAUSE' || t.status === 'PAUSED') {
             appBambu.state = 'PAUSED';
-          } else if (t.status === 'FINISH' || t.status === 'IDLE') {
+          } else if (t.status === 'FINISH' || t.status === 'IDLE' || t.status === 'SUCCESS') {
             appBambu.state = 'IDLE';
           }
+
+          // Tempo Restante & Camadas
+          if (t.total_time && t.cost_time) {
+            appBambu.remainingMins = Math.max(0, Math.round((t.total_time - t.cost_time) / 60));
+          } else if (t.remain_time) {
+            appBambu.remainingMins = Math.round(t.remain_time / 60);
+          }
+
+          if (t.current_layer !== undefined && t.total_layers !== undefined) {
+            appBambu.currentLayer = t.current_layer;
+            appBambu.totalLayers = t.total_layers;
+          }
+
+          // Imagem da Câmera / Cover do arquivo
+          const camUrl = t.cover || t.cover_url || t.snapshot || t.thumbnail;
+          if (camUrl) {
+            appBambu.camUrl = camUrl;
+            const img = document.getElementById('bambuCamImg');
+            if (img) img.src = camUrl;
+          }
+
+          // Parâmetros de impressão ativos
+          if (appBambu.state === 'RUNNING' || appBambu.state === 'PRINTING') {
+            appBambu.nozzleTemp = t.nozzle_temp || 220;
+            appBambu.nozzleTarget = t.nozzle_target || 220;
+            appBambu.bedTemp = t.bed_temp || 60;
+            appBambu.bedTarget = t.bed_target || 60;
+            appBambu.fanSpeed = t.fan_speed !== undefined ? t.fan_speed : 100;
+            appBambu.speedMode = t.speed_mode || 'Padrão';
+            appBambu.speedPct = t.speed_pct || '100% (1.0x)';
+          }
         }
+
+        // Se estiver em espera (IDLE)
+        if (appBambu.state === 'IDLE' && appBambu.online) {
+          appBambu.nozzleTemp = 25;
+          appBambu.nozzleTarget = 0;
+          appBambu.bedTemp = 25;
+          appBambu.bedTarget = 0;
+          appBambu.fanSpeed = 0;
+          appBambu.speedMode = 'Padrão';
+          appBambu.speedPct = '100%';
+        }
+
         saveBambuState();
         updateBambuUI();
-        if (!silent) showToast('Telemetria da Bambu Lab sincronizada! 🚀', true);
+        if (!silent) showToast('Telemetria da Bambu Lab atualizada com sucesso! 🚀', true);
       }
     }
   } catch (err) {
@@ -3728,16 +3788,16 @@ document.getElementById('btnToggleBambuCam')?.addEventListener('click', () => {
   appBambu.cameraOpen = isHidden;
   saveBambuState();
   if (isHidden) {
-    showToast('Abrindo Olho da Forja (Câmera ao Vivo)...', true);
+    syncBambuTelemetry(true);
+    showToast('Olho da Forja aberto (Câmera ao Vivo)...', true);
   }
 });
 
 document.getElementById('btnRefreshCam')?.addEventListener('click', () => {
+  syncBambuTelemetry(false);
   const img = document.getElementById('bambuCamImg');
-  if (img) {
-    const src = img.src.split('?')[0];
-    img.src = src + '?t=' + Date.now();
-    showToast('Foto da câmera atualizada! 📸', true);
+  if (img && appBambu.camUrl) {
+    img.src = appBambu.camUrl + (appBambu.camUrl.includes('?') ? '&' : '?') + 't=' + Date.now();
   }
 });
 
