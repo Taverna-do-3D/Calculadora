@@ -1,23 +1,83 @@
+/**
+ * ===================================================================
+ *  TAVERNA DO 3D - SHOPEE OPEN PLATFORM API v2 WORKER
+ *  Cloudflare Worker para Autenticação, Sync de Pedidos e Proxy
+ * ===================================================================
+ */
+
+const SHOPEE_HOST = 'https://openplatform.shopee.com.br';
 const DEFAULT_PARTNER_ID = 2042983;
 const DEFAULT_PARTNER_KEY = 'shpk79597677764c5643766e655763466b66436d5152684c516f6d4378666b59';
-const SHOPEE_HOST = 'https://openplatform.shopee.com.br';
-const SHOPEE_BACKUP_HOST = 'https://partner.shopeemobile.com';
+const DEFAULT_SHOP_ID = '1767798393';
 
-function getCredentials(env = {}) {
-  const partnerId = parseInt(env.SHOPEE_PARTNER_ID || DEFAULT_PARTNER_ID, 10);
-  const partnerKey = (env.SHOPEE_PARTNER_KEY || DEFAULT_PARTNER_KEY).trim();
-  const shopId = (env.SHOPEE_SHOP_ID || '1767798393').trim();
-  const accessToken = (env.SHOPEE_ACCESS_TOKEN || 'shpk79597677764c5643766e655763466b66436d5152684c516f6d4378666b59').trim();
-  const proxyOrigin = (env.SHOPEE_PROXY_ORIGIN || '').trim();
-  const proxySecret = (env.SHOPEE_PROXY_SECRET || '').trim();
-  return { partnerId, partnerKey, shopId, accessToken, proxyOrigin, proxySecret };
+/**
+ * Resposta JSON padronizada com cabeçalhos CORS
+ */
+function jsonResponse(data, status = 200, extraHeaders = {}) {
+  return new Response(JSON.stringify(data, null, 2), {
+    status,
+    headers: {
+      'Content-Type': 'application/json; charset=utf-8',
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Shopee-Access-Token, X-Shopee-Shop-Id, X-Shopee-Partner-Id',
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      ...extraHeaders
+    }
+  });
 }
 
+/**
+ * Extrai credenciais combinando Variáveis de Ambiente do Worker e Headers/Query
+ */
+function getCredentials(env = {}, request = null, url = null) {
+  const partnerId = parseInt(
+    (request && request.headers.get('X-Shopee-Partner-Id')) ||
+    (url && url.searchParams.get('partner_id')) ||
+    env.SHOPEE_PARTNER_ID ||
+    DEFAULT_PARTNER_ID,
+    10
+  );
+
+  const partnerKey = (
+    (request && request.headers.get('X-Shopee-Partner-Key')) ||
+    env.SHOPEE_PARTNER_KEY ||
+    DEFAULT_PARTNER_KEY
+  ).trim();
+
+  const shopId = (
+    (request && request.headers.get('X-Shopee-Shop-Id')) ||
+    (url && url.searchParams.get('shop_id')) ||
+    env.SHOPEE_SHOP_ID ||
+    DEFAULT_SHOP_ID
+  ).toString().trim();
+
+  const accessToken = (
+    (request && request.headers.get('X-Shopee-Access-Token')) ||
+    (url && url.searchParams.get('access_token')) ||
+    env.SHOPEE_ACCESS_TOKEN ||
+    partnerKey
+  ).trim();
+
+  const redirectUrl = (
+    env.SHOPEE_REDIRECT_URL ||
+    (url ? `${url.origin}/` : 'https://calculadora.tavernado3d.workers.dev/')
+  ).trim();
+
+  return { partnerId, partnerKey, shopId, accessToken, redirectUrl };
+}
+
+/**
+ * Gera Timestamp Unix atual em segundos
+ */
 function unixTimestamp() {
   return Math.floor(Date.now() / 1000);
 }
 
-async function hmacSha256(key, message) {
+/**
+ * Assinatura Criptográfica HMAC-SHA256 oficial da Shopee Open API v2
+ */
+async function generateHmacSha256(key, message) {
   const enc = new TextEncoder();
   const cryptoKey = await crypto.subtle.importKey(
     'raw',
@@ -26,178 +86,245 @@ async function hmacSha256(key, message) {
     false,
     ['sign']
   );
-  const sig = await crypto.subtle.sign('HMAC', cryptoKey, enc.encode(message));
-  return Array.from(new Uint8Array(sig))
+  const signatureBuffer = await crypto.subtle.sign(
+    'HMAC',
+    cryptoKey,
+    enc.encode(message)
+  );
+  return Array.from(new Uint8Array(signatureBuffer))
     .map(b => b.toString(16).padStart(2, '0'))
     .join('');
 }
 
+/**
+ * Constrói uma URL assinada pronta para requisições na API Shopee
+ */
 async function buildSignedUrl(path, creds, { accessToken = '', shopId = '' } = {}) {
   const timestamp = unixTimestamp();
-  const baseStr = `${creds.partnerId}${path}${timestamp}${accessToken || ''}${shopId || ''}`;
-  const sign = await hmacSha256(creds.partnerKey, baseStr);
-  
-  const baseHost = creds.proxyOrigin || SHOPEE_HOST;
-  const url = new URL(path, baseHost);
+  const baseString = `${creds.partnerId}${path}${timestamp}${accessToken || ''}${shopId || ''}`;
+  const sign = await generateHmacSha256(creds.partnerKey, baseString);
+
+  const url = new URL(path, SHOPEE_HOST);
   url.searchParams.set('partner_id', creds.partnerId.toString());
   url.searchParams.set('timestamp', timestamp.toString());
   url.searchParams.set('sign', sign);
   if (accessToken) url.searchParams.set('access_token', accessToken);
   if (shopId) url.searchParams.set('shop_id', shopId.toString());
+
   return url;
 }
 
-async function shopeeFetch(url, creds, options = {}) {
+/**
+ * Realiza fetch seguro com a Shopee
+ */
+async function shopeeRequest(url, options = {}) {
   const headers = new Headers(options.headers || {});
   if (!headers.has('Content-Type')) headers.set('Content-Type', 'application/json');
-  if (creds.proxySecret) {
-    headers.set('Authorization', `Bearer ${creds.proxySecret}`);
-  }
 
-  let response;
-  try {
-    response = await fetch(url.toString(), { ...options, headers });
-  } catch (err) {
-    if (!creds.proxyOrigin && url.origin === SHOPEE_HOST) {
-      const backupUrl = new URL(url.pathname + url.search, SHOPEE_BACKUP_HOST);
-      response = await fetch(backupUrl.toString(), { ...options, headers });
-    } else {
-      throw err;
-    }
-  }
-  return response;
+  return fetch(url.toString(), {
+    ...options,
+    headers
+  });
 }
 
-function json(data, status = 200, extraHeaders = {}) {
-  const headers = new Headers(extraHeaders);
-  headers.set('Content-Type', 'application/json; charset=utf-8');
-  headers.set('Access-Control-Allow-Origin', '*');
-  headers.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Shopee-Access-Token, X-Shopee-Shop-Id');
-  return new Response(JSON.stringify(data), { status, headers });
+/**
+ * Mapeia os status da Shopee para os status internos do Kanban da Calculadora
+ */
+function mapShopeeStatus(shopeeStatus) {
+  switch (shopeeStatus) {
+    case 'UNPAID':
+      return 'pending';
+    case 'READY_TO_SHIP':
+    case 'PROCESSED':
+      return 'print'; // Pronto para produção / impressão 3D
+    case 'SHIPPED':
+    case 'TO_CONFIRM_RECEIVE':
+      return 'shipped';
+    case 'COMPLETED':
+      return 'done';
+    case 'CANCELLED':
+    case 'IN_CANCEL':
+      return 'cancelled';
+    default:
+      return 'pending';
+  }
 }
 
-function renderCallbackPage(success, message, extraData = {}) {
-  const payload = JSON.stringify({
-    type: success ? 'pedidos:shopee-connected' : 'pedidos:shopee-error',
-    message,
-    ...extraData
-  }).replace(/</g, '\\u003c');
-
-  const title = success ? 'Shopee Conectada!' : 'Falha na Conexão';
-  const icon = success ? '✓' : '!';
-  const color = success ? '#ee4d2d' : '#ef4444';
+/**
+ * Renderiza página amigável de retorno da autorização OAuth
+ */
+function renderOAuthCallbackPage(success, message, payload = {}) {
+  const payloadJson = JSON.stringify(payload);
+  const isOk = Boolean(success);
 
   const html = `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>${title} · Taverna do 3D</title>
+  <meta charset="UTF-8">
+  <title>Autorização Shopee - Taverna do 3D</title>
   <style>
     body {
-      margin: 0; min-height: 100vh; display: grid; place-items: center;
-      background: #120f0d; color: #f7eee4; font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #0f172a;
+      color: #f8fafc;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+      box-sizing: border-box;
     }
     .card {
-      max-width: 440px; margin: 20px; padding: 32px 24px; text-align: center;
-      background: #1e1915; border: 1px solid rgba(245, 158, 11, 0.25);
-      border-radius: 18px; box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+      background: #1e293b;
+      border: 1px solid ${isOk ? '#10b981' : '#ef4444'};
+      border-radius: 16px;
+      padding: 32px 24px;
+      max-width: 480px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
     }
-    .icon {
-      width: 58px; height: 58px; margin: 0 auto 16px; border-radius: 16px;
-      background: ${color}; color: #fff; display: grid; place-items: center;
-      font-size: 32px; font-weight: 900;
-    }
-    h1 { font-size: 22px; margin: 0 0 10px; color: #f59e0b; }
-    p { color: #a89a8a; line-height: 1.5; font-size: 14px; margin: 0 0 16px; }
+    h2 { margin: 0 0 12px; color: ${isOk ? '#10b981' : '#ef4444'}; font-size: 22px; }
+    p { color: #94a3b8; font-size: 14px; line-height: 1.5; margin-bottom: 24px; }
     .btn {
-      display: inline-block; padding: 10px 20px; background: #f59e0b; color: #120f0d;
-      font-weight: 700; text-decoration: none; border-radius: 8px; font-size: 13px;
+      display: inline-block;
+      background: #f97316;
+      color: #fff;
+      font-weight: 700;
+      padding: 12px 24px;
+      border-radius: 10px;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
   <div class="card">
-    <div class="icon">${icon}</div>
-    <h1>${title}</h1>
+    <h2>${isOk ? '✅ Conexão Realizada!' : '⚠️ Erro na Conexão'}</h2>
     <p>${message}</p>
-    <a href="/" class="btn" id="btnBack">Voltar ao Aplicativo</a>
+    <button class="btn" onclick="window.close();">Fechar Janela</button>
   </div>
   <script>
-    const payload = ${payload};
-    if (window.opener && !window.opener.closed) {
-      window.opener.postMessage(payload, '*');
-      if (payload.type === 'pedidos:shopee-connected') {
-        setTimeout(() => window.close(), 1200);
+    try {
+      const data = ${payloadJson};
+      if (window.opener) {
+        window.opener.postMessage({
+          type: '${isOk ? 'pedidos:shopee-auth-success' : 'pedidos:shopee-error'}',
+          message: '${message}',
+          ...data
+        }, '*');
       }
-    } else {
-      if (payload.type === 'pedidos:shopee-connected') {
-        const q = new URLSearchParams({
-          shopee: 'connected',
-          access_token: payload.accessToken || '',
-          refresh_token: payload.refreshToken || '',
-          shop_id: payload.shopId || '',
-          shop_name: payload.shopName || ''
-        });
-        const backUrl = '/?' + q.toString();
-        const btn = document.getElementById('btnBack');
-        if (btn) btn.href = backUrl;
-        setTimeout(() => location.replace(backUrl), 1200);
-      }
-    }
+    } catch(e){}
+    setTimeout(() => {
+      if (window.opener) window.close();
+      else window.location.href = '/';
+    }, 2500);
   </script>
 </body>
 </html>`;
 
   return new Response(html, {
-    status: success ? 200 : 400,
-    headers: {
-      'Content-Type': 'text/html; charset=utf-8',
-      'Cache-Control': 'no-store'
-    }
+    status: isOk ? 200 : 400,
+    headers: { 'Content-Type': 'text/html; charset=utf-8' }
   });
 }
 
+/**
+ * Handler Principal do Cloudflare Worker
+ */
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
 
+    // Tratar CORS Preflight
     if (request.method === 'OPTIONS') {
-      return json({}, 200);
+      return jsonResponse({}, 200);
     }
 
-    // 1. INICIAR LOGIN SHOPEE (OAUTH)
-    if (url.pathname === '/api/shopee/auth') {
-      const creds = getCredentials(env);
-      const redirectUrl = env.SHOPEE_REDIRECT_URL || url.searchParams.get('redirect') || `${url.origin}/api/shopee/callback`;
-      const path = '/api/v2/shop/auth_partner';
+    const creds = getCredentials(env, request, url);
 
-      const authUrl = await buildSignedUrl(path, creds);
-      authUrl.searchParams.set('redirect', redirectUrl);
+    // ========================================================
+    // 1. TESTE / PING DE CONEXÃO COM A SHOPEE
+    // ========================================================
+    if (url.pathname === '/api/shopee/ping') {
+      try {
+        const pathShop = '/api/v2/shop/get_shop_info';
+        const shopUrl = await buildSignedUrl(pathShop, creds, {
+          accessToken: creds.accessToken,
+          shopId: creds.shopId
+        });
 
-      if (url.searchParams.get('format') === 'json') {
-        return json({ authUrl: authUrl.toString(), redirectUrl });
+        const res = await shopeeRequest(shopUrl, { method: 'GET' });
+        const data = await res.json();
+
+        if (res.ok && !data.error) {
+          const shopName = data.response?.shop_name || `Loja #${creds.shopId}`;
+          return jsonResponse({
+            success: true,
+            status: 'connected',
+            shopId: creds.shopId,
+            shopName: shopName,
+            partnerId: creds.partnerId,
+            message: `Conexão ativa com a loja "${shopName}"!`
+          });
+        } else {
+          return jsonResponse({
+            success: false,
+            status: 'error',
+            error: data.error || 'api_error',
+            message: data.message || 'Erro ao validar conexão com a Shopee.',
+            partnerId: creds.partnerId,
+            shopId: creds.shopId
+          }, res.status || 400);
+        }
+      } catch (err) {
+        return jsonResponse({
+          success: false,
+          status: 'network_error',
+          error: err.message
+        }, 500);
       }
+    }
+
+    // ========================================================
+    // 2. INICIAR LOGIN OAUTH (REDIRECIONAMENTO)
+    // ========================================================
+    if (url.pathname === '/api/shopee/auth') {
+      const timestamp = unixTimestamp();
+      const pathAuth = '/api/v2/shop/auth_partner';
+      const baseString = `${creds.partnerId}${pathAuth}${timestamp}`;
+      const sign = await generateHmacSha256(creds.partnerKey, baseString);
+
+      const redirectTarget = url.searchParams.get('redirect') || creds.redirectUrl;
+
+      const authUrl = new URL(pathAuth, SHOPEE_HOST);
+      authUrl.searchParams.set('partner_id', creds.partnerId.toString());
+      authUrl.searchParams.set('timestamp', timestamp.toString());
+      authUrl.searchParams.set('sign', sign);
+      authUrl.searchParams.set('redirect', redirectTarget);
+
       return Response.redirect(authUrl.toString(), 302);
     }
 
-    // 2. CALLBACK DA SHOPEE
+    // ========================================================
+    // 3. CALLBACK DE AUTORIZAÇÃO OAUTH
+    // ========================================================
     if (url.pathname === '/api/shopee/callback') {
-      const creds = getCredentials(env);
-      const code = url.searchParams.get('code') || '';
-      const shopId = url.searchParams.get('shop_id') || '';
-      const errorParam = url.searchParams.get('error') || '';
-      const errorMsgParam = url.searchParams.get('message') || '';
+      const code = url.searchParams.get('code');
+      const shopId = url.searchParams.get('shop_id') || creds.shopId;
+      const error = url.searchParams.get('error');
+      const errorMsg = url.searchParams.get('message');
 
-      if (errorParam || !code) {
-        return renderCallbackPage(false, errorMsgParam || 'A autorização foi cancelada ou recusada na Shopee.');
+      if (error || !code) {
+        return renderOAuthCallbackPage(false, errorMsg || 'Autorização não concluída na Shopee.');
       }
 
       try {
         const pathToken = '/api/v2/auth/token/get';
         const tokenUrl = await buildSignedUrl(pathToken, creds);
-        const tokenRes = await shopeeFetch(tokenUrl, creds, {
+        const tokenRes = await shopeeRequest(tokenUrl, {
           method: 'POST',
           body: JSON.stringify({
             code,
@@ -209,78 +336,87 @@ export default {
         const tokenData = await tokenRes.json();
 
         if (!tokenRes.ok || tokenData.error) {
-          const errDetail = tokenData.message || tokenData.error || 'Falha ao trocar código de acesso com a Shopee.';
-          return renderCallbackPage(true, 'Autorização concluída! Validando credenciais...', {
+          return renderOAuthCallbackPage(true, 'Autorizado! Finalizando conexão no aplicativo...', {
             code,
-            shopId,
-            warning: errDetail
+            shopId
           });
         }
 
         const accessToken = tokenData.access_token;
-        const refreshToken = tokenData.refresh_token;
-        const expiresIn = tokenData.expire_in || 14400;
-        const finalShopId = (tokenData.shop_id || shopId || '').toString();
+        const refreshToken = tokenData.refresh_token || '';
+        const finalShopId = (tokenData.shop_id || shopId).toString();
 
-        let shopName = `Loja Shopee #${finalShopId}`;
-        try {
-          const pathShop = '/api/v2/shop/get_shop_info';
-          const shopUrl = await buildSignedUrl(pathShop, creds, { accessToken, shopId: finalShopId });
-          const shopRes = await shopeeFetch(shopUrl, creds, { method: 'GET' });
-          if (shopRes.ok) {
-            const shopData = await shopRes.json();
-            if (shopData.response?.shop_name) {
-              shopName = shopData.response.shop_name;
-            }
-          }
-        } catch (e) {
-          console.warn('Erro ao obter nome da loja:', e);
-        }
-
-        return renderCallbackPage(true, `Loja "${shopName}" conectada com sucesso!`, {
+        return renderOAuthCallbackPage(true, 'Loja conectada com sucesso!', {
           accessToken,
           refreshToken,
-          expiresIn,
           shopId: finalShopId,
-          shopName
+          expireIn: tokenData.expire_in || 14400
         });
       } catch (err) {
-        console.error('Erro no callback da Shopee:', err);
-        return renderCallbackPage(false, 'Erro interno ao processar autorização: ' + err.message);
+        return renderOAuthCallbackPage(false, 'Erro ao processar tokens: ' + err.message);
       }
     }
 
-    // 3. BUSCAR PEDIDOS REAIS
-    if (url.pathname === '/api/shopee/orders') {
-      const creds = getCredentials(env);
-      let accessToken = request.headers.get('X-Shopee-Access-Token') || url.searchParams.get('access_token') || creds.accessToken;
-      let shopId = request.headers.get('X-Shopee-Shop-Id') || url.searchParams.get('shop_id') || creds.shopId;
-      const orderStatus = url.searchParams.get('order_status') || 'READY_TO_SHIP';
+    // ========================================================
+    // 4. TROCA OU RENOVAÇÃO DE TOKEN (POST /api/shopee/token)
+    // ========================================================
+    if (url.pathname === '/api/shopee/token' && request.method === 'POST') {
+      try {
+        const body = await request.json();
+        const code = body.code;
+        const refreshToken = body.refresh_token || body.refreshToken;
+        const shopId = body.shop_id || body.shopId || creds.shopId;
 
-      if (!accessToken || !shopId) {
-        if (request.method === 'POST') {
-          try {
-            const body = await request.json();
-            accessToken = accessToken || body.access_token || body.accessToken || creds.accessToken;
-            shopId = shopId || body.shop_id || body.shopId || creds.shopId;
-          } catch (e) {}
+        if (code) {
+          const pathToken = '/api/v2/auth/token/get';
+          const tokenUrl = await buildSignedUrl(pathToken, creds);
+          const res = await shopeeRequest(tokenUrl, {
+            method: 'POST',
+            body: JSON.stringify({
+              code,
+              partner_id: creds.partnerId,
+              shop_id: shopId ? parseInt(shopId, 10) : undefined
+            })
+          });
+          const data = await res.json();
+          return jsonResponse(data, res.status);
+        } else if (refreshToken) {
+          const pathRefresh = '/api/v2/auth/access_token/get';
+          const refreshUrl = await buildSignedUrl(pathRefresh, creds);
+          const res = await shopeeRequest(refreshUrl, {
+            method: 'POST',
+            body: JSON.stringify({
+              refresh_token: refreshToken,
+              partner_id: creds.partnerId,
+              shop_id: shopId ? parseInt(shopId, 10) : undefined
+            })
+          });
+          const data = await res.json();
+          return jsonResponse(data, res.status);
+        } else {
+          return jsonResponse({ error: 'missing_code_or_refresh_token' }, 400);
         }
+      } catch (err) {
+        return jsonResponse({ error: 'internal_error', message: err.message }, 500);
       }
+    }
 
-      if (!accessToken || !shopId) {
-        return json({
-          success: false,
-          error: 'missing_credentials',
-          message: 'Access Token e Shop ID da Shopee são obrigatórios.'
-        }, 400);
-      }
-
+    // ========================================================
+    // 5. BUSCA DE PEDIDOS EM TEMPO REAL (/api/shopee/orders)
+    // ========================================================
+    if (url.pathname === '/api/shopee/orders') {
       try {
         const now = unixTimestamp();
         const fifteenDaysAgo = now - (15 * 86400);
+        const orderStatus = url.searchParams.get('order_status') || 'READY_TO_SHIP';
 
+        // 1. Obter lista de pedidos
         const pathList = '/api/v2/order/get_order_list';
-        const listUrl = await buildSignedUrl(pathList, creds, { accessToken, shopId });
+        const listUrl = await buildSignedUrl(pathList, creds, {
+          accessToken: creds.accessToken,
+          shopId: creds.shopId
+        });
+
         listUrl.searchParams.set('time_range_field', 'create_time');
         listUrl.searchParams.set('time_from', fifteenDaysAgo.toString());
         listUrl.searchParams.set('time_to', now.toString());
@@ -290,11 +426,11 @@ export default {
           listUrl.searchParams.set('order_status', orderStatus);
         }
 
-        const listRes = await shopeeFetch(listUrl, creds, { method: 'GET' });
+        const listRes = await shopeeRequest(listUrl, { method: 'GET' });
         const listData = await listRes.json();
 
         if (!listRes.ok || listData.error) {
-          return json({
+          return jsonResponse({
             success: false,
             error: listData.error || 'api_error',
             message: listData.message || 'Erro ao consultar lista de pedidos na Shopee.',
@@ -303,159 +439,87 @@ export default {
         }
 
         const rawList = listData.response?.order_list || [];
-        const orderSns = rawList.map(item => item.order_sn).filter(Boolean);
+        const orderSns = rawList.map(o => o.order_sn).filter(Boolean);
 
         if (orderSns.length === 0) {
-          return json({
+          return jsonResponse({
             success: true,
             count: 0,
             orders: [],
-            message: 'Nenhum pedido pendente encontrado na sua loja Shopee.'
+            message: 'Nenhum pedido pendente encontrado na Shopee no momento.'
           });
         }
 
+        // 2. Obter detalhes completos dos pedidos
         const pathDetail = '/api/v2/order/get_order_detail';
-        const detailUrl = await buildSignedUrl(pathDetail, creds, { accessToken, shopId });
+        const detailUrl = await buildSignedUrl(pathDetail, creds, {
+          accessToken: creds.accessToken,
+          shopId: creds.shopId
+        });
         detailUrl.searchParams.set('order_sn_list', orderSns.slice(0, 50).join(','));
         detailUrl.searchParams.set('response_optional_fields', 'buyer_username,item_list,total_amount,ship_by_date,create_time,order_status');
 
-        const detailRes = await shopeeFetch(detailUrl, creds, { method: 'GET' });
+        const detailRes = await shopeeRequest(detailUrl, { method: 'GET' });
         const detailData = await detailRes.json();
-        const detailList = detailData.response?.order_list || [];
 
-        const mappedOrders = detailList.map(item => {
-          const orderSn = item.order_sn;
-          const firstItem = item.item_list?.[0] || {};
-          const prodName = firstItem.item_name || 'Peça Personalizada 3D';
-          const variation = firstItem.model_name || '';
-          const buyer = item.buyer_username || 'Cliente Shopee';
-          const price = parseFloat(item.total_amount) || 0;
-          const shipBy = item.ship_by_date
-            ? new Date(item.ship_by_date * 1000).toLocaleDateString('pt-BR')
-            : 'Shopee Envio';
-          const createdAt = item.create_time
-            ? new Date(item.create_time * 1000).toISOString()
-            : new Date().toISOString();
+        const rawDetails = detailData.response?.order_list || [];
 
-          let internalStatus = 'a_produzir';
-          if (item.order_status === 'PROCESSED') internalStatus = 'em_producao';
-          else if (item.order_status === 'SHIPPED' || item.order_status === 'COMPLETED') internalStatus = 'concluido';
+        // 3. Formatar pedidos para o padrão limpo do Kanban da Calculadora
+        const formattedOrders = rawDetails.map(order => {
+          const itemsSummary = (order.item_list || [])
+            .map(item => `${item.item_name || 'Item 3D'} (${item.model_quantity_purchased || 1}x)`)
+            .join(' + ') || 'Produto 3D Shopee';
+
+          const totalValue = parseFloat(order.total_amount) || 0;
+          const createdAt = order.create_time ? new Date(order.create_time * 1000).toISOString() : new Date().toISOString();
 
           return {
-            id: 'TAV-' + (orderSn.length > 4 ? orderSn.slice(-4) : Math.floor(1000 + Math.random() * 9000)),
-            shopeeId: orderSn,
-            client: buyer,
-            product: variation ? `${prodName} (${variation})` : prodName,
+            id: `SHP-${order.order_sn.slice(-6)}`,
+            shopeeId: order.order_sn,
+            customer: order.buyer_username || `Cliente Shopee (#${order.order_sn.slice(-4)})`,
+            clientName: order.buyer_username || `Cliente Shopee (#${order.order_sn.slice(-4)})`,
+            product: itemsSummary,
+            itemsSummary: itemsSummary,
+            totalPrice: totalValue,
+            value: totalValue,
             channel: 'shopee',
-            status: internalStatus,
-            price: price,
-            deadline: shipBy,
-            notes: variation ? `Variação: ${variation}` : 'Pedido Shopee Integrado',
-            createdAt: createdAt
+            channelName: 'Shopee',
+            status: mapShopeeStatus(order.order_status),
+            rawStatus: order.order_status,
+            createdAt: createdAt,
+            date: createdAt,
+            shipByDate: order.ship_by_date ? new Date(order.ship_by_date * 1000).toLocaleDateString('pt-BR') : '',
+            items: (order.item_list || []).map(item => ({
+              name: item.item_name || 'Peça 3D',
+              qty: item.model_quantity_purchased || 1,
+              price: item.model_discounted_price || item.model_original_price || 0,
+              variation: item.model_name || ''
+            }))
           };
         });
 
-        return json({
+        return jsonResponse({
           success: true,
-          count: mappedOrders.length,
-          orders: mappedOrders
+          count: formattedOrders.length,
+          orders: formattedOrders,
+          message: `${formattedOrders.length} pedido(s) sincronizado(s) com sucesso!`
         });
       } catch (err) {
-        return json({ success: false, error: 'internal_error', message: err.message }, 500);
+        return jsonResponse({
+          success: false,
+          error: 'orders_sync_error',
+          message: err.message
+        }, 500);
       }
     }
 
-    // 4. TROCA OU RENOVAÇÃO DE TOKEN
-    if (url.pathname === '/api/shopee/token') {
-      const creds = getCredentials(env);
-      let body = {};
-      try { body = await request.json(); } catch (e) {}
-      const { code, refresh_token: refreshToken, shop_id: shopId } = body;
-
-      try {
-        if (code) {
-          const path = '/api/v2/auth/token/get';
-          const tUrl = await buildSignedUrl(path, creds);
-          const res = await shopeeFetch(tUrl, creds, {
-            method: 'POST',
-            body: JSON.stringify({ code, partner_id: creds.partnerId, shop_id: shopId ? parseInt(shopId, 10) : undefined })
-          });
-          const data = await res.json();
-          if (res.ok && data.access_token && (data.shop_id || shopId)) {
-            const finalShopId = (data.shop_id || shopId).toString();
-            try {
-              const pathShop = '/api/v2/shop/get_shop_info';
-              const shopUrl = await buildSignedUrl(pathShop, creds, { accessToken: data.access_token, shopId: finalShopId });
-              const shopRes = await shopeeFetch(shopUrl, creds, { method: 'GET' });
-              if (shopRes.ok) {
-                const shopData = await shopRes.json();
-                if (shopData.response?.shop_name) {
-                  data.shop_name = shopData.response.shop_name;
-                }
-              }
-            } catch (e) {}
-          }
-          return json(data, res.status);
-        } else if (refreshToken) {
-          const path = '/api/v2/auth/access_token/get';
-          const tUrl = await buildSignedUrl(path, creds);
-          const res = await shopeeFetch(tUrl, creds, {
-            method: 'POST',
-            body: JSON.stringify({ refresh_token: refreshToken, partner_id: creds.partnerId, shop_id: shopId ? parseInt(shopId, 10) : undefined })
-          });
-          return json(await res.json(), res.status);
-        }
-      } catch (err) {
-        return json({ error: 'internal_error', message: err.message }, 500);
-      }
-    }
-
-    // 5. TESTE / PING DE CONEXÃO
-    if (url.pathname === '/api/shopee/ping') {
-      const creds = getCredentials(env);
-      let accessToken = request.headers.get('X-Shopee-Access-Token') || url.searchParams.get('access_token') || creds.accessToken;
-      let shopId = request.headers.get('X-Shopee-Shop-Id') || url.searchParams.get('shop_id') || creds.shopId;
-
-      if (!accessToken || !shopId) {
-        return json({
-          success: true,
-          status: 'ready',
-          message: 'Worker online e pronto para receber conexões da Shopee. Partner ID: ' + creds.partnerId
-        });
-      }
-
-      try {
-        const pathShop = '/api/v2/shop/get_shop_info';
-        const shopUrl = await buildSignedUrl(pathShop, creds, { accessToken, shopId });
-        const shopRes = await shopeeFetch(shopUrl, creds, { method: 'GET' });
-        const shopData = await shopRes.json();
-
-        if (shopRes.ok && !shopData.error) {
-          return json({
-            success: true,
-            status: 'connected',
-            shopName: shopData.response?.shop_name || `Loja #${shopId}`,
-            shopId: shopId,
-            message: `Conexão bem sucedida com a loja "${shopData.response?.shop_name || shopId}"!`
-          });
-        } else {
-          return json({
-            success: false,
-            status: 'auth_error',
-            error: shopData.error || 'auth_error',
-            message: shopData.message || 'Token expirado ou inválido na Shopee.'
-          }, 400);
-        }
-      } catch (e) {
-        return json({ success: false, error: e.message }, 500);
-      }
-    }
-
-    // 5. Servir arquivos estáticos do frontend (Cloudflare Pages)
+    // ========================================================
+    // 6. SERVIR ARQUIVOS ESTÁTICOS DO FRONTEND
+    // ========================================================
     if (env.ASSETS && typeof env.ASSETS.fetch === 'function') {
       return env.ASSETS.fetch(request);
     }
 
-    return new Response('Not found', { status: 404 });
+    return new Response('Calculadora Worker Ativo.', { status: 200 });
   }
 };

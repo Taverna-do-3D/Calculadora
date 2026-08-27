@@ -3070,16 +3070,29 @@ async function syncShopeeApiOrders({ silent = false } = {}) {
   if (apiSuccess && fetchedOrders.length > 0) {
     let addedCount = 0;
     fetchedOrders.forEach(newO => {
-      const exists = appOrders.some(o => o.shopeeId === newO.shopeeId || o.id === newO.id);
+      const orderToInsert = {
+        id: newO.id || ('TAV-' + (newO.shopeeId?.slice(-4) || Math.floor(1000 + Math.random() * 9000))),
+        shopeeId: newO.shopeeId || newO.order_sn || '',
+        client: newO.client || newO.clientName || newO.customer || 'Cliente Shopee',
+        product: newO.product || newO.itemsSummary || 'Produto 3D Shopee',
+        channel: 'shopee',
+        status: newO.status === 'print' ? 'a_produzir' : (newO.status || 'a_produzir'),
+        price: Number(newO.price || newO.value || newO.totalPrice || 0),
+        deadline: newO.deadline || newO.shipByDate || 'Shopee Envio',
+        notes: newO.notes || 'Pedido Shopee Integrado',
+        createdAt: newO.createdAt || newO.date || new Date().toISOString()
+      };
+
+      const exists = appOrders.some(o => (orderToInsert.shopeeId && o.shopeeId === orderToInsert.shopeeId) || o.id === orderToInsert.id);
       if (!exists) {
-        appOrders.unshift(newO);
+        appOrders.unshift(orderToInsert);
         addedCount++;
       }
     });
 
     saveLocal();
     renderOrders();
-    if (document.getElementById('listContainer').style.display === 'block') {
+    if (document.getElementById('listContainer')?.style.display === 'block') {
       renderOrderListView();
     }
 
