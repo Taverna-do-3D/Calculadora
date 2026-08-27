@@ -3793,7 +3793,7 @@ btnSubmitBambu?.addEventListener('click', async () => {
   }
 
   btn.disabled = true;
-  btn.textContent = code ? 'Conectando com o código...' : 'Solicitando código por e-mail...';
+  btn.textContent = code ? 'Conectando com o código...' : 'Enviando código por e-mail...';
 
   try {
     const res = await fetch('/api/bambu/login', {
@@ -3801,9 +3801,10 @@ btnSubmitBambu?.addEventListener('click', async () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ account: email, password: pass, tfa_code: code, code: code })
     });
-    const data = await res.json();
+    const data = await res.json().catch(() => ({}));
 
-    if (data.require2fa) {
+    // Se o usuário ainda não digitou o código (Passo 1), NUNCA exibir erro!
+    if (!code) {
       if (bambu2faInput) {
         bambu2faInput.focus();
         bambu2faInput.style.borderColor = '#f59e0b';
@@ -3815,15 +3816,15 @@ btnSubmitBambu?.addEventListener('click', async () => {
       return;
     }
 
+    // Passo 2: O usuário digitou o código e tentou autenticar
     if (!data.success || !data.token) {
-      const isCodeError = data.error && (data.error.toLowerCase().includes('code') || data.error.toLowerCase().includes('verif') || data.error.toLowerCase().includes('2fa'));
-      if (isCodeError && bambu2faInput) {
+      if (bambu2faInput) {
         bambu2faInput.focus();
         bambu2faInput.style.borderColor = '#ef4444';
       }
-      showToast(data.error || 'Falha ao autenticar na conta Bambu Lab.');
+      showToast(data.error || 'Código incorreto ou expirado. Verifique no seu e-mail.');
       btn.disabled = false;
-      btn.textContent = code ? '🚀 2. Conectar Impressora' : '📩 1. Enviar Código por E-mail';
+      btn.textContent = '🚀 2. Conectar Impressora';
       return;
     }
 
