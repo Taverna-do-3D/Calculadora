@@ -1081,13 +1081,13 @@ select {
         <div class="field">
           <label>Tempo de Impressão</label>
           <div class="row2" style="gap:6px;">
-            <input type="number" id="calcHours" min="0" placeholder="Horas" value="2">
-            <input type="number" id="calcMins" min="0" max="59" placeholder="Min" value="30">
+            <input type="number" id="calcHours" min="0" placeholder="0" value="">
+            <input type="number" id="calcMins" min="0" max="59" placeholder="0" value="">
           </div>
         </div>
         <div class="field">
           <label>Peso do Filamento</label>
-          <input type="number" id="calcGrams" min="0" step="0.1" placeholder="Gramas (g)" value="85">
+          <input type="number" id="calcGrams" min="0" step="0.1" placeholder="0" value="">
         </div>
       </div>
 
@@ -1098,14 +1098,14 @@ select {
         </div>
         <div class="field">
           <label>Margem de Lucro (%)</label>
-          <input type="number" id="calcMargin" min="0" step="5" value="100">
+          <input type="number" id="calcMargin" min="0" step="5" value="100" placeholder="100">
         </div>
       </div>
 
       <div class="row2">
         <div class="field">
           <label>Insumos / Embalagem (R$)</label>
-          <input type="number" id="calcExtraCosts" min="0" step="0.5" value="2.00" placeholder="Ex: 2.50">
+          <input type="number" id="calcExtraCosts" min="0" step="0.5" value="0" placeholder="0.00">
         </div>
         <div class="field">
           <label>Quantidade de Peças</label>
@@ -1295,11 +1295,11 @@ select {
       <div class="row2">
         <div class="field">
           <label>Prazo de Produção</label>
-          <input type="text" id="quoteDeadline" value="2 a 3 dias úteis">
+          <input type="text" id="quoteDeadline" placeholder="Ex: 2 a 3 dias úteis" value="">
         </div>
         <div class="field">
           <label>Frete / Entrega</label>
-          <input type="text" id="quoteShipping" value="Frete a calcular / Retirada grátis">
+          <input type="text" id="quoteShipping" placeholder="Ex: A combinar / Retirada" value="">
         </div>
       </div>
 
@@ -1719,11 +1719,7 @@ const DEFAULT_CONFIG = {
   mercadolivre: { pct: 13, fix: 6.00 }
 };
 
-const DEFAULT_FILAMENTS = [
-  { id: 'fil-1', name: 'PLA Taverna Premium', type: 'PLA', color: 'Preto Fosco', priceKg: 95.00, stockG: 1000 },
-  { id: 'fil-2', name: 'PLA Silk Dourado', type: 'PLA Silk', color: 'Ouro Real', priceKg: 120.00, stockG: 800 },
-  { id: 'fil-3', name: 'PETG Resistente', type: 'PETG', color: 'Cinza Espacial', priceKg: 105.00, stockG: 1000 }
-];
+const DEFAULT_FILAMENTS = [];
 
 const DEFAULT_CLOUD = {
   url: 'https://hfjlgzwagiipyggerlwn.supabase.co',
@@ -1734,7 +1730,13 @@ const DEFAULT_CLOUD = {
 
 let appConfig = JSON.parse(localStorage.getItem(DB_KEYS.CONFIG)) || DEFAULT_CONFIG;
 let appFilaments = JSON.parse(localStorage.getItem(DB_KEYS.FILAMENTS)) || DEFAULT_FILAMENTS;
-let appOrders = (JSON.parse(localStorage.getItem(DB_KEYS.ORDERS)) || []).filter(o => !['TAV-9142', 'TAV-9143', 'TAV-9144'].includes(o.id) && !['240825BAMBU01', '240825HEADSET02', '240825DICE03'].includes(o.shopeeId));
+// Se os filamentos contiverem os de teste de fábrica legados, limpar
+if (Array.isArray(appFilaments) && appFilaments.some(f => f.id === 'fil-1' || f.id === 'fil-2' || f.id === 'fil-3')) {
+  appFilaments = [];
+  localStorage.setItem(DB_KEYS.FILAMENTS, JSON.stringify([]));
+}
+
+let appOrders = (JSON.parse(localStorage.getItem(DB_KEYS.ORDERS)) || []).filter(o => !['TAV-9142', 'TAV-9143', 'TAV-9144', 'PENTEST-01'].includes(o.id) && !['240825BAMBU01', '240825HEADSET02', '240825DICE03'].includes(o.shopeeId));
 let appCloud = JSON.parse(localStorage.getItem(DB_KEYS.CLOUD)) || DEFAULT_CLOUD;
 if (!appCloud.url) appCloud.url = DEFAULT_CLOUD.url;
 if (!appCloud.key) appCloud.key = DEFAULT_CLOUD.key;
@@ -1819,10 +1821,10 @@ function calculatePrices() {
   const qty = Math.max(1, parseInt(document.getElementById('calcQty')?.value) || 1);
 
   const filId = document.getElementById('calcFilamentSelect')?.value;
-  const fil = appFilaments.find(f => f.id === filId) || appFilaments[0];
+  const fil = appFilaments.find(f => f.id === filId) || (appFilaments.length > 0 ? appFilaments[0] : null);
 
   // 1. Custo do Filamento
-  const costFilament = (grams / 1000) * (fil ? (Number(fil.priceKg) || 95.00) : 95.00);
+  const costFilament = fil ? (grams / 1000) * (Number(fil.priceKg) || 0) : 0;
 
   // 2. Custo de Energia (Bambu Lab A1)
   const kwh = ((Number(appConfig.watts) || 180) / 1000) * totalHours;
@@ -1889,7 +1891,7 @@ function calculatePrices() {
   if (mlNote) mlNote.textContent = `Taxa ${appConfig.channels.mercadolivre?.pct || 13}% + R$ ${(appConfig.channels.mercadolivre?.fix || 6).toFixed(2)}`;
 
   document.getElementById('summaryFilamentGrams').textContent = grams;
-  document.getElementById('summaryFilamentName').textContent = fil ? fil.name : 'PLA';
+  document.getElementById('summaryFilamentName').textContent = fil ? fil.name : '—';
   document.getElementById('costFilamentVal').textContent = formatBRL(costFilament * qty);
   document.getElementById('costEnergyVal').textContent = formatBRL(costEnergy * qty);
   document.getElementById('costMachineVal').textContent = formatBRL(costMachine * qty);
@@ -1897,8 +1899,8 @@ function calculatePrices() {
   document.getElementById('costTotalVal').textContent = formatBRL(costTotal);
 
   return {
-    item: document.getElementById('calcItemName').value || 'Peça 3D',
-    filament: fil ? fil.name : 'PLA',
+    item: document.getElementById('calcItemName')?.value || 'Peça 3D',
+    filament: fil ? fil.name : '—',
     hours, mins, grams, qty,
     costTotal, priceDirectTotal, priceShopeeTotal, priceTikTokTotal, priceMLTotal
   };
@@ -1917,10 +1919,17 @@ function renderFilamentSelect() {
   const sel = document.getElementById('calcFilamentSelect');
   if (!sel) return;
   sel.innerHTML = '';
+  if (appFilaments.length === 0) {
+    const opt = document.createElement('option');
+    opt.value = '';
+    opt.textContent = 'Nenhum filamento cadastrado';
+    sel.appendChild(opt);
+    return;
+  }
   appFilaments.forEach(f => {
     const opt = document.createElement('option');
     opt.value = f.id;
-    opt.textContent = `${f.name} (${f.color}) — R$ ${f.priceKg.toFixed(2)}/kg`;
+    opt.textContent = `${f.name} (${f.color}) — R$ ${Number(f.priceKg || 0).toFixed(2)}/kg`;
     sel.appendChild(opt);
   });
 }
@@ -1930,7 +1939,7 @@ function renderFilamentList() {
   if (!container) return;
   
   if (appFilaments.length === 0) {
-    container.innerHTML = `<p style="color:var(--muted); font-size:13px; text-align:center; padding:18px;">Nenhum filamento cadastrado.</p>`;
+    container.innerHTML = `<p style="color:var(--muted); font-size:13px; text-align:center; padding:22px;">Nenhum filamento cadastrado.<br><span style="font-size:11.5px;">Clique em <b>+ Adicionar</b> acima para cadastrar seus carretéis reais.</span></p>`;
     return;
   }
 
@@ -1949,16 +1958,14 @@ function renderFilamentList() {
 }
 
 window.removeFilament = function(id) {
-  if (appFilaments.length <= 1) {
-    showToast('Mantenha ao menos 1 filamento cadastrado.');
-    return;
+  if (confirm('Deseja realmente excluir este filamento?')) {
+    appFilaments = appFilaments.filter(f => f.id !== id);
+    saveLocal();
+    renderFilamentSelect();
+    renderFilamentList();
+    calculatePrices();
+    showToast('Filamento removido.', true);
   }
-  appFilaments = appFilaments.filter(f => f.id !== id);
-  saveLocal();
-  renderFilamentSelect();
-  renderFilamentList();
-  calculatePrices();
-  showToast('Filamento removido.', true);
 };
 
 // Modal de Filamento
@@ -2007,10 +2014,10 @@ document.getElementById('btnSaveFilModal')?.addEventListener('click', () => {
 function updateQuotePreview() {
   ensureConfigChannels();
   const data = calculatePrices();
-  const client = document.getElementById('quoteClientName').value.trim() || 'Cliente';
-  const deadline = document.getElementById('quoteDeadline').value.trim() || '2 a 3 dias úteis';
-  const shipping = document.getElementById('quoteShipping').value.trim() || 'A combinar';
-  const notes = document.getElementById('quoteNotes').value.trim();
+  const client = document.getElementById('quoteClientName')?.value?.trim() || '';
+  const deadline = document.getElementById('quoteDeadline')?.value?.trim() || '2 a 3 dias úteis';
+  const shipping = document.getElementById('quoteShipping')?.value?.trim() || 'A combinar';
+  const notes = document.getElementById('quoteNotes')?.value?.trim() || '';
 
   let priceLines = [];
   if (appConfig.channels.direct?.enabled !== false) {
@@ -2030,10 +2037,14 @@ function updateQuotePreview() {
     ? priceLines.join('\n')
     : `💰 *VALOR PROMOCIONAL:* ${formatBRL(data.priceDirectTotal)}`;
 
-  const msg = `Olá, *${client}*! Tudo bem? 😊🛡️\n\n` +
+  const clientGreeting = client ? `Olá, *${client}*! Tudo bem? 😊🛡️` : `Olá! Tudo bem? 😊🛡️`;
+  const prodLine = data.item && data.item !== 'Peça 3D' ? `🛠️ *PRODUTO:* ${data.item} (${data.qty}x)\n` : `🛠️ *PRODUTO:* Peça Personalizada (${data.qty}x)\n`;
+  const filLine = data.filament && data.filament !== '—' && data.filament !== 'Nenhum' ? `🧵 *MATERIAL:* ${data.filament} (Alta Resolução na Bambu Lab A1)\n` : `🧵 *MATERIAL:* Impressão 3D na Bambu Lab A1\n`;
+
+  const msg = `${clientGreeting}\n\n` +
     `Aqui é da *Taverna do 3D*! Segue a proposta para a sua peça personalizada:\n\n` +
-    `🛠️ *PRODUTO:* ${data.item} (${data.qty}x)\n` +
-    `🧵 *MATERIAL:* ${data.filament} (Alta Resolução na Bambu Lab A1)\n` +
+    prodLine +
+    filLine +
     (notes ? `📝 *DETALHES:* ${notes}\n` : '') +
     `\n` +
     `${pricesFormatted}\n\n` +
@@ -2041,7 +2052,8 @@ function updateQuotePreview() {
     `🚚 *Entrega / Frete:* ${shipping}\n\n` +
     `Podemos colocar na impressora para você? Qualquer dúvida fico à disposição! 🚀`;
 
-  document.getElementById('quotePreviewText').value = msg;
+  const previewEl = document.getElementById('quotePreviewText');
+  if (previewEl) previewEl.value = msg;
 }
 
 document.getElementById('btnQuickQuote')?.addEventListener('click', () => {
@@ -2916,6 +2928,16 @@ document.addEventListener('DOMContentLoaded', () => {
   // Limpar resquícios de chave de API da Shopee no localStorage se existirem
   if (appConfig.shopeeApi) {
     delete appConfig.shopeeApi;
+    saveLocal();
+  }
+
+  // Limpar dados fictícios legados para modo de dados 100% reais
+  if (localStorage.getItem('taverna3d:cleaned_real_mode') !== 'true') {
+    appOrders = [];
+    appFilaments = [];
+    localStorage.setItem(DB_KEYS.ORDERS, JSON.stringify([]));
+    localStorage.setItem(DB_KEYS.FILAMENTS, JSON.stringify([]));
+    localStorage.setItem('taverna3d:cleaned_real_mode', 'true');
     saveLocal();
   }
 
