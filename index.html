@@ -3641,8 +3641,8 @@ function updateBambuUI() {
   const camPlaceholder = document.getElementById('bambuCamPlaceholder');
   const camBadge = document.getElementById('bambuCamBadgeLabel');
   
-  if (camBox && appBambu.connected) {
-    camBox.style.display = 'block';
+  if (camBox) {
+    camBox.style.display = appBambu.cameraOpen ? 'block' : 'none';
   }
 
   if (camImg && camPlaceholder) {
