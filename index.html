@@ -19,28 +19,28 @@
 
 <style>
 :root {
-  --bg: #0d0a07;
-  --bg-subtle: #140f0b;
-  --surface: #1c150f;
-  --surface-2: #251c14;
-  --surface-3: #32251a;
-  --surface-glass: rgba(24, 18, 13, 0.94);
+  --bg: #221811;
+  --bg-subtle: #1c140d;
+  --surface: #543f2d;
+  --surface-2: #654d37;
+  --surface-3: #755b42;
+  --surface-glass: rgba(84, 63, 45, 0.96);
   
   --amber: #f59e0b;
   --amber-light: #fcd34d;
   --amber-deep: #b45309;
-  --amber-glow: rgba(245, 158, 11, 0.35);
+  --amber-glow: rgba(245, 158, 11, 0.45);
   --gold: #e5b25d;
   --gold-light: #fef08a;
   
-  --text: #fcf8ed;
-  --text-dim: #ebdcc4;
-  --muted: #a8937b;
-  --muted-2: #75624e;
+  --text: #fef8ec;
+  --text-dim: #ebdcc8;
+  --muted: #cbb49b;
+  --muted-2: #9e846b;
   
-  --border: #443221;
-  --border-soft: #2e2115;
-  --border-glow: rgba(245, 158, 11, 0.45);
+  --border: #7d5e42;
+  --border-soft: #634a34;
+  --border-glow: rgba(245, 158, 11, 0.5);
   
   --green: #10b981;
   --green-glow: rgba(16, 185, 129, 0.25);
@@ -73,13 +73,9 @@
 html, body {
   background-color: var(--bg);
   background-image: 
-    radial-gradient(circle at 50% -10%, rgba(245, 158, 11, 0.16) 0%, transparent 60%),
-    radial-gradient(circle at 10% 90%, rgba(180, 83, 9, 0.10) 0%, transparent 45%),
-    url('assets/taverna-bg.jpg');
-  background-position: top center, bottom left, top center;
-  background-size: 100% 500px, 100% 400px, 620px auto;
-  background-repeat: no-repeat, no-repeat, repeat-y;
-  background-blend-mode: screen, normal, multiply;
+    radial-gradient(circle at 50% -10%, rgba(245, 158, 11, 0.18) 0%, transparent 60%),
+    radial-gradient(circle at 10% 90%, rgba(180, 83, 9, 0.12) 0%, transparent 45%),
+    linear-gradient(180deg, #2c1f15 0%, #1c140d 100%);
   color: var(--text);
   font-family: var(--font-ui);
   min-height: 100vh;
@@ -116,9 +112,9 @@ input, select, textarea {
 ========================================================= */
 .topbar {
   padding: calc(14px + env(safe-area-inset-top)) 18px 14px;
-  background: linear-gradient(180deg, rgba(28, 21, 15, 0.96) 0%, rgba(16, 12, 8, 0.98) 100%);
-  border-bottom: 2px solid #5a4128;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(245, 158, 11, 0.18);
+  background: linear-gradient(180deg, rgba(84, 63, 45, 0.98) 0%, rgba(60, 44, 30, 0.98) 100%);
+  border-bottom: 2px solid #8a6544;
+  box-shadow: 0 4px 20px rgba(35, 24, 15, 0.5), inset 0 1px 0 rgba(254, 215, 120, 0.2);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   position: sticky;
@@ -145,7 +141,7 @@ input, select, textarea {
   border-radius: 0;
   border: none;
   background: transparent;
-  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.95)) drop-shadow(0 0 14px rgba(245, 158, 11, 0.45));
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.8)) drop-shadow(0 0 14px rgba(245, 158, 11, 0.5));
   object-fit: contain;
   transition: transform 0.2s ease;
 }
@@ -180,14 +176,14 @@ input, select, textarea {
   display: inline-flex;
   align-items: center;
   gap: 3px;
-  background: rgba(245, 158, 11, 0.14);
-  border: 1px solid rgba(245, 158, 11, 0.4);
+  background: rgba(245, 158, 11, 0.18);
+  border: 1px solid rgba(245, 158, 11, 0.45);
   padding: 1px 7px;
   border-radius: 99px;
   font-size: 9.5px;
   font-weight: 800;
   color: var(--amber-light);
-  box-shadow: 0 0 8px rgba(245, 158, 11, 0.15);
+  box-shadow: 0 0 8px rgba(245, 158, 11, 0.2);
 }
 
 .topbar-actions {
@@ -202,9 +198,9 @@ input, select, textarea {
   gap: 6px;
   padding: 6px 12px;
   border-radius: 99px;
-  background: linear-gradient(180deg, #2a2016 0%, #1c150f 100%);
-  border: 1px solid #5a4128;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 2px 8px rgba(0, 0, 0, 0.4);
+  background: linear-gradient(180deg, #543f2d 0%, #3e2d1f 100%);
+  border: 1px solid #7d5e42;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 2px 8px rgba(0, 0, 0, 0.35);
   font-size: 11px;
   font-weight: 700;
   color: var(--text-dim);
@@ -257,6 +253,9 @@ input, select, textarea {
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* =========================================================
+   BARRA DE ABAS INFERIOR (SEM PRETO + SILHUETA DOURADA)
+========================================================= */
 .bottomnav {
   position: fixed;
   bottom: 0;
@@ -265,15 +264,15 @@ input, select, textarea {
   width: 100%;
   max-width: 620px;
   z-index: 50;
-  background: linear-gradient(180deg, rgba(38, 28, 20, 0.98) 0%, rgba(20, 15, 10, 0.99) 100%);
+  background: linear-gradient(180deg, #543f2d 0%, #443223 100%);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border-top: 1.5px solid #785233;
-  box-shadow: 0 -4px 25px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(255, 215, 130, 0.2);
+  border-top: 2px solid #8a6544;
+  box-shadow: 0 -4px 20px rgba(35, 24, 15, 0.5), inset 0 1px 0 rgba(254, 215, 120, 0.25);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 7px 4px calc(7px + env(safe-area-inset-bottom));
+  padding: 8px 4px calc(8px + env(safe-area-inset-bottom));
 }
 
 .navbtn {
@@ -284,7 +283,7 @@ input, select, textarea {
   justify-content: center;
   gap: 2px;
   background: transparent;
-  color: #d6c8b8;
+  color: #dfcdb6;
   padding: 5px 1px;
   border-radius: var(--radius-md);
   transition: all 0.15s ease;
@@ -299,28 +298,34 @@ input, select, textarea {
   color: #ffffff;
 }
 
+/* Silhueta Dourada em Cada Ícone */
 .navbtn svg, .navbtn .nav-icon {
-  width: 20px;
-  height: 20px;
-  font-size: 20px;
+  width: 21px;
+  height: 21px;
+  font-size: 21px;
   line-height: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform 0.18s ease, filter 0.18s ease;
+  filter: drop-shadow(0 0 3px #f59e0b) drop-shadow(0 0 7px rgba(245, 158, 11, 0.7));
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.2s ease;
+}
+
+.navbtn:hover svg, .navbtn:hover .nav-icon {
+  filter: drop-shadow(0 0 4px #fbbf24) drop-shadow(0 0 10px rgba(245, 158, 11, 0.9));
 }
 
 .navbtn span.nav-label {
   font-size: 10px;
   font-weight: 700;
   letter-spacing: -0.01em;
-  color: #e5d8cb;
+  color: #f5dfc6;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 100%;
   display: block;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+  text-shadow: 0 1px 2px rgba(35, 24, 15, 0.8);
 }
 
 .navbtn.active {
@@ -328,27 +333,27 @@ input, select, textarea {
 }
 
 .navbtn.active span.nav-label {
-  color: #fde68a;
+  color: #fef08a;
   font-weight: 800;
-  text-shadow: 0 0 10px rgba(245, 158, 11, 0.6), 0 1px 3px rgba(0, 0, 0, 0.9);
+  text-shadow: 0 0 10px rgba(245, 158, 11, 0.8), 0 1px 2px rgba(35, 24, 15, 0.9);
 }
 
 .navbtn.active svg, .navbtn.active .nav-icon {
-  transform: scale(1.2);
-  filter: drop-shadow(0 0 10px rgba(245, 158, 11, 0.8));
+  transform: scale(1.22);
+  filter: drop-shadow(0 0 4px #fef08a) drop-shadow(0 0 10px #f59e0b) drop-shadow(0 0 16px rgba(245, 158, 11, 0.95));
 }
 
 /* =========================================================
-   CARDS, FORMS & BUTTONS (ESTILO TAVERNA & FORJA)
+   CARDS, FORMS & BUTTONS (PALETA #543f2d)
 ========================================================= */
 .card {
-  background: linear-gradient(180deg, rgba(34, 26, 19, 0.95) 0%, rgba(22, 17, 12, 0.98) 100%);
-  border: 1px solid #4d3824;
+  background: linear-gradient(180deg, #543f2d 0%, #443224 100%);
+  border: 1px solid #7d5e42;
   border-radius: var(--radius-lg);
   padding: 16px;
   margin-bottom: 14px;
   position: relative;
-  box-shadow: inset 0 1px 0 rgba(255, 215, 130, 0.1), 0 8px 26px rgba(0, 0, 0, 0.5);
+  box-shadow: inset 0 1px 0 rgba(254, 215, 120, 0.15), 0 6px 20px rgba(0, 0, 0, 0.4);
 }
 
 .card::before {
@@ -367,7 +372,7 @@ input, select, textarea {
   justify-content: space-between;
   margin-bottom: 14px;
   padding-bottom: 8px;
-  border-bottom: 1px solid rgba(77, 56, 36, 0.5);
+  border-bottom: 1px solid #684e36;
 }
 
 .card-title {
@@ -380,13 +385,14 @@ input, select, textarea {
   display: flex;
   align-items: center;
   gap: 7px;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
 }
 
 .card-title svg {
   width: 15px;
   height: 15px;
   color: var(--amber);
+  filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.5));
 }
 
 .field {
@@ -427,15 +433,15 @@ input, select, textarea {
 
 input[type=number], input[type=text], input[type=tel], input[type=url], input[type=email], input[type=password], input[type=search], input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=button]):not([type=submit]), select, textarea {
   width: 100%;
-  background: #140f0b;
-  border: 1px solid #443221;
+  background: #2b1e14;
+  border: 1px solid #6e523b;
   border-radius: var(--radius-sm);
   padding: 12px 14px;
   color: var(--text);
   font-size: 14.5px;
   font-weight: 600;
   outline: none;
-  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.65);
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.45);
   transition: all 0.2s ease;
   appearance: none;
   -webkit-appearance: none;
@@ -443,8 +449,8 @@ input[type=number], input[type=text], input[type=tel], input[type=url], input[ty
 
 input:focus, select:focus, textarea:focus {
   border-color: var(--amber);
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.6), 0 0 12px var(--amber-glow);
-  background: #1c150f;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.45), 0 0 12px var(--amber-glow);
+  background: #35261a;
   color: #ffffff;
 }
 
@@ -475,16 +481,16 @@ select {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #92400e 100%);
-  color: #120b05;
+  background: linear-gradient(135deg, #ea580c 0%, #d97706 50%, #9a3412 100%);
+  color: #ffffff;
   border: 1px solid #fcd34d;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 4px 18px rgba(245, 158, 11, 0.35);
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.25);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 4px 16px rgba(234, 88, 12, 0.35);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
 }
 
 .btn-primary:hover {
-  filter: brightness(1.06);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 6px 22px rgba(245, 158, 11, 0.5);
+  filter: brightness(1.08);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45), 0 6px 20px rgba(234, 88, 12, 0.5);
 }
 
 .btn-primary:active {
@@ -493,20 +499,20 @@ select {
 }
 
 .btn-secondary {
-  background: linear-gradient(180deg, #2b2016 0%, #1c150f 100%);
+  background: linear-gradient(180deg, #654d37 0%, #4c3726 100%);
   color: var(--text);
-  border: 1px solid #5a4128;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 3px 12px rgba(0, 0, 0, 0.35);
+  border: 1px solid #856344;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 3px 10px rgba(0, 0, 0, 0.25);
 }
 
 .btn-secondary:hover {
-  background: linear-gradient(180deg, #35281c 0%, #231b14 100%);
-  border-color: #785736;
+  background: linear-gradient(180deg, #745840 0%, #57402c 100%);
+  border-color: #9c7551;
 }
 
 .btn-secondary:active {
   transform: scale(0.98);
-  background: #17110c;
+  background: #3e2c1e;
 }
 
 .btn-success {
@@ -521,15 +527,15 @@ select {
 }
 
 .btn-danger {
-  background: rgba(239, 68, 68, 0.14);
-  color: #f87171;
-  border: 1px solid rgba(239, 68, 68, 0.35);
+  background: rgba(239, 68, 68, 0.18);
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.4);
 }
 
 .btn-ghost {
   background: transparent;
   color: var(--muted);
-  border: 1px dashed #5a4128;
+  border: 1px dashed #7d5e42;
 }
 
 .btn-sm {
@@ -550,7 +556,7 @@ select {
 
 .hairline {
   height: 1px;
-  background: #443221;
+  background: #684e36;
   margin: 14px 0;
 }
 
@@ -575,22 +581,22 @@ select {
   padding: 13px 12px;
   position: relative;
   overflow: hidden;
-  border: 1px solid #5a4128;
+  border: 1px solid #7d5e42;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   transition: all 0.2s ease;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 4px 14px rgba(0, 0, 0, 0.4);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 4px 14px rgba(0, 0, 0, 0.3);
 }
 
 .price-card.direct {
-  background: linear-gradient(165deg, rgba(245, 158, 11, 0.18) 0%, rgba(28, 21, 15, 0.95) 100%);
-  border-color: rgba(245, 158, 11, 0.45);
+  background: linear-gradient(165deg, rgba(245, 158, 11, 0.25) 0%, rgba(68, 51, 36, 0.95) 100%);
+  border-color: rgba(245, 158, 11, 0.6);
 }
 
 .price-card.shopee {
-  background: linear-gradient(165deg, rgba(238, 77, 45, 0.16) 0%, rgba(28, 21, 15, 0.95) 100%);
-  border-color: rgba(238, 77, 45, 0.4);
+  background: linear-gradient(165deg, rgba(238, 77, 45, 0.22) 0%, rgba(68, 51, 36, 0.95) 100%);
+  border-color: rgba(238, 77, 45, 0.5);
 }
 
 .price-tag {
@@ -614,7 +620,7 @@ select {
   line-height: 1.1;
   color: #ffffff;
   margin: 4px 0;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
 }
 
 .price-sub {
@@ -627,12 +633,12 @@ select {
    SWITCHES & CONTROLE DE LOJAS
 ========================================================= */
 .channel-setting-block {
-  background: #16110c;
-  border: 1px solid #443221;
+  background: #463425;
+  border: 1px solid #6e523b;
   border-radius: var(--radius-md);
   padding: 12px;
   margin-bottom: 10px;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
   transition: all 0.2s ease;
 }
 
@@ -690,8 +696,8 @@ select {
   position: absolute;
   cursor: pointer;
   inset: 0;
-  background-color: #120e0a;
-  border: 1px solid #5a4128;
+  background-color: #2b1e14;
+  border: 1px solid #7d5e42;
   transition: 0.22s ease;
   border-radius: 24px;
 }
@@ -722,17 +728,17 @@ select {
 .channel-inputs-area {
   margin-top: 10px;
   padding-top: 10px;
-  border-top: 1px solid #332519;
+  border-top: 1px solid #5c422a;
   animation: fadeIn 0.2s ease;
 }
 
 .cost-summary-card {
-  background: linear-gradient(180deg, #221a13 0%, #17110c 100%);
-  border: 1px solid #5a4128;
+  background: linear-gradient(180deg, #4c3727 0%, #3a2b1e 100%);
+  border: 1px solid #7d5e42;
   border-radius: var(--radius-md);
   padding: 13px 15px;
   margin-bottom: 14px;
-  box-shadow: inset 0 1px 0 rgba(255, 215, 130, 0.08), 0 4px 16px rgba(0, 0, 0, 0.4);
+  box-shadow: inset 0 1px 0 rgba(254, 215, 120, 0.12), 0 4px 14px rgba(0, 0, 0, 0.3);
 }
 
 .cost-row {
@@ -741,7 +747,7 @@ select {
   padding: 6px 0;
   font-size: 12.5px;
   color: var(--muted);
-  border-bottom: 1px solid #332519;
+  border-bottom: 1px solid #5c422a;
 }
 
 .cost-row:last-child {
@@ -775,8 +781,8 @@ select {
 
 .view-toggle {
   display: flex;
-  background: #140f0b;
-  border: 1px solid #443221;
+  background: #2b1e14;
+  border: 1px solid #6e523b;
   border-radius: var(--radius-sm);
   padding: 2px;
 }
@@ -794,7 +800,7 @@ select {
 .view-toggle button.active {
   background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
   color: #120b05;
-  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.35);
 }
 
 .channel-chip {
@@ -819,7 +825,7 @@ select {
 }
 
 .kanban-cards-area.drag-over {
-  background: rgba(245, 158, 11, 0.1);
+  background: rgba(245, 158, 11, 0.15);
   border: 1px dashed var(--amber);
   border-radius: var(--radius-md);
 }
@@ -838,20 +844,20 @@ select {
 }
 
 .kanban-board::-webkit-scrollbar-thumb {
-  background: #443221;
+  background: #6e523b;
   border-radius: 3px;
 }
 
 .kanban-column {
   min-width: 265px;
   width: 265px;
-  background: linear-gradient(180deg, #1c150f 0%, #120e0a 100%);
-  border: 1px solid #4a3622;
+  background: linear-gradient(180deg, #443324 0%, #34261a 100%);
+  border: 1px solid #70533b;
   border-radius: var(--radius-lg);
   padding: 12px;
   flex-shrink: 0;
   scroll-snap-align: start;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 4px 16px rgba(0, 0, 0, 0.4);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 4px 14px rgba(0, 0, 0, 0.3);
 }
 
 .kanban-col-head {
@@ -866,12 +872,12 @@ select {
   text-transform: uppercase;
   letter-spacing: 0.05em;
   padding-bottom: 6px;
-  border-bottom: 1px solid #332519;
+  border-bottom: 1px solid #5c422a;
 }
 
 .kanban-count {
-  background: #251c14;
-  border: 1px solid #5a4128;
+  background: #543f2d;
+  border: 1px solid #7d5e42;
   padding: 2px 7px;
   border-radius: 99px;
   font-size: 10.5px;
@@ -887,14 +893,14 @@ select {
 }
 
 .order-card {
-  background: linear-gradient(180deg, #271e16 0%, #1b140e 100%);
-  border: 1px solid #4d3824;
+  background: linear-gradient(180deg, #543f2d 0%, #443223 100%);
+  border: 1px solid #7d5e42;
   border-radius: var(--radius-md);
   padding: 12px;
   cursor: pointer;
   transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
   position: relative;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 3px 10px rgba(0, 0, 0, 0.35);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 3px 10px rgba(0, 0, 0, 0.25);
 }
 
 .order-card:active {
@@ -919,7 +925,7 @@ select {
 .order-prod {
   font-size: 14px;
   font-weight: 700;
-  color: #fff;
+  color: #ffffff;
   line-height: 1.25;
   margin-bottom: 4px;
 }
@@ -936,22 +942,22 @@ select {
   justify-content: space-between;
   font-size: 12px;
   padding-top: 6px;
-  border-top: 1px solid #332519;
+  border-top: 1px solid #5c422a;
 }
 
 .order-price {
   font-weight: 900;
-  color: #fff;
+  color: #ffffff;
   font-size: 14px;
 }
 
 /* =========================================================
    MODAIS & SHEETS (PERGAMINHOS DE POPUP)
 ========================================================= */
-.overlay {
+.overlay, .sheet-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.78);
+  background: rgba(0, 0, 0, 0.7);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   opacity: 0;
@@ -960,7 +966,7 @@ select {
   z-index: 70;
 }
 
-.overlay.open {
+.overlay.open, .sheet-overlay.open {
   opacity: 1;
   pointer-events: auto;
 }
@@ -972,10 +978,10 @@ select {
   bottom: 0;
   max-height: 92vh;
   overflow-y: auto;
-  background: linear-gradient(180deg, #241b13 0%, #150f0a 100%);
+  background: linear-gradient(180deg, #543f2d 0%, #3a2b1e 100%);
   border-radius: 22px 22px 0 0;
-  border-top: 2px solid #5a4128;
-  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 215, 130, 0.12);
+  border-top: 2px solid #8a6544;
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.75), inset 0 1px 0 rgba(254, 215, 120, 0.2);
   transform: translateY(100%);
   transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
   z-index: 80;
@@ -991,7 +997,7 @@ select {
 .sheet-handle {
   width: 44px;
   height: 4px;
-  background: #5a4128;
+  background: #8a6544;
   border-radius: 2px;
   margin: 4px auto 14px;
 }
@@ -1002,7 +1008,7 @@ select {
   margin-bottom: 4px;
   font-family: var(--font-brand);
   color: var(--amber-light);
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
 }
 
 .sheet p.sub {
@@ -1019,7 +1025,7 @@ select {
   left: 50%;
   bottom: calc(96px + env(safe-area-inset-bottom));
   transform: translateX(-50%) translateY(20px);
-  background: #251c14;
+  background: #463425;
   border: 1px solid var(--border-glow);
   color: var(--text);
   font-weight: 800;
@@ -1030,7 +1036,7 @@ select {
   pointer-events: none;
   transition: all 0.25s ease;
   z-index: 100;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
   white-space: nowrap;
 }
 
@@ -1049,13 +1055,13 @@ select {
    BAMBU LAB A1 LIVE TELEMETRY & CAMERA WIDGET (FORJA CONECTADA)
 ========================================================= */
 .bambu-card {
-  background: linear-gradient(180deg, rgba(38, 28, 20, 0.98) 0%, rgba(20, 15, 10, 0.99) 100%);
-  border: 1px solid #63472d;
+  background: linear-gradient(180deg, #543f2d 0%, #443223 100%);
+  border: 1px solid #7d5e42;
   border-radius: var(--radius-lg);
   padding: 16px;
   margin-bottom: 14px;
   position: relative;
-  box-shadow: inset 0 1px 0 rgba(255, 215, 130, 0.15), 0 8px 30px rgba(0, 0, 0, 0.6);
+  box-shadow: inset 0 1px 0 rgba(254, 215, 120, 0.15), 0 6px 22px rgba(0, 0, 0, 0.35);
 }
 
 .bambu-header {
@@ -1064,7 +1070,7 @@ select {
   justify-content: space-between;
   margin-bottom: 12px;
   padding-bottom: 8px;
-  border-bottom: 1px solid rgba(99, 71, 45, 0.5);
+  border-bottom: 1px solid #684e36;
   flex-wrap: wrap;
   gap: 8px;
 }
@@ -1100,13 +1106,13 @@ select {
 }
 
 .bambu-status-badge.idle {
-  background: rgba(34, 197, 94, 0.15);
+  background: rgba(34, 197, 94, 0.18);
   color: #4ade80;
   border: 1px solid rgba(34, 197, 94, 0.4);
 }
 
 .bambu-status-badge.offline {
-  background: rgba(148, 163, 184, 0.12);
+  background: rgba(148, 163, 184, 0.15);
   color: #cbd5e1;
   border: 1px solid rgba(148, 163, 184, 0.3);
 }
@@ -1125,11 +1131,12 @@ select {
 }
 
 .bambu-progress-box {
-  background: #140e0a;
-  border: 1px solid #44301e;
+  background: #36281c;
+  border: 1px solid #634a35;
   border-radius: var(--radius-md);
   padding: 12px;
   margin-bottom: 12px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 .bambu-progress-header {
@@ -1158,12 +1165,12 @@ select {
 
 .bambu-bar-track {
   height: 10px;
-  background: #251a12;
+  background: #3f2f22;
   border-radius: 999px;
   overflow: hidden;
   position: relative;
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.8);
-  border: 1px solid #5a3e26;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.6);
+  border: 1px solid #6e523b;
   margin-bottom: 8px;
 }
 
@@ -1200,8 +1207,8 @@ select {
 }
 
 .bambu-gauge-card {
-  background: #17110c;
-  border: 1px solid #44301e;
+  background: #3c2d20;
+  border: 1px solid #634a35;
   border-radius: var(--radius-sm);
   padding: 8px 10px;
   text-align: center;
@@ -1210,7 +1217,7 @@ select {
 .bambu-gauge-label {
   font-size: 10px;
   font-weight: 700;
-  color: var(--muted-2);
+  color: var(--muted);
   text-transform: uppercase;
   letter-spacing: 0.04em;
   margin-bottom: 3px;
@@ -1229,13 +1236,13 @@ select {
 
 .bambu-gauge-sub {
   font-size: 9.5px;
-  color: var(--muted);
+  color: var(--muted-2);
 }
 
 /* AMS Lite */
 .bambu-ams-box {
-  background: #140e0a;
-  border: 1px solid #44301e;
+  background: #36281c;
+  border: 1px solid #634a35;
   border-radius: var(--radius-md);
   padding: 10px 12px;
   margin-bottom: 12px;
@@ -1260,8 +1267,8 @@ select {
 }
 
 .bambu-ams-slot {
-  background: #1f1610;
-  border: 1px solid #443221;
+  background: #463425;
+  border: 1px solid #6e523b;
   border-radius: var(--radius-sm);
   padding: 6px 4px;
   text-align: center;
@@ -1271,7 +1278,7 @@ select {
 .bambu-ams-slot.active {
   border-color: var(--amber);
   box-shadow: 0 0 8px rgba(245, 158, 11, 0.4);
-  background: #281d14;
+  background: #543f2d;
 }
 
 .bambu-ams-spool {
@@ -1279,8 +1286,8 @@ select {
   height: 18px;
   border-radius: 50%;
   margin: 0 auto 4px;
-  border: 2px solid #6b4d2e;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+  border: 2px solid #8a6544;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.4);
 }
 
 .bambu-ams-slot-name {
@@ -1294,8 +1301,8 @@ select {
 
 /* Câmera da A1 - Olho da Forja */
 .bambu-camera-box {
-  background: #0d0906;
-  border: 1px solid #5a3e26;
+  background: #1e150d;
+  border: 1px solid #7d5e42;
   border-radius: var(--radius-md);
   overflow: hidden;
   margin-bottom: 12px;
@@ -1305,7 +1312,7 @@ select {
 .bambu-camera-screen {
   width: 100%;
   height: 220px;
-  background: radial-gradient(circle at center, #1c150f 0%, #080604 100%);
+  background: radial-gradient(circle at center, #38291b 0%, #171009 100%);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1347,8 +1354,8 @@ select {
 }
 
 .bambu-cam-btn {
-  background: rgba(20, 15, 10, 0.85);
-  border: 1px solid #5a3e26;
+  background: rgba(46, 33, 22, 0.85);
+  border: 1px solid #7d5e42;
   color: var(--text);
   font-size: 11px;
   font-weight: 700;
