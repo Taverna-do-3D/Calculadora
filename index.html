@@ -2095,15 +2095,26 @@ if (quotePhoneInput) {
   document.getElementById(id)?.addEventListener('input', updateQuotePreview);
 });
 
-// Envio para o WhatsApp (com ou sem telefone preenchido)
+// Envio direto para o WhatsApp do cliente
 document.getElementById('btnSendWhatsApp')?.addEventListener('click', () => {
-  let rawPhone = (document.getElementById('quoteClientPhone')?.value || '').replace(/\D/g, '');
-  let phone = '';
+  const phoneInput = document.getElementById('quoteClientPhone');
+  const rawPhone = (phoneInput?.value || '').replace(/\D/g, '');
   
-  if (rawPhone.length >= 12 && rawPhone.startsWith('55')) {
+  if (!rawPhone) {
+    showToast('⚠️ Digite o WhatsApp do cliente no campo acima para enviar direto!');
+    phoneInput?.focus();
+    return;
+  }
+  
+  let phone = '';
+  if (rawPhone.startsWith('55') && (rawPhone.length === 12 || rawPhone.length === 13)) {
     phone = rawPhone;
-  } else if (rawPhone.length >= 10) {
+  } else if (rawPhone.length === 10 || rawPhone.length === 11) {
     phone = '55' + rawPhone;
+  } else {
+    showToast('⚠️ Número incompleto. Digite o DDD + Telefone (ex: 11 99999-9999).');
+    phoneInput?.focus();
+    return;
   }
   
   const textMsg = document.getElementById('quotePreviewText')?.value || '';
@@ -2113,21 +2124,10 @@ document.getElementById('btnSendWhatsApp')?.addEventListener('click', () => {
   }
   
   const encodedText = encodeURIComponent(textMsg);
-  const isMobile = /Android|iPhone|iPad|iPod|Windows Phone/i.test(navigator.userAgent);
+  // wa.me abre diretamente a conversa com o numero especificado tanto no celular quanto no PC
+  const targetUrl = `https://wa.me/${phone}?text=${encodedText}`;
   
-  let targetUrl = '';
-  if (isMobile) {
-    targetUrl = phone 
-      ? `https://api.whatsapp.com/send?phone=${phone}&text=${encodedText}`
-      : `https://api.whatsapp.com/send?text=${encodedText}`;
-  } else {
-    // No computador / desktop, web.whatsapp.com direto evita a página intermediária da Meta com bug de UTF-8
-    targetUrl = phone 
-      ? `https://web.whatsapp.com/send?phone=${phone}&text=${encodedText}`
-      : `https://web.whatsapp.com/send?text=${encodedText}`;
-  }
-  
-  showToast(phone ? 'Abrindo conversa no WhatsApp...' : 'Abrindo WhatsApp para selecionar o contato...', true);
+  showToast('Abrindo conversa direta com o cliente...', true);
   window.open(targetUrl, '_blank');
 });
 
