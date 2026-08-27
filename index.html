@@ -1489,7 +1489,7 @@ select {
         <input type="url" id="cfgCloudUrl" placeholder="https://xxxx.supabase.co">
       </div>
       <div class="field">
-        <label>Chave Pública Anon Key</label>
+        <label>Chave Pública (Anon Key)</label>
         <input type="password" id="cfgCloudKey" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...">
       </div>
       <div class="row2">
@@ -1511,6 +1511,29 @@ select {
         <button class="btn btn-secondary btn-sm" id="btnCloudPush">↑ Enviar para Nuvem</button>
         <button class="btn btn-secondary btn-sm" id="btnCloudPull">↓ Baixar da Nuvem</button>
       </div>
+
+      <!-- Tutorial / SQL Helper -->
+      <details style="background:var(--surface-2); border:1px solid var(--border); border-radius:8px; padding:10px; margin-top:14px; font-size:12px;">
+        <summary style="cursor:pointer; font-weight:700; color:var(--amber-light);">📋 Passo a Passo para Configurar o Supabase</summary>
+        <div style="margin-top:10px; color:var(--muted); line-height:1.5;">
+          <p><b>1. Crie seu projeto grátis:</b> Acesse <a href="https://supabase.com" target="_blank" style="color:var(--amber); text-decoration:underline;">supabase.com</a> e crie um projeto.</p>
+          <p style="margin-top:6px;"><b>2. Pegue a URL e a Chave:</b> No menu lateral esquerdo do Supabase, vá em <i>Project Settings (ícone engrenagem) ➔ API</i>. Copie a <b>Project URL</b> e a <b>anon public key</b> e cole nos campos acima.</p>
+          <p style="margin-top:6px;"><b>3. Crie a Tabela de Dados:</b> Vá em <i>SQL Editor ➔ New Query</i> no Supabase, cole o código abaixo e clique em <b>Run</b>:</p>
+          <pre style="background:#090d16; border:1px solid var(--border); border-radius:6px; padding:8px; font-size:11px; color:#38bdf8; overflow-x:auto; margin:8px 0; font-family:monospace;">create table if not exists public.taverna_state (
+  user_id uuid primary key references auth.users(id) on delete cascade,
+  payload jsonb not null default '{}'::jsonb,
+  updated_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+alter table public.taverna_state enable row level security;
+
+create policy "Users can manage their own state"
+  on public.taverna_state for all
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);</pre>
+          <p style="margin-top:6px;"><b>4. Pronto!</b> Digite seu e-mail e senha nos campos acima e clique em <b>Criar Conta</b> (ou <b>Entrar</b>). Seus dados serão sincronizados automaticamente sempre que você fizer alterações!</p>
+        </div>
+      </details>
     </div>
 
     <!-- BACKUP LOCAL -->
@@ -2637,11 +2660,12 @@ fileShopeeCSVInput?.addEventListener('change', (e) => {
 });
 
 // Integração Supabase
-async function supabaseReq(path, { method = 'GET', body = null } = {}) {
+async function supabaseReq(path, { method = 'GET', headers: extraHeaders = {}, body = null } = {}) {
   if (!appCloud.url || !appCloud.key) throw new Error('Configure URL e chave do Supabase.');
   const headers = {
     'apikey': appCloud.key,
-    'Content-Type': 'application/json'
+    'Content-Type': 'application/json',
+    ...extraHeaders
   };
   if (appCloud.session?.access_token) {
     headers['Authorization'] = 'Bearer ' + appCloud.session.access_token;
@@ -2671,6 +2695,9 @@ async function cloudPush() {
     };
     await supabaseReq('/rest/v1/taverna_state?on_conflict=user_id', {
       method: 'POST',
+      headers: {
+        'Prefer': 'resolution=merge-duplicates'
+      },
       body: {
         user_id: appCloud.session.user.id,
         payload,
