@@ -2119,20 +2119,20 @@ create policy "Users can manage their own state"
           <input type="password" id="bambuAccountPassword" placeholder="Sua senha da Bambu Lab" autocomplete="current-password">
         </div>
 
-        <div class="field" id="bambu2faField" style="margin-top:12px; padding:12px; background:rgba(245, 158, 11, 0.1); border:1px solid #996535; border-radius:var(--radius-sm);">
+        <div class="field" id="bambu2faField" style="margin-top:12px; padding:12px; background:rgba(245, 158, 11, 0.12); border:1px solid #d97706; border-radius:var(--radius-sm);">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
-            <label style="color:var(--amber-light); font-weight:800; font-size:11.5px; margin:0;">🔢 Código Verificador (2FA / E-mail)</label>
-            <span style="font-size:10px; color:var(--muted); font-style:italic;">Se solicitado</span>
+            <label style="color:var(--amber-light); font-weight:800; font-size:12px; margin:0;">🔢 Código de Verificação (6 Dígitos)</label>
+            <span style="font-size:10px; color:var(--amber-light); font-weight:700;" id="bambuCodeStatusHint">Enviado ao E-mail</span>
           </div>
-          <input type="text" id="bambu2faCode" placeholder="Ex: 123456 (6 dígitos)" maxlength="8" autocomplete="one-time-code" style="font-size:16px; font-weight:800; letter-spacing:4px; text-align:center; background:#1e140d; border-color:#d97706; color:#fff;">
-          <small style="font-size:10.5px; color:var(--text-dim); display:block; margin-top:5px; line-height:1.3;">
-            📩 Se a Bambu Lab enviar um código para o seu e-mail ao conectar, digite-o aqui e clique em <b>Conectar</b>.
+          <input type="text" id="bambu2faCode" placeholder="Ex: 123456" maxlength="8" autocomplete="one-time-code" style="font-size:17px; font-weight:900; letter-spacing:5px; text-align:center; background:#1c130c; border:1.5px solid #d97706; color:#fff;">
+          <small style="font-size:10.5px; color:var(--text-dim); display:block; margin-top:6px; line-height:1.35;">
+            💡 <i>Primeiro acesso? Clique em <b>"1. Enviar Código por E-mail"</b>. Quando receber o código no seu e-mail, digite-o aqui e clique em <b>"2. Conectar Impressora"</b>.</i>
           </small>
         </div>
 
         <div class="btn-row" style="margin-top:16px;">
           <button class="btn btn-secondary" id="btnCancelBambuModal" type="button">Fechar</button>
-          <button class="btn btn-primary" id="btnSubmitBambuLogin" type="button">Conectar na Nuvem</button>
+          <button class="btn btn-primary" id="btnSubmitBambuLogin" type="button">📩 1. Enviar Código por E-mail</button>
         </div>
       </div>
 
@@ -3765,12 +3765,27 @@ document.getElementById('btnOpenBambuModal')?.addEventListener('click', () => {
   });
 });
 
+// Monitorar digitação do código 2FA para atualizar o botão
+const bambu2faInput = document.getElementById('bambu2faCode');
+const btnSubmitBambu = document.getElementById('btnSubmitBambuLogin');
+
+bambu2faInput?.addEventListener('input', () => {
+  const val = bambu2faInput.value.trim();
+  if (btnSubmitBambu) {
+    if (val.length >= 1) {
+      btnSubmitBambu.textContent = '🚀 2. Conectar Impressora';
+    } else {
+      btnSubmitBambu.textContent = '📩 1. Enviar Código por E-mail';
+    }
+  }
+});
+
 // Login na Bambu Cloud
-document.getElementById('btnSubmitBambuLogin')?.addEventListener('click', async () => {
+btnSubmitBambu?.addEventListener('click', async () => {
   const email = document.getElementById('bambuAccountEmail')?.value?.trim();
   const pass = document.getElementById('bambuAccountPassword')?.value;
-  const code = document.getElementById('bambu2faCode')?.value?.trim();
-  const btn = document.getElementById('btnSubmitBambuLogin');
+  const code = bambu2faInput?.value?.trim();
+  const btn = btnSubmitBambu;
 
   if (!email || !pass) {
     showToast('Digite seu e-mail e senha da conta Bambu Lab.');
@@ -3778,7 +3793,7 @@ document.getElementById('btnSubmitBambuLogin')?.addEventListener('click', async 
   }
 
   btn.disabled = true;
-  btn.textContent = 'Conectando na Bambu Cloud...';
+  btn.textContent = code ? 'Conectando com o código...' : 'Solicitando código por e-mail...';
 
   try {
     const res = await fetch('/api/bambu/login', {
@@ -3789,30 +3804,26 @@ document.getElementById('btnSubmitBambuLogin')?.addEventListener('click', async 
     const data = await res.json();
 
     if (data.require2fa) {
-      const codeInput = document.getElementById('bambu2faCode');
-      if (codeInput) {
-        codeInput.focus();
-        codeInput.style.borderColor = '#f59e0b';
-        codeInput.style.boxShadow = '0 0 12px rgba(245, 158, 11, 0.4)';
+      if (bambu2faInput) {
+        bambu2faInput.focus();
+        bambu2faInput.style.borderColor = '#f59e0b';
+        bambu2faInput.style.boxShadow = '0 0 14px rgba(245, 158, 11, 0.45)';
       }
-      showToast('📩 Código enviado ao seu e-mail! Digite-o no campo abaixo e clique em Conectar.', true);
+      showToast('📩 Código de 6 dígitos enviado para seu e-mail! Digite no campo abaixo.', true);
       btn.disabled = false;
-      btn.textContent = 'Confirmar Código e Conectar';
+      btn.textContent = '🚀 2. Conectar Impressora';
       return;
     }
 
     if (!data.success || !data.token) {
       const isCodeError = data.error && (data.error.toLowerCase().includes('code') || data.error.toLowerCase().includes('verif') || data.error.toLowerCase().includes('2fa'));
-      if (isCodeError) {
-        const codeInput = document.getElementById('bambu2faCode');
-        if (codeInput) {
-          codeInput.focus();
-          codeInput.style.borderColor = '#ef4444';
-        }
+      if (isCodeError && bambu2faInput) {
+        bambu2faInput.focus();
+        bambu2faInput.style.borderColor = '#ef4444';
       }
-      showToast(data.error || 'Falha ao conectar na conta Bambu Lab.');
+      showToast(data.error || 'Falha ao autenticar na conta Bambu Lab.');
       btn.disabled = false;
-      btn.textContent = 'Conectar na Nuvem';
+      btn.textContent = code ? '🚀 2. Conectar Impressora' : '📩 1. Enviar Código por E-mail';
       return;
     }
 
