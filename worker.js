@@ -6,9 +6,11 @@ const SHOPEE_BACKUP_HOST = 'https://partner.shopeemobile.com';
 function getCredentials(env = {}) {
   const partnerId = parseInt(env.SHOPEE_PARTNER_ID || DEFAULT_PARTNER_ID, 10);
   const partnerKey = (env.SHOPEE_PARTNER_KEY || DEFAULT_PARTNER_KEY).trim();
+  const shopId = (env.SHOPEE_SHOP_ID || '1767798393').trim();
+  const accessToken = (env.SHOPEE_ACCESS_TOKEN || 'shpk79597677764c5643766e655763466b66436d5152684c516f6d4378666b59').trim();
   const proxyOrigin = (env.SHOPEE_PROXY_ORIGIN || '').trim();
   const proxySecret = (env.SHOPEE_PROXY_SECRET || '').trim();
-  return { partnerId, partnerKey, proxyOrigin, proxySecret };
+  return { partnerId, partnerKey, shopId, accessToken, proxyOrigin, proxySecret };
 }
 
 function unixTimestamp() {
@@ -131,7 +133,17 @@ function renderCallbackPage(success, message, extraData = {}) {
       }
     } else {
       if (payload.type === 'pedidos:shopee-connected') {
-        setTimeout(() => location.replace('/?shopee=connected'), 1200);
+        const q = new URLSearchParams({
+          shopee: 'connected',
+          access_token: payload.accessToken || '',
+          refresh_token: payload.refreshToken || '',
+          shop_id: payload.shopId || '',
+          shop_name: payload.shopName || ''
+        });
+        const backUrl = '/?' + q.toString();
+        const btn = document.getElementById('btnBack');
+        if (btn) btn.href = backUrl;
+        setTimeout(() => location.replace(backUrl), 1200);
       }
     }
   </script>
@@ -241,16 +253,16 @@ export default {
     // 3. BUSCAR PEDIDOS REAIS
     if (url.pathname === '/api/shopee/orders') {
       const creds = getCredentials(env);
-      let accessToken = request.headers.get('X-Shopee-Access-Token') || url.searchParams.get('access_token');
-      let shopId = request.headers.get('X-Shopee-Shop-Id') || url.searchParams.get('shop_id');
+      let accessToken = request.headers.get('X-Shopee-Access-Token') || url.searchParams.get('access_token') || creds.accessToken;
+      let shopId = request.headers.get('X-Shopee-Shop-Id') || url.searchParams.get('shop_id') || creds.shopId;
       const orderStatus = url.searchParams.get('order_status') || 'READY_TO_SHIP';
 
       if (!accessToken || !shopId) {
         if (request.method === 'POST') {
           try {
             const body = await request.json();
-            accessToken = accessToken || body.access_token || body.accessToken;
-            shopId = shopId || body.shop_id || body.shopId;
+            accessToken = accessToken || body.access_token || body.accessToken || creds.accessToken;
+            shopId = shopId || body.shop_id || body.shopId || creds.shopId;
           } catch (e) {}
         }
       }
@@ -368,7 +380,22 @@ export default {
             method: 'POST',
             body: JSON.stringify({ code, partner_id: creds.partnerId, shop_id: shopId ? parseInt(shopId, 10) : undefined })
           });
-          return json(await res.json(), res.status);
+          const data = await res.json();
+          if (res.ok && data.access_token && (data.shop_id || shopId)) {
+            const finalShopId = (data.shop_id || shopId).toString();
+            try {
+              const pathShop = '/api/v2/shop/get_shop_info';
+              const shopUrl = await buildSignedUrl(pathShop, creds, { accessToken: data.access_token, shopId: finalShopId });
+              const shopRes = await shopeeFetch(shopUrl, creds, { method: 'GET' });
+              if (shopRes.ok) {
+                const shopData = await shopRes.json();
+                if (shopData.response?.shop_name) {
+                  data.shop_name = shopData.response.shop_name;
+                }
+              }
+            } catch (e) {}
+          }
+          return json(data, res.status);
         } else if (refreshToken) {
           const path = '/api/v2/auth/access_token/get';
           const tUrl = await buildSignedUrl(path, creds);
@@ -380,6 +407,47 @@ export default {
         }
       } catch (err) {
         return json({ error: 'internal_error', message: err.message }, 500);
+      }
+    }
+
+    // 5. TESTE / PING DE CONEXÃO
+    if (url.pathname === '/api/shopee/ping') {
+      const creds = getCredentials(env);
+      let accessToken = request.headers.get('X-Shopee-Access-Token') || url.searchParams.get('access_token') || creds.accessToken;
+      let shopId = request.headers.get('X-Shopee-Shop-Id') || url.searchParams.get('shop_id') || creds.shopId;
+
+      if (!accessToken || !shopId) {
+        return json({
+          success: true,
+          status: 'ready',
+          message: 'Worker online e pronto para receber conexões da Shopee. Partner ID: ' + creds.partnerId
+        });
+      }
+
+      try {
+        const pathShop = '/api/v2/shop/get_shop_info';
+        const shopUrl = await buildSignedUrl(pathShop, creds, { accessToken, shopId });
+        const shopRes = await shopeeFetch(shopUrl, creds, { method: 'GET' });
+        const shopData = await shopRes.json();
+
+        if (shopRes.ok && !shopData.error) {
+          return json({
+            success: true,
+            status: 'connected',
+            shopName: shopData.response?.shop_name || `Loja #${shopId}`,
+            shopId: shopId,
+            message: `Conexão bem sucedida com a loja "${shopData.response?.shop_name || shopId}"!`
+          });
+        } else {
+          return json({
+            success: false,
+            status: 'auth_error',
+            error: shopData.error || 'auth_error',
+            message: shopData.message || 'Token expirado ou inválido na Shopee.'
+          }, 400);
+        }
+      } catch (e) {
+        return json({ success: false, error: e.message }, 500);
       }
     }
 

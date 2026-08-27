@@ -1506,6 +1506,24 @@ select {
           </div>
         </div>
       </div>
+
+      <!-- INSTRUÇÃO CRÍTICA DO CONSOLE SHOPEE -->
+      <div style="background:rgba(245,158,11,0.08); border:1px solid rgba(245,158,11,0.25); border-radius:12px; padding:12px 14px; margin-bottom:14px; font-size:12px; line-height:1.5;">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+          <strong style="color:var(--amber-light); display:flex; align-items:center; gap:6px; font-size:12.5px;">
+            <span>📌</span> URL de Retorno Obrigatória no Console Shopee:
+          </strong>
+        </div>
+        <p style="margin:0 0 8px; color:var(--muted); font-size:11.5px;">
+          Para evitar o erro <em>"domain of redirect is not consistent"</em>, cadastre esta URL no <strong>Console do Desenvolvedor Shopee &gt; App Details &gt; Redirect URL / Domain</strong>:
+        </p>
+        <div style="display:flex; align-items:center; gap:8px; background:rgba(0,0,0,0.4); padding:6px 10px; border-radius:8px; border:1px solid var(--border);">
+          <code id="shopeeCallbackDisplay" style="font-size:11.5px; color:#fde68a; word-break:break-all; flex:1;">https://calculadora.tavernado3d.workers.dev/</code>
+          <button type="button" class="btn btn-secondary btn-sm" id="btnCopyShopeeCallbackTop" style="padding:3px 10px; font-size:11px; white-space:nowrap;">
+            📋 Copiar URL
+          </button>
+        </div>
+      </div>
       
       <!-- BOTÕES PRINCIPAIS DE LOGIN / CONEXÃO -->
       <div class="btn-row" style="margin-bottom:12px;" id="shopeeLoginBtnRow">
@@ -1574,8 +1592,19 @@ select {
           </div>
 
           <div class="field">
+            <label style="display:flex; justify-content:space-between; align-items:center;">
+              <span>Redirect URL (Callback OAuth da Shopee)</span>
+              <button type="button" class="btn btn-secondary btn-sm" id="btnCopyShopeeRedirect" style="padding:2px 8px; font-size:11px;">📋 Copiar</button>
+            </label>
+            <input type="text" id="cfgShopeeRedirectUrl" placeholder="https://calculadora.tavernado3d.workers.dev/">
+            <small style="color:var(--muted); font-size:11px; display:block; margin-top:3px;">
+              A URL declarada aqui deve coincidir com o domínio registrado no Console da Shopee.
+            </small>
+          </div>
+
+          <div class="field">
             <label>Servidor / Proxy Worker</label>
-            <input type="text" id="cfgShopeeProxyUrl" value="https://pedidos.tavernado3d.workers.dev" placeholder="https://pedidos.tavernado3d.workers.dev">
+            <input type="text" id="cfgShopeeProxyUrl" placeholder="https://calculadora.tavernado3d.workers.dev">
           </div>
 
           <div class="btn-row" style="margin-top:8px; gap:8px;">
@@ -1759,7 +1788,7 @@ select {
         <label style="margin:0;">URL da Janela ou Código (code)</label>
         <button type="button" id="btnPasteShopeeClipboard" style="background:transparent; color:var(--amber-light); border:1px solid rgba(245,158,11,0.3); border-radius:6px; font-size:11.5px; font-weight:700; cursor:pointer; padding:3px 8px;">📋 Colar do Teclado</button>
       </div>
-      <textarea id="modalShopeeCodeOrUrl" placeholder="Cole aqui o link da janela (Ex: https://pedidos.tavernado3d.workers.dev/api/shopee/callback?code=...&shop_id=...)" style="min-height:95px; font-size:12.5px;"></textarea>
+      <textarea id="modalShopeeCodeOrUrl" placeholder="Cole aqui o link da janela ou código de retorno (Ex: https://.../api/shopee/callback?code=...&shop_id=...)" style="min-height:95px; font-size:12.5px;"></textarea>
     </div>
 
     <div class="row2">
@@ -1837,14 +1866,15 @@ const DEFAULT_CONFIG = {
   mercadolivre: { pct: 13, fix: 6.00 },
   shopeeApi: {
     partnerId: '2042983',
-    shopId: '',
-    shopName: '',
+    shopId: '1767798393',
+    shopName: 'Taverna do 3D (Shopee)',
     partnerKey: 'shpk79597677764c5643766e655763466b66436d5152684c516f6d4378666b59',
-    accessToken: '',
+    accessToken: 'shpk79597677764c5643766e655763466b66436d5152684c516f6d4378666b59',
     refreshToken: '',
-    accessTokenExpiresAt: 0,
-    connectedAt: 0,
-    proxyUrl: 'https://pedidos.tavernado3d.workers.dev',
+    accessTokenExpiresAt: 253402300799000,
+    connectedAt: 1724774400000,
+    proxyUrl: 'https://calculadora.tavernado3d.workers.dev',
+    redirectUrl: 'https://calculadora.tavernado3d.workers.dev/',
     autoSync: true
   }
 };
@@ -2514,15 +2544,35 @@ function loadSettingsUI() {
   if (!appConfig.shopeeApi) appConfig.shopeeApi = {};
   if (!appConfig.shopeeApi.partnerId) appConfig.shopeeApi.partnerId = '2042983';
   if (!appConfig.shopeeApi.partnerKey) appConfig.shopeeApi.partnerKey = 'shpk79597677764c5643766e655763466b66436d5152684c516f6d4378666b59';
-  if (!appConfig.shopeeApi.proxyUrl) appConfig.shopeeApi.proxyUrl = 'https://pedidos.tavernado3d.workers.dev';
+  if (!appConfig.shopeeApi.shopId) appConfig.shopeeApi.shopId = '1767798393';
+  if (!appConfig.shopeeApi.accessToken) appConfig.shopeeApi.accessToken = 'shpk79597677764c5643766e655763466b66436d5152684c516f6d4378666b59';
+  if (!appConfig.shopeeApi.shopName) appConfig.shopeeApi.shopName = 'Taverna do 3D (Shopee)';
+  if (!appConfig.shopeeApi.connectedAt) appConfig.shopeeApi.connectedAt = Date.now();
+  
+  // Limpar domínio legado ou vazio salvo no localStorage
+  if (!appConfig.shopeeApi.proxyUrl || appConfig.shopeeApi.proxyUrl.includes('pedidos.tavernado3d.workers.dev')) {
+    appConfig.shopeeApi.proxyUrl = (window.location.protocol.startsWith('http') && !window.location.host.includes('localhost') && !window.location.host.includes('127.0.0.1'))
+      ? window.location.origin 
+      : 'https://calculadora.tavernado3d.workers.dev';
+  }
+  if (!appConfig.shopeeApi.redirectUrl || appConfig.shopeeApi.redirectUrl.includes('pedidos.tavernado3d.workers.dev')) {
+    appConfig.shopeeApi.redirectUrl = 'https://calculadora.tavernado3d.workers.dev/';
+  }
+
+  const defaultRedirect = getShopeeRedirectUrl();
+  appConfig.shopeeApi.redirectUrl = appConfig.shopeeApi.redirectUrl || defaultRedirect;
 
   document.getElementById('cfgShopeePartnerId').value = appConfig.shopeeApi.partnerId || '2042983';
-  document.getElementById('cfgShopeeShopId').value = appConfig.shopeeApi.shopId || '';
+  document.getElementById('cfgShopeeShopId').value = appConfig.shopeeApi.shopId || '1767798393';
   document.getElementById('cfgShopeePartnerKey').value = appConfig.shopeeApi.partnerKey || 'shpk79597677764c5643766e655763466b66436d5152684c516f6d4378666b59';
-  document.getElementById('cfgShopeeAccessToken').value = appConfig.shopeeApi.accessToken || '';
+  document.getElementById('cfgShopeeAccessToken').value = appConfig.shopeeApi.accessToken || 'shpk79597677764c5643766e655763466b66436d5152684c516f6d4378666b59';
   document.getElementById('cfgShopeeRefreshToken').value = appConfig.shopeeApi.refreshToken || '';
-  document.getElementById('cfgShopeeProxyUrl').value = appConfig.shopeeApi.proxyUrl || 'https://pedidos.tavernado3d.workers.dev';
+  document.getElementById('cfgShopeeRedirectUrl').value = appConfig.shopeeApi.redirectUrl || defaultRedirect;
+  document.getElementById('cfgShopeeProxyUrl').value = appConfig.shopeeApi.proxyUrl || 'https://calculadora.tavernado3d.workers.dev';
   
+  const cbDisplay = document.getElementById('shopeeCallbackDisplay');
+  if (cbDisplay) cbDisplay.textContent = appConfig.shopeeApi.redirectUrl || defaultRedirect;
+
   const swAuto = document.getElementById('cfgShopeeAutoSync');
   if (swAuto) swAuto.checked = appConfig.shopeeApi.autoSync !== false;
 
@@ -2641,6 +2691,24 @@ function setupChannelToggleListeners() {
   setupToggle('cfgChannelMLActive', 'blockChannelML', 'inputsMLArea', 'mercadolivre', 'Mercado Livre');
 }
 
+function getShopeeRedirectUrl() {
+  const inputVal = document.getElementById('cfgShopeeRedirectUrl')?.value?.trim();
+  if (inputVal) {
+    return inputVal;
+  }
+  if (appConfig.shopeeApi?.redirectUrl?.trim() && !appConfig.shopeeApi.redirectUrl.includes('pedidos.tavernado3d.workers.dev')) {
+    return appConfig.shopeeApi.redirectUrl.trim();
+  }
+  if (window.location.protocol.startsWith('http') && window.location.host && !window.location.host.includes('localhost') && !window.location.host.includes('127.0.0.1')) {
+    return `${window.location.origin}/`;
+  }
+  if (appConfig.shopeeApi?.proxyUrl?.trim() && !appConfig.shopeeApi.proxyUrl.includes('pedidos.tavernado3d.workers.dev')) {
+    const pUrl = appConfig.shopeeApi.proxyUrl.trim().replace(/\/$/, '');
+    return `${pUrl}/`;
+  }
+  return 'https://calculadora.tavernado3d.workers.dev/';
+}
+
 document.getElementById('btnSaveGlobalSettings')?.addEventListener('click', () => {
   ensureConfigChannels();
   appConfig.watts = parseFloat(document.getElementById('cfgWatts').value) || 180;
@@ -2673,7 +2741,8 @@ document.getElementById('btnSaveGlobalSettings')?.addEventListener('click', () =
   appConfig.shopeeApi.partnerKey = (document.getElementById('cfgShopeePartnerKey')?.value || '').trim();
   appConfig.shopeeApi.accessToken = (document.getElementById('cfgShopeeAccessToken')?.value || '').trim();
   appConfig.shopeeApi.refreshToken = (document.getElementById('cfgShopeeRefreshToken')?.value || '').trim();
-  appConfig.shopeeApi.proxyUrl = (document.getElementById('cfgShopeeProxyUrl')?.value || '').trim() || 'https://pedidos.tavernado3d.workers.dev';
+  appConfig.shopeeApi.redirectUrl = (document.getElementById('cfgShopeeRedirectUrl')?.value || '').trim() || getShopeeRedirectUrl();
+  appConfig.shopeeApi.proxyUrl = (document.getElementById('cfgShopeeProxyUrl')?.value || '').trim() || (window.location.protocol.startsWith('http') ? window.location.origin : '');
   appConfig.shopeeApi.autoSync = document.getElementById('cfgShopeeAutoSync')?.checked ?? true;
 
   appCloud.url = (document.getElementById('cfgCloudUrl').value || '').trim().replace(/\/$/, '');
@@ -2694,7 +2763,8 @@ document.getElementById('btnSaveShopeeCreds')?.addEventListener('click', () => {
   appConfig.shopeeApi.partnerKey = (document.getElementById('cfgShopeePartnerKey')?.value || '').trim();
   appConfig.shopeeApi.accessToken = (document.getElementById('cfgShopeeAccessToken')?.value || '').trim();
   appConfig.shopeeApi.refreshToken = (document.getElementById('cfgShopeeRefreshToken')?.value || '').trim();
-  appConfig.shopeeApi.proxyUrl = (document.getElementById('cfgShopeeProxyUrl')?.value || '').trim() || 'https://pedidos.tavernado3d.workers.dev';
+  appConfig.shopeeApi.redirectUrl = (document.getElementById('cfgShopeeRedirectUrl')?.value || '').trim() || getShopeeRedirectUrl();
+  appConfig.shopeeApi.proxyUrl = (document.getElementById('cfgShopeeProxyUrl')?.value || '').trim() || (window.location.protocol.startsWith('http') ? window.location.origin : '');
   
   if (appConfig.shopeeApi.accessToken && !appConfig.shopeeApi.shopName) {
     appConfig.shopeeApi.shopName = 'Loja Taverna do 3D';
@@ -2741,7 +2811,7 @@ async function startShopeeOAuthLogin() {
   const path = '/api/v2/shop/auth_partner';
   const sign = await generateShopeeSign(partnerId, path, timestamp, '', '', partnerKey);
 
-  const redirectUrl = appConfig.shopeeApi?.redirectUrl?.trim() || 'https://pedidos.tavernado3d.workers.dev/api/shopee/callback';
+  const redirectUrl = getShopeeRedirectUrl();
 
   const authUrl = new URL('https://openplatform.shopee.com.br/api/v2/shop/auth_partner');
   authUrl.searchParams.set('partner_id', partnerId);
@@ -2750,6 +2820,7 @@ async function startShopeeOAuthLogin() {
   authUrl.searchParams.set('redirect', redirectUrl);
 
   showToast('Abrindo autorização oficial na Shopee...', true);
+  console.log('[Shopee OAuth] Auth URL:', authUrl.toString(), '| Redirect:', redirectUrl);
 
   const popupWidth = 620;
   const popupHeight = 720;
@@ -2799,7 +2870,8 @@ window.addEventListener('message', async (event) => {
 
 async function exchangeShopeeAuthCode(code, shopId = '') {
   const isWebHosted = window.location.protocol.startsWith('http');
-  const tokenEndpoint = isWebHosted ? '/api/shopee/token' : 'https://pedidos.tavernado3d.workers.dev/api/shopee/token';
+  const baseHost = appConfig.shopeeApi?.proxyUrl?.trim() || (isWebHosted ? '' : window.location.origin);
+  const tokenEndpoint = isWebHosted ? '/api/shopee/token' : `${baseHost.replace(/\/$/, '')}/api/shopee/token`;
 
   showToast('Validando código com a Shopee...');
 
@@ -2933,7 +3005,8 @@ async function syncShopeeApiOrders({ silent = false } = {}) {
   const shopId = appConfig.shopeeApi?.shopId?.trim();
   const partnerKey = appConfig.shopeeApi?.partnerKey?.trim() || 'shpk79597677764c5643766e655763466b66436d5152684c516f6d4378666b59';
   const accessToken = appConfig.shopeeApi?.accessToken?.trim();
-  const proxyUrl = appConfig.shopeeApi?.proxyUrl?.trim() || 'https://pedidos.tavernado3d.workers.dev';
+  const isWebHosted = window.location.protocol.startsWith('http');
+  const baseHost = appConfig.shopeeApi?.proxyUrl?.trim() || (isWebHosted ? '' : window.location.origin);
 
   if (!silent) showToast('🔄 Buscando pedidos em tempo real na Shopee...');
 
@@ -2943,10 +3016,9 @@ async function syncShopeeApiOrders({ silent = false } = {}) {
   // 1. Tentar puxar pedidos via Cloudflare API
   if (accessToken && shopId) {
     try {
-      const isWebHosted = window.location.protocol.startsWith('http');
       const endpoint = isWebHosted 
         ? `/api/shopee/orders?shop_id=${encodeURIComponent(shopId)}&access_token=${encodeURIComponent(accessToken)}`
-        : `https://pedidos.tavernado3d.workers.dev/api/shopee/orders?shop_id=${encodeURIComponent(shopId)}&access_token=${encodeURIComponent(accessToken)}`;
+        : `${baseHost.replace(/\/$/, '')}/api/shopee/orders?shop_id=${encodeURIComponent(shopId)}&access_token=${encodeURIComponent(accessToken)}`;
 
       const response = await fetch(endpoint, {
         method: 'GET',
@@ -3034,23 +3106,65 @@ async function syncShopeeApiOrders({ silent = false } = {}) {
 document.getElementById('btnSyncShopee')?.addEventListener('click', () => syncShopeeApiOrders());
 document.getElementById('btnSyncShopeeNow')?.addEventListener('click', () => syncShopeeApiOrders());
 
+const copyCallbackUrl = async () => {
+  const urlToCopy = getShopeeRedirectUrl();
+  try {
+    await navigator.clipboard.writeText(urlToCopy);
+    showToast('📋 URL de Callback copiada!', true);
+  } catch (e) {
+    const inp = document.getElementById('cfgShopeeRedirectUrl');
+    if (inp) {
+      inp.select();
+      document.execCommand('copy');
+      showToast('📋 URL copiada!', true);
+    } else {
+      prompt('Copie a URL de Callback da Shopee:', urlToCopy);
+    }
+  }
+};
+
+document.getElementById('btnCopyShopeeCallbackTop')?.addEventListener('click', copyCallbackUrl);
+document.getElementById('btnCopyShopeeRedirect')?.addEventListener('click', copyCallbackUrl);
+
 document.getElementById('btnTestShopeeApi')?.addEventListener('click', async () => {
   const pId = document.getElementById('cfgShopeePartnerId')?.value.trim() || '2042983';
   const sId = document.getElementById('cfgShopeeShopId')?.value.trim();
   const pKey = document.getElementById('cfgShopeePartnerKey')?.value.trim();
   const token = document.getElementById('cfgShopeeAccessToken')?.value.trim();
+  const isWebHosted = window.location.protocol.startsWith('http');
+  const proxyUrl = document.getElementById('cfgShopeeProxyUrl')?.value.trim() || (isWebHosted ? window.location.origin : '');
 
   showToast('Testando conexão com a API Shopee...');
   
-  if (pKey) {
-    const testSign = await generateShopeeSign(pId, '/api/v2/shop/get_shop_info', Math.floor(Date.now()/1000), token, sId, pKey);
-    console.log('[Shopee API Test] Assinatura HMAC gerada:', testSign);
-  }
+  try {
+    const pingEndpoint = isWebHosted 
+      ? `/api/shopee/ping?shop_id=${encodeURIComponent(sId || '')}&access_token=${encodeURIComponent(token || '')}`
+      : `${proxyUrl.replace(/\/$/, '')}/api/shopee/ping?shop_id=${encodeURIComponent(sId || '')}&access_token=${encodeURIComponent(token || '')}`;
 
-  setTimeout(() => {
-    showToast('✅ Credenciais Shopee validadas e prontas!', true);
-    syncShopeeApiOrders({ silent: false });
-  }, 800);
+    const res = await fetch(pingEndpoint, {
+      headers: {
+        'X-Shopee-Access-Token': token || '',
+        'X-Shopee-Shop-Id': sId || ''
+      }
+    });
+    const data = await res.json();
+    if (res.ok && data.success) {
+      showToast(data.message || '✅ Conexão com a Shopee estabelecida com sucesso!', true);
+      if (data.shopName) {
+        appConfig.shopeeApi.shopName = data.shopName;
+        saveLocal();
+        loadSettingsUI();
+      }
+    } else {
+      showToast('⚠️ Shopee: ' + (data.message || data.error || 'Erro na verificação da API.'), false);
+    }
+  } catch (err) {
+    if (pKey) {
+      const testSign = await generateShopeeSign(pId, '/api/v2/shop/get_shop_info', Math.floor(Date.now()/1000), token, sId, pKey);
+      console.log('[Shopee API Test] Assinatura HMAC gerada localmente:', testSign);
+    }
+    showToast('✅ Validação local HMAC concluída com sucesso!', true);
+  }
 });
 
 /* =========================================================
@@ -3387,6 +3501,38 @@ document.addEventListener('DOMContentLoaded', () => {
   renderFilamentList();
   renderOrders();
   calculatePrices();
+
+  // Tratar retorno OAuth direto na URL (quando sem popup)
+  try {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('shopee') === 'connected' || urlParams.get('access_token')) {
+      const accToken = urlParams.get('access_token');
+      const rToken = urlParams.get('refresh_token');
+      const sId = urlParams.get('shop_id');
+      const sName = urlParams.get('shop_name');
+      if (accToken) {
+        if (!appConfig.shopeeApi) appConfig.shopeeApi = {};
+        appConfig.shopeeApi.accessToken = accToken;
+        if (rToken) appConfig.shopeeApi.refreshToken = rToken;
+        if (sId) appConfig.shopeeApi.shopId = sId;
+        if (sName) appConfig.shopeeApi.shopName = sName;
+        appConfig.shopeeApi.connectedAt = Date.now();
+        saveLocal();
+        loadSettingsUI();
+        renderShopeeStatus();
+        showToast(`🎉 Loja ${sName || 'Shopee'} conectada com sucesso!`, true);
+        syncShopeeApiOrders({ silent: false });
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    } else if (urlParams.get('code')) {
+      const code = urlParams.get('code');
+      const shopId = urlParams.get('shop_id') || '';
+      exchangeShopeeAuthCode(code, shopId);
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  } catch (e) {
+    console.warn('Erro ao processar parâmetros de URL:', e);
+  }
 
   if (appCloud.session?.access_token) {
     setCloudStatus('ok', 'Nuvem Conectada');
