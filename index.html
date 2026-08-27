@@ -1549,11 +1549,14 @@ select {
           </span>
         </div>
         <div style="display:flex; gap:6px;">
-          <button class="btn btn-secondary btn-sm" id="btnToggleBambuCam" type="button" style="padding:5px 10px; font-size:11px;">
+          <button class="btn btn-secondary btn-sm" id="btnSyncBambuHeader" type="button" style="padding:5px 9px; font-size:11px;" title="Atualizar dados da impressora">
+            🔄 Sincronizar
+          </button>
+          <button class="btn btn-secondary btn-sm" id="btnToggleBambuCam" type="button" style="padding:5px 9px; font-size:11px;">
             👁️ Câmera
           </button>
-          <button class="btn btn-primary btn-sm" id="btnOpenBambuModal" type="button" style="padding:5px 10px; font-size:11px;">
-            ⚙️ Conectar
+          <button class="btn btn-primary btn-sm" id="btnOpenBambuModal" type="button" style="padding:5px 9px; font-size:11px;">
+            ⚙️ Conexão
           </button>
         </div>
       </div>
@@ -1562,9 +1565,14 @@ select {
       <div class="bambu-camera-box" id="bambuCamBox" style="display:none;">
         <div class="bambu-camera-screen" id="bambuCamScreen">
           <div class="bambu-cam-live-badge">
-            <span class="bambu-pulse-dot" style="background:#fff;"></span> AO VIVO
+            <span class="bambu-pulse-dot" style="background:#fff;"></span> <span id="bambuCamBadgeLabel">AO VIVO</span>
           </div>
-          <img id="bambuCamImg" src="assets/taverna-bg.jpg" alt="Câmera Bambu Lab">
+          <img id="bambuCamImg" src="assets/taverna-bg.jpg" alt="Câmera Bambu Lab" style="display:block;">
+          <div id="bambuCamPlaceholder" style="display:none; padding:20px; text-align:center; color:var(--text-dim);">
+            <div style="font-size:32px; margin-bottom:8px;">📷</div>
+            <strong style="color:var(--amber-light); font-size:13px; display:block; margin-bottom:4px;">Olho da Forja (Câmera Bambu)</strong>
+            <p style="font-size:11px; margin:0; line-height:1.4;">Inicie uma impressão para visualizar o render da peça na mesa ou use o snapshot da rede local.</p>
+          </div>
           <div class="bambu-cam-actions">
             <button class="bambu-cam-btn" id="btnRefreshCam" type="button" title="Atualizar Foto">🔄 Atualizar</button>
             <button class="bambu-cam-btn" id="btnFullCam" type="button" title="Tela Cheia">⛶ Tela Cheia</button>
@@ -3627,6 +3635,27 @@ function updateBambuUI() {
     }
   }
 
+  // Câmera / Imagem da Peça
+  const camImg = document.getElementById('bambuCamImg');
+  const camPlaceholder = document.getElementById('bambuCamPlaceholder');
+  const camBadge = document.getElementById('bambuCamBadgeLabel');
+  if (camImg && camPlaceholder) {
+    if (appBambu.camUrl) {
+      camImg.style.display = 'block';
+      camImg.src = appBambu.camUrl;
+      camPlaceholder.style.display = 'none';
+      if (camBadge) camBadge.textContent = appBambu.state === 'RUNNING' ? 'IMPRIMINDO' : 'AO VIVO';
+    } else if (appBambu.state === 'RUNNING' || appBambu.state === 'PRINTING') {
+      camImg.style.display = 'block';
+      camPlaceholder.style.display = 'none';
+      if (camBadge) camBadge.textContent = 'IMPRIMINDO';
+    } else {
+      camImg.style.display = 'none';
+      camPlaceholder.style.display = 'block';
+      if (camBadge) camBadge.textContent = appBambu.connected ? 'STANDBY' : 'OFFLINE';
+    }
+  }
+
   // Modal info update
   const authContainer = document.getElementById('bambuAuthContainer');
   const connectedBox = document.getElementById('bambuConnectedBox');
@@ -3793,11 +3822,13 @@ document.getElementById('btnToggleBambuCam')?.addEventListener('click', () => {
   }
 });
 
-document.getElementById('btnRefreshCam')?.addEventListener('click', () => {
-  syncBambuTelemetry(false);
+document.getElementById('btnRefreshCam')?.addEventListener('click', async () => {
+  showToast('Atualizando foto da câmera...', true);
+  await syncBambuTelemetry(true);
   const img = document.getElementById('bambuCamImg');
   if (img && appBambu.camUrl) {
     img.src = appBambu.camUrl + (appBambu.camUrl.includes('?') ? '&' : '?') + 't=' + Date.now();
+    showToast('Foto da câmera atualizada! 📸', true);
   }
 });
 
@@ -3810,6 +3841,11 @@ document.getElementById('btnFullCam')?.addEventListener('click', () => {
       document.exitFullscreen().catch(() => {});
     }
   }
+});
+
+// Botão Sincronizar do Cabeçalho da Forja
+document.getElementById('btnSyncBambuHeader')?.addEventListener('click', () => {
+  syncBambuTelemetry(false);
 });
 
 // Abrir/Fechar Modal da Bambu Lab
