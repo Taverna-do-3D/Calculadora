@@ -41,17 +41,25 @@ export default {
     if (url.pathname === '/api/bambu/login' && request.method === 'POST') {
       try {
         const body = await request.json().catch(() => ({}));
-        const { account, password, tfa_code } = body;
+        const { account, password, tfa_code, code } = body;
 
         if (!account || !password) {
           return jsonResponse({ success: false, error: 'E-mail e senha da Bambu Lab são obrigatórios.' }, 400);
         }
 
+        const verificationCode = String(tfa_code || code || '').trim();
+
         const payload = {
           account: account.trim(),
           password: password.trim(),
         };
-        if (tfa_code) payload.tfa_code = String(tfa_code).trim();
+
+        if (verificationCode) {
+          payload.tfa_code = verificationCode;
+          payload.code = verificationCode;
+          payload.tfaCode = verificationCode;
+          payload.verifyCode = verificationCode;
+        }
 
         const bambuRes = await fetch('https://api.bambulab.com/v1/user-service/user/login', {
           method: 'POST',
@@ -65,18 +73,32 @@ export default {
 
         const data = await bambuRes.json().catch(() => ({}));
 
+        const msg = ((data.message || '') + ' ' + (data.error || '') + ' ' + (data.msg || '') + ' ' + (data.description || '')).toLowerCase();
+        const codeVal = String(data.code || '');
+        const is2fa = msg.includes('2fa') || 
+                      msg.includes('tfa') || 
+                      msg.includes('verif') || 
+                      msg.includes('código') || 
+                      msg.includes('codigo') || 
+                      msg.includes('code') || 
+                      msg.includes('otp') || 
+                      codeVal.includes('40010026') || 
+                      data.tfa_code_required || 
+                      data.require_2fa || 
+                      data.require2fa;
+
         if (!bambuRes.ok || !data.accessToken) {
           // Se precisar de 2FA / código de e-mail
-          if ((data.message && data.message.includes('2fa')) || data.tfa_code_required) {
+          if (is2fa) {
             return jsonResponse({
               success: false,
               require2fa: true,
-              message: 'Código de verificação (2FA / E-mail) requerido. Digite o código recebido no seu e-mail.',
+              message: 'A Bambu Lab enviou um código de verificação para o seu e-mail. Digite o código para continuar.',
             }, 200);
           }
           return jsonResponse({
             success: false,
-            error: data.message || 'Falha ao autenticar na Bambu Lab. Verifique seu e-mail e senha.',
+            error: data.message || data.error || 'Falha ao autenticar na Bambu Lab. Verifique seu e-mail e senha.',
           }, 401);
         }
 
