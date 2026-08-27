@@ -50,7 +50,6 @@
   /* Canais */
   --ch-whatsapp: #25d366;
   --ch-shopee: #ee4d2d;
-  --ch-tiktok: #fe2c55;
   --ch-direct: #f59e0b;
   
   --radius-sm: 10px;
@@ -570,16 +569,6 @@ select {
   border-color: rgba(238, 77, 45, 0.4);
 }
 
-.price-card.tiktok {
-  background: linear-gradient(165deg, rgba(254, 44, 85, 0.16) 0%, rgba(28, 21, 15, 0.95) 100%);
-  border-color: rgba(254, 44, 85, 0.4);
-}
-
-.price-card.mercadolivre {
-  background: linear-gradient(165deg, rgba(250, 204, 21, 0.16) 0%, rgba(28, 21, 15, 0.95) 100%);
-  border-color: rgba(250, 204, 21, 0.45);
-}
-
 .price-tag {
   font-size: 10.5px;
   font-weight: 800;
@@ -593,8 +582,6 @@ select {
 
 .price-card.direct .price-tag { color: var(--amber-light); }
 .price-card.shopee .price-tag { color: #ff8570; }
-.price-card.tiktok .price-tag { color: #ff7591; }
-.price-card.mercadolivre .price-tag { color: #fde047; }
 
 .price-val {
   font-size: 22px;
@@ -799,8 +786,6 @@ select {
 
 .ch-whatsapp { background: rgba(37, 211, 102, 0.15); color: #4ade80; border-color: rgba(37, 211, 102, 0.35); }
 .ch-shopee { background: rgba(238, 77, 45, 0.15); color: #ff8570; border-color: rgba(238, 77, 45, 0.35); }
-.ch-tiktok { background: rgba(254, 44, 85, 0.15); color: #ff7591; border-color: rgba(254, 44, 85, 0.35); }
-.ch-mercadolivre, .ch-ml { background: rgba(250, 204, 21, 0.15); color: #fde047; border-color: rgba(250, 204, 21, 0.35); }
 .ch-direct { background: rgba(245, 158, 11, 0.15); color: var(--amber-light); border-color: rgba(245, 158, 11, 0.35); }
 
 .order-card.is-dragging {
@@ -1559,28 +1544,6 @@ select {
           <div class="price-sub" id="shopeeFeeNote">Taxa 20% + R$ 4</div>
         </div>
       </div>
-
-      <!-- TikTok Shop -->
-      <div class="price-card tiktok" id="cardPriceTikTok">
-        <div>
-          <div class="price-tag">
-            <span>🎵</span> TikTok Shop
-          </div>
-          <div class="price-val tabular" id="priceTikTok">R$ 0,00</div>
-          <div class="price-sub" id="tiktokFeeNote">Taxa 14% + R$ 2</div>
-        </div>
-      </div>
-
-      <!-- Mercado Livre -->
-      <div class="price-card mercadolivre" id="cardPriceML" style="display:none;">
-        <div>
-          <div class="price-tag">
-            <span>💛</span> Mercado Livre
-          </div>
-          <div class="price-val tabular" id="priceML">R$ 0,00</div>
-          <div class="price-sub" id="mlFeeNote">Taxa 13% + R$ 6</div>
-        </div>
-      </div>
     </div>
 
     <!-- RESUMO DE CUSTOS REAIS -->
@@ -1642,8 +1605,6 @@ select {
             <option value="all">Todos os canais</option>
             <option value="whatsapp">💬 WhatsApp / Direto</option>
             <option value="shopee">🛍️ Shopee</option>
-            <option value="tiktok">🎵 TikTok Shop</option>
-            <option value="mercadolivre">💛 Mercado Livre</option>
           </select>
         </div>
         <div class="field">
@@ -1847,64 +1808,6 @@ select {
           </div>
         </div>
       </div>
-
-      <!-- TikTok Shop -->
-      <div class="channel-setting-block" id="blockChannelTikTok">
-        <div class="switch-header">
-          <div class="switch-info">
-            <span class="switch-icon">🎵</span>
-            <div>
-              <div class="switch-title">TikTok Shop</div>
-              <div class="switch-sub">Comissão TikTok Shop Brasil + Processamento</div>
-            </div>
-          </div>
-          <label class="toggle-switch" title="Ativar ou Desativar TikTok Shop">
-            <input type="checkbox" id="cfgChannelTikTokActive" checked>
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
-        <div class="channel-inputs-area" id="inputsTikTokArea">
-          <div class="row2">
-            <div class="field">
-              <label>TikTok Shop - Comissão (%)</label>
-              <input type="number" id="cfgTikTokPct" value="14" step="0.5">
-            </div>
-            <div class="field">
-              <label>TikTok Shop - Taxa Fixa (R$)</label>
-              <input type="number" id="cfgTikTokFix" value="2.00" step="0.5">
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Mercado Livre -->
-      <div class="channel-setting-block" id="blockChannelML">
-        <div class="switch-header">
-          <div class="switch-info">
-            <span class="switch-icon">💛</span>
-            <div>
-              <div class="switch-title">Mercado Livre</div>
-              <div class="switch-sub">Comissão Clássico/Premium + Custo fixo</div>
-            </div>
-          </div>
-          <label class="toggle-switch" title="Ativar ou Desativar Mercado Livre">
-            <input type="checkbox" id="cfgChannelMLActive">
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
-        <div class="channel-inputs-area" id="inputsMLArea" style="display:none;">
-          <div class="row2">
-            <div class="field">
-              <label>Mercado Livre - Comissão (%)</label>
-              <input type="number" id="cfgMLPct" value="13" step="0.5">
-            </div>
-            <div class="field">
-              <label>Mercado Livre - Taxa Fixa (R$)</label>
-              <input type="number" id="cfgMLFix" value="6.00" step="0.5">
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
 
     <!-- SUPABASE / NUVEM -->
@@ -2008,8 +1911,6 @@ create policy "Users can manage their own state"
         <select id="modalOrderChannel">
           <option value="whatsapp">💬 WhatsApp / Direto</option>
           <option value="shopee">🛍️ Shopee</option>
-          <option value="tiktok">🎵 TikTok Shop</option>
-          <option value="mercadolivre">💛 Mercado Livre</option>
         </select>
       </div>
       <div class="field">
@@ -2191,13 +2092,9 @@ const DEFAULT_CONFIG = {
   failureRate: 5,          // 5% margem para falhas
   channels: {
     direct: { enabled: true, pct: 0, fix: 0 },
-    shopee: { enabled: true, pct: 20, fix: 4.00 },
-    tiktok: { enabled: true, pct: 14, fix: 2.00 },
-    mercadolivre: { enabled: false, pct: 13, fix: 6.00 }
+    shopee: { enabled: true, pct: 20, fix: 4.00 }
   },
-  shopee: { pct: 20, fix: 4.00 },
-  tiktok: { pct: 14, fix: 2.00 },
-  mercadolivre: { pct: 13, fix: 6.00 }
+  shopee: { pct: 20, fix: 4.00 }
 };
 
 const DEFAULT_FILAMENTS = [];
@@ -2226,15 +2123,17 @@ function ensureConfigChannels() {
   if (!appConfig.channels) {
     appConfig.channels = {
       direct: { enabled: true, pct: 0, fix: 0 },
-      shopee: { enabled: true, pct: appConfig.shopee?.pct ?? 20, fix: appConfig.shopee?.fix ?? 4.00 },
-      tiktok: { enabled: true, pct: appConfig.tiktok?.pct ?? 14, fix: appConfig.tiktok?.fix ?? 2.00 },
-      mercadolivre: { enabled: false, pct: 13, fix: 6.00 }
+      shopee: { enabled: true, pct: appConfig.shopee?.pct ?? 20, fix: appConfig.shopee?.fix ?? 4.00 }
     };
   }
   if (!appConfig.channels.direct) appConfig.channels.direct = { enabled: true, pct: 0, fix: 0 };
   if (!appConfig.channels.shopee) appConfig.channels.shopee = { enabled: true, pct: appConfig.shopee?.pct ?? 20, fix: appConfig.shopee?.fix ?? 4.00 };
-  if (!appConfig.channels.tiktok) appConfig.channels.tiktok = { enabled: true, pct: appConfig.tiktok?.pct ?? 14, fix: appConfig.tiktok?.fix ?? 2.00 };
-  if (!appConfig.channels.mercadolivre) appConfig.channels.mercadolivre = { enabled: false, pct: 13, fix: 6.00 };
+  
+  // Limpar resíduos de canais removidos se existirem
+  if (appConfig.channels.tiktok) delete appConfig.channels.tiktok;
+  if (appConfig.channels.mercadolivre) delete appConfig.channels.mercadolivre;
+  if (appConfig.tiktok) delete appConfig.tiktok;
+  if (appConfig.mercadolivre) delete appConfig.mercadolivre;
 }
 ensureConfigChannels();
 
@@ -2334,45 +2233,23 @@ function calculatePrices() {
   const shopeeFix = Math.max(0, appConfig.channels.shopee?.fix ?? 4.00);
   const priceShopeeTotal = (priceDirectTotal + shopeeFix) / (1 - shopeePct);
 
-  // Preço TikTok Shop
-  const tiktokPct = Math.min(0.99, (appConfig.channels.tiktok?.pct ?? 14) / 100);
-  const tiktokFix = Math.max(0, appConfig.channels.tiktok?.fix ?? 2.00);
-  const priceTikTokTotal = (priceDirectTotal + tiktokFix) / (1 - tiktokPct);
-
-  // Preço Mercado Livre
-  const mlPct = Math.min(0.99, (appConfig.channels.mercadolivre?.pct ?? 13) / 100);
-  const mlFix = Math.max(0, appConfig.channels.mercadolivre?.fix ?? 6.00);
-  const priceMLTotal = (priceDirectTotal + mlFix) / (1 - mlPct);
-
   // Renderizar na tela
   const elDirect = document.getElementById('priceDirect');
   const elShopee = document.getElementById('priceShopee');
-  const elTikTok = document.getElementById('priceTikTok');
-  const elML = document.getElementById('priceML');
 
   if (elDirect) elDirect.textContent = formatBRL(priceDirectTotal);
   if (elShopee) elShopee.textContent = formatBRL(priceShopeeTotal);
-  if (elTikTok) elTikTok.textContent = formatBRL(priceTikTokTotal);
-  if (elML) elML.textContent = formatBRL(priceMLTotal);
 
   // Exibir / Ocultar cards de acordo com as lojas ativas
   const cardDirect = document.getElementById('cardPriceDirect');
   const cardShopee = document.getElementById('cardPriceShopee');
-  const cardTikTok = document.getElementById('cardPriceTikTok');
-  const cardML = document.getElementById('cardPriceML');
 
   if (cardDirect) cardDirect.style.display = appConfig.channels.direct?.enabled !== false ? 'flex' : 'none';
   if (cardShopee) cardShopee.style.display = appConfig.channels.shopee?.enabled ? 'flex' : 'none';
-  if (cardTikTok) cardTikTok.style.display = appConfig.channels.tiktok?.enabled ? 'flex' : 'none';
-  if (cardML) cardML.style.display = appConfig.channels.mercadolivre?.enabled ? 'flex' : 'none';
 
   // Atualizar notas de taxas nos cards
   const shopeeNote = document.getElementById('shopeeFeeNote');
   if (shopeeNote) shopeeNote.textContent = `Taxa ${appConfig.channels.shopee?.pct || 20}% + R$ ${(appConfig.channels.shopee?.fix || 4).toFixed(2)}`;
-  const tiktokNote = document.getElementById('tiktokFeeNote');
-  if (tiktokNote) tiktokNote.textContent = `Taxa ${appConfig.channels.tiktok?.pct || 14}% + R$ ${(appConfig.channels.tiktok?.fix || 2).toFixed(2)}`;
-  const mlNote = document.getElementById('mlFeeNote');
-  if (mlNote) mlNote.textContent = `Taxa ${appConfig.channels.mercadolivre?.pct || 13}% + R$ ${(appConfig.channels.mercadolivre?.fix || 6).toFixed(2)}`;
 
   document.getElementById('summaryFilamentGrams').textContent = grams;
   document.getElementById('summaryFilamentName').textContent = fil ? fil.name : '—';
@@ -2386,7 +2263,7 @@ function calculatePrices() {
     item: document.getElementById('calcItemName')?.value || 'Peça 3D',
     filament: fil ? fil.name : '—',
     hours, mins, grams, qty,
-    costTotal, priceDirectTotal, priceShopeeTotal, priceTikTokTotal, priceMLTotal
+    costTotal, priceDirectTotal, priceShopeeTotal
   };
 }
 
@@ -2509,12 +2386,6 @@ function updateQuotePreview() {
   }
   if (appConfig.channels.shopee?.enabled) {
     priceLines.push(`🛒 *Opção Shopee:* ${formatBRL(data.priceShopeeTotal)}`);
-  }
-  if (appConfig.channels.tiktok?.enabled) {
-    priceLines.push(`🎵 *Opção TikTok Shop:* ${formatBRL(data.priceTikTokTotal)}`);
-  }
-  if (appConfig.channels.mercadolivre?.enabled) {
-    priceLines.push(`⭐ *Opção Mercado Livre:* ${formatBRL(data.priceMLTotal)}`);
   }
 
   const pricesFormatted = priceLines.length > 0 
@@ -2724,8 +2595,6 @@ function renderOrders() {
     let chClass = 'ch-whatsapp';
     let chLabel = '💬 WhatsApp';
     if (o.channel === 'shopee') { chClass = 'ch-shopee'; chLabel = `${getShopeeIconSvg(13)} Shopee`; }
-    else if (o.channel === 'tiktok') { chClass = 'ch-tiktok'; chLabel = '🎵 TikTok'; }
-    else if (o.channel === 'mercadolivre') { chClass = 'ch-ml'; chLabel = '💛 Mercado Livre'; }
 
     const safeId = escapeHTML(o.id);
     const safeClient = escapeHTML(o.client || 'Cliente');
@@ -2830,20 +2699,6 @@ function renderOrderListView() {
       const fixFee = (appConfig.channels.shopee?.fix ?? 4.00);
       feeAmount = pctFee + fixFee;
       feeLabel = `Taxa Shopee (${appConfig.channels.shopee?.pct ?? 20}% + R$ ${(appConfig.channels.shopee?.fix ?? 4).toFixed(2)})`;
-    } else if (o.channel === 'tiktok') {
-      chClass = 'ch-tiktok';
-      chLabel = '🎵 TikTok';
-      const pctFee = grossPrice * ((appConfig.channels.tiktok?.pct ?? 14) / 100);
-      const fixFee = (appConfig.channels.tiktok?.fix ?? 2.00);
-      feeAmount = pctFee + fixFee;
-      feeLabel = `Taxa TikTok (${appConfig.channels.tiktok?.pct ?? 14}%)`;
-    } else if (o.channel === 'mercadolivre') {
-      chClass = 'ch-ml';
-      chLabel = '💛 Mercado Livre';
-      const pctFee = grossPrice * ((appConfig.channels.mercadolivre?.pct ?? 13) / 100);
-      const fixFee = (appConfig.channels.mercadolivre?.fix ?? 6.00);
-      feeAmount = pctFee + fixFee;
-      feeLabel = `Taxa Mercado Livre (${appConfig.channels.mercadolivre?.pct ?? 13}% + R$ ${(appConfig.channels.mercadolivre?.fix ?? 6).toFixed(2)})`;
     }
 
     const netAmount = Math.max(0, grossPrice - feeAmount);
@@ -2861,7 +2716,7 @@ function renderOrderListView() {
     const safeDeadline = o.deadline ? escapeHTML(o.deadline) : '2 a 3 dias';
 
     return `
-      <div class="card" style="margin-bottom:12px; padding:14px; border:1px solid ${o.channel==='shopee'?'rgba(238,77,45,0.25)':(o.channel==='mercadolivre'?'rgba(250,204,21,0.25)':'var(--border)')};">
+      <div class="card" style="margin-bottom:12px; padding:14px; border:1px solid ${o.channel==='shopee'?'rgba(238,77,45,0.25)':'var(--border)'};">
         <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px; gap:8px;">
           <div>
             <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
@@ -3017,25 +2872,15 @@ function loadSettingsUI() {
   // Switches de Canais
   const swDirect = document.getElementById('cfgChannelDirectActive');
   const swShopee = document.getElementById('cfgChannelShopeeActive');
-  const swTikTok = document.getElementById('cfgChannelTikTokActive');
-  const swML = document.getElementById('cfgChannelMLActive');
 
   if (swDirect) swDirect.checked = appConfig.channels.direct?.enabled !== false;
   if (swShopee) swShopee.checked = !!appConfig.channels.shopee?.enabled;
-  if (swTikTok) swTikTok.checked = !!appConfig.channels.tiktok?.enabled;
-  if (swML) swML.checked = !!appConfig.channels.mercadolivre?.enabled;
 
   document.getElementById('cfgShopeePct').value = appConfig.channels.shopee?.pct ?? 20;
   document.getElementById('cfgShopeeFix').value = appConfig.channels.shopee?.fix ?? 4.00;
-  document.getElementById('cfgTikTokPct').value = appConfig.channels.tiktok?.pct ?? 14;
-  document.getElementById('cfgTikTokFix').value = appConfig.channels.tiktok?.fix ?? 2.00;
-  document.getElementById('cfgMLPct').value = appConfig.channels.mercadolivre?.pct ?? 13;
-  document.getElementById('cfgMLFix').value = appConfig.channels.mercadolivre?.fix ?? 6.00;
 
   toggleChannelUIBlock('blockChannelDirect', 'inputsDirectArea', appConfig.channels.direct?.enabled !== false);
   toggleChannelUIBlock('blockChannelShopee', 'inputsShopeeArea', appConfig.channels.shopee?.enabled);
-  toggleChannelUIBlock('blockChannelTikTok', 'inputsTikTokArea', appConfig.channels.tiktok?.enabled);
-  toggleChannelUIBlock('blockChannelML', 'inputsMLArea', appConfig.channels.mercadolivre?.enabled);
 
   document.getElementById('cfgCloudUrl').value = appCloud.url || '';
   document.getElementById('cfgCloudKey').value = appCloud.key || '';
@@ -3057,12 +2902,6 @@ function renderChannelOptions() {
     if (appConfig.channels.shopee?.enabled) {
       filterSel.innerHTML += '<option value="shopee">🛍️ Shopee</option>';
     }
-    if (appConfig.channels.tiktok?.enabled) {
-      filterSel.innerHTML += '<option value="tiktok">🎵 TikTok Shop</option>';
-    }
-    if (appConfig.channels.mercadolivre?.enabled) {
-      filterSel.innerHTML += '<option value="mercadolivre">💛 Mercado Livre</option>';
-    }
     
     const validValues = Array.from(filterSel.options).map(o => o.value);
     filterSel.value = validValues.includes(currentVal) ? currentVal : 'all';
@@ -3079,12 +2918,6 @@ function renderChannelOptions() {
     }
     if (appConfig.channels.shopee?.enabled) {
       modalSel.innerHTML += '<option value="shopee">🛍️ Shopee</option>';
-    }
-    if (appConfig.channels.tiktok?.enabled) {
-      modalSel.innerHTML += '<option value="tiktok">🎵 TikTok Shop</option>';
-    }
-    if (appConfig.channels.mercadolivre?.enabled) {
-      modalSel.innerHTML += '<option value="mercadolivre">💛 Mercado Livre</option>';
     }
     
     const validModalValues = Array.from(modalSel.options).map(o => o.value);
@@ -3116,8 +2949,6 @@ function setupChannelToggleListeners() {
 
   setupToggle('cfgChannelDirectActive', 'blockChannelDirect', 'inputsDirectArea', 'direct', 'WhatsApp / Direto');
   setupToggle('cfgChannelShopeeActive', 'blockChannelShopee', 'inputsShopeeArea', 'shopee', 'Shopee');
-  setupToggle('cfgChannelTikTokActive', 'blockChannelTikTok', 'inputsTikTokArea', 'tiktok', 'TikTok Shop');
-  setupToggle('cfgChannelMLActive', 'blockChannelML', 'inputsMLArea', 'mercadolivre', 'Mercado Livre');
 }
 
 document.getElementById('btnSaveGlobalSettings')?.addEventListener('click', () => {
@@ -3132,22 +2963,16 @@ document.getElementById('btnSaveGlobalSettings')?.addEventListener('click', () =
   appConfig.channels.shopee.pct = parseFloat(document.getElementById('cfgShopeePct').value) || 20;
   appConfig.channels.shopee.fix = parseFloat(document.getElementById('cfgShopeeFix').value) || 4.00;
 
-  appConfig.channels.tiktok.enabled = document.getElementById('cfgChannelTikTokActive')?.checked ?? true;
-  appConfig.channels.tiktok.pct = parseFloat(document.getElementById('cfgTikTokPct').value) || 14;
-  appConfig.channels.tiktok.fix = parseFloat(document.getElementById('cfgTikTokFix').value) || 2.00;
-
-  appConfig.channels.mercadolivre.enabled = document.getElementById('cfgChannelMLActive')?.checked ?? false;
-  appConfig.channels.mercadolivre.pct = parseFloat(document.getElementById('cfgMLPct').value) || 13;
-  appConfig.channels.mercadolivre.fix = parseFloat(document.getElementById('cfgMLFix').value) || 6.00;
-
   // Sync legacy fields
   appConfig.shopee.pct = appConfig.channels.shopee.pct;
   appConfig.shopee.fix = appConfig.channels.shopee.fix;
-  appConfig.tiktok.pct = appConfig.channels.tiktok.pct;
-  appConfig.tiktok.fix = appConfig.channels.tiktok.fix;
 
-  // Limpar qualquer campo residual de API
+  // Limpar qualquer campo residual de canais ou API
   if (appConfig.shopeeApi) delete appConfig.shopeeApi;
+  if (appConfig.channels.tiktok) delete appConfig.channels.tiktok;
+  if (appConfig.channels.mercadolivre) delete appConfig.channels.mercadolivre;
+  if (appConfig.tiktok) delete appConfig.tiktok;
+  if (appConfig.mercadolivre) delete appConfig.mercadolivre;
 
   appCloud.url = (document.getElementById('cfgCloudUrl').value || '').trim().replace(/\/$/, '');
   appCloud.key = (document.getElementById('cfgCloudKey').value || '').trim();
