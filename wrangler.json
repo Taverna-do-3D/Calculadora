@@ -7,12 +7,5 @@
     "directory": ".",
     "binding": "ASSETS",
     "run_worker_first": true
-  },
-  "vars": {
-    "SHOPEE_PARTNER_ID": "2042983",
-    "SHOPEE_PARTNER_KEY": "shpk79597677764c5643766e655763466b66436d5152684c516f6d4378666b59",
-    "SHOPEE_SHOP_ID": "1767798393",
-    "SHOPEE_ACCESS_TOKEN": "shpk79597677764c5643766e655763466b66436d5152684c516f6d4378666b59",
-    "SHOPEE_REDIRECT_URL": "https://calculadora.tavernado3d.workers.dev/"
   }
 }

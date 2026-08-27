@@ -1206,8 +1206,7 @@ select {
         <button id="btnViewList">📋 Lista</button>
       </div>
       <div class="btn-row" style="margin:0; width:auto; gap:6px; flex-wrap:wrap;">
-        <button class="btn btn-secondary btn-sm" id="btnImportShopeeCSVToolbar" type="button" title="Importar arquivo CSV baixado da Central do Vendedor"><span style="color:var(--amber); font-size:13px;">📥</span> Importar Planilha</button>
-        <button class="btn btn-secondary btn-sm" id="btnSyncShopee" type="button" style="border-color:rgba(238,77,45,0.4);" title="Puxar pedidos em aberto da Shopee"><span style="color:#ee4d2d; font-size:13px;">🔄</span> Sincronizar Shopee</button>
+        <button class="btn btn-secondary btn-sm" id="btnImportShopeeCSVToolbar" type="button" title="Importar arquivo CSV"><span style="color:var(--amber); font-size:13px;">📥</span> Importar Planilha</button>
         <button class="btn btn-primary btn-sm" id="btnNewOrderModal" type="button">+ Novo Pedido</button>
       </div>
     </div>
@@ -1478,147 +1477,6 @@ select {
       </div>
     </div>
 
-    <!-- INTEGRAÇÃO SHOPEE API (DIRETO NO APP) -->
-    <div class="card" style="border-color:rgba(238,77,45,0.4); background:linear-gradient(180deg, rgba(238,77,45,0.08) 0%, var(--surface) 100%);">
-      <div class="card-header">
-        <span class="card-title" style="color:#ff8570; display:flex; align-items:center; gap:8px;">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-          Conexão Shopee Seller (Open Platform)
-        </span>
-        <span id="shopeeStatusBadge" class="shopee-badge-disconnected">🔴 Desconectado</span>
-      </div>
-
-      <!-- BOX DE STATUS DA CONTA SHOPEE -->
-      <div id="shopeeStatusBox" style="background:var(--surface-2); border:1px solid var(--border); border-radius:12px; padding:12px 14px; margin-bottom:14px;">
-        <div id="shopeeDisconnectedInfo">
-          <p style="font-size:13px; color:var(--text); margin:0 0 4px; font-weight:700;">Sua loja Shopee não está conectada.</p>
-          <p style="font-size:11.5px; color:var(--muted); margin:0; line-height:1.4;">Conecte sua conta de vendedor para puxar pedidos em aberto em tempo real para o Kanban de produção da Taverna.</p>
-        </div>
-        <div id="shopeeConnectedInfo" style="display:none;">
-          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
-            <div>
-              <strong style="font-size:14.5px; color:#fff; display:block;" id="shopeeShopNameDisplay">Loja Taverna do 3D</strong>
-              <span style="font-size:12px; color:var(--muted);">Shop ID: <b style="color:var(--gold);" id="shopeeShopIdDisplay">--</b> · <span id="shopeeConnectedDate" style="color:#4ade80; font-weight:600;">Conectada</span></span>
-            </div>
-            <button class="btn btn-secondary btn-sm" id="btnShopeeDisconnect" type="button" style="color:#f87171; border-color:rgba(239,68,68,0.4);">
-              Desconectar Loja
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- INSTRUÇÃO CRÍTICA DO CONSOLE SHOPEE -->
-      <div style="background:rgba(245,158,11,0.08); border:1px solid rgba(245,158,11,0.25); border-radius:12px; padding:12px 14px; margin-bottom:14px; font-size:12px; line-height:1.5;">
-        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
-          <strong style="color:var(--amber-light); display:flex; align-items:center; gap:6px; font-size:12.5px;">
-            <span>📌</span> URL de Retorno Obrigatória no Console Shopee:
-          </strong>
-        </div>
-        <p style="margin:0 0 8px; color:var(--muted); font-size:11.5px;">
-          Para evitar o erro <em>"domain of redirect is not consistent"</em>, cadastre esta URL no <strong>Console do Desenvolvedor Shopee &gt; App Details &gt; Redirect URL / Domain</strong>:
-        </p>
-        <div style="display:flex; align-items:center; gap:8px; background:rgba(0,0,0,0.4); padding:6px 10px; border-radius:8px; border:1px solid var(--border);">
-          <code id="shopeeCallbackDisplay" style="font-size:11.5px; color:#fde68a; word-break:break-all; flex:1;">https://calculadora.tavernado3d.workers.dev/</code>
-          <button type="button" class="btn btn-secondary btn-sm" id="btnCopyShopeeCallbackTop" style="padding:3px 10px; font-size:11px; white-space:nowrap;">
-            📋 Copiar URL
-          </button>
-        </div>
-      </div>
-      
-      <!-- BOTÕES PRINCIPAIS DE LOGIN / CONEXÃO -->
-      <div class="btn-row" style="margin-bottom:12px;" id="shopeeLoginBtnRow">
-        <button class="btn btn-shopee" id="btnShopeeOAuthLogin" type="button" style="width:100%; justify-content:center; padding:12px; font-size:14px;">
-          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
-          <span id="btnShopeeOAuthText">Conectar com a Shopee (Login de Vendedor)</span>
-        </button>
-      </div>
-
-      <div class="btn-row" style="margin-bottom:12px;">
-        <button class="btn btn-primary" id="btnSyncShopeeNow" type="button" style="width:100%; justify-content:center;">
-          <span id="syncShopeeIcon" style="margin-right:6px;">🔄</span> Sincronizar Pedidos da Shopee Agora
-        </button>
-      </div>
-
-      <!-- AUTO-SYNC EM SEGUNDO PLANO -->
-      <div style="background:var(--surface-2); border:1px solid var(--border); border-radius:10px; padding:10px 12px; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center;">
-        <div>
-          <strong style="font-size:13px; color:#fff; display:block;">Auto-Sincronização em Tempo Real</strong>
-          <span style="font-size:11px; color:var(--muted);">Verificar e puxar novos pedidos a cada 30 segundos</span>
-        </div>
-        <label class="toggle-switch" title="Ativar sincronização automática">
-          <input type="checkbox" id="cfgShopeeAutoSync" checked>
-          <span class="toggle-slider"></span>
-        </label>
-      </div>
-
-      <div class="btn-row" style="margin-bottom:12px; gap:8px;">
-        <button class="btn btn-secondary btn-sm" id="btnOpenManualShopeeAuth" type="button" style="flex:1;" title="Inserir código de autorização ou token diretamente">
-          🔑 Inserir Código/Token Manual
-        </button>
-        <button class="btn btn-secondary btn-sm" id="btnImportShopeeCSV" type="button" style="flex:1;" title="Importar arquivo CSV baixado da Central do Vendedor">
-          📥 Importar Planilha CSV
-        </button>
-      </div>
-      <input type="file" id="fileShopeeCSV" accept=".csv,.txt" style="display:none;">
-
-      <!-- CONFIGURAÇÕES AVANÇADAS & API CREDENCIAIS -->
-      <details style="margin-top:12px; font-size:12px; color:var(--muted);" id="detailsShopeeAdvanced">
-        <summary style="cursor:pointer; color:var(--amber-light); font-weight:600;">⚙️ Configurações Avançadas da API Shopee</summary>
-        <div style="margin-top:10px; background:var(--surface-2); padding:12px; border-radius:10px; border:1px solid var(--border);">
-          <div class="row2">
-            <div class="field">
-              <label>Shopee Partner ID</label>
-              <input type="text" id="cfgShopeePartnerId" value="2042983">
-            </div>
-            <div class="field">
-              <label>Shop ID da Loja</label>
-              <input type="text" id="cfgShopeeShopId" placeholder="Ex: 85942109">
-            </div>
-          </div>
-          
-          <div class="field">
-            <label>Partner Key / Secret (HMAC SHA-256)</label>
-            <input type="password" id="cfgShopeePartnerKey" value="shpk79597677764c5643766e655763466b66436d5152684c516f6d4378666b59">
-          </div>
-
-          <div class="field">
-            <label>Access Token (Vendedor Autorizado)</label>
-            <input type="password" id="cfgShopeeAccessToken" placeholder="Token OAuth da Shopee">
-          </div>
-
-          <div class="field">
-            <label>Refresh Token (Renovação)</label>
-            <input type="password" id="cfgShopeeRefreshToken" placeholder="Refresh Token da Shopee">
-          </div>
-
-          <div class="field">
-            <label style="display:flex; justify-content:space-between; align-items:center;">
-              <span>Redirect URL (Callback OAuth da Shopee)</span>
-              <button type="button" class="btn btn-secondary btn-sm" id="btnCopyShopeeRedirect" style="padding:2px 8px; font-size:11px;">📋 Copiar</button>
-            </label>
-            <input type="text" id="cfgShopeeRedirectUrl" placeholder="https://calculadora.tavernado3d.workers.dev/">
-            <small style="color:var(--muted); font-size:11px; display:block; margin-top:3px;">
-              A URL declarada aqui deve coincidir com o domínio registrado no Console da Shopee.
-            </small>
-          </div>
-
-          <div class="field">
-            <label>Servidor / Proxy Worker</label>
-            <input type="text" id="cfgShopeeProxyUrl" placeholder="https://calculadora.tavernado3d.workers.dev">
-          </div>
-
-          <div class="btn-row" style="margin-top:8px; gap:8px;">
-            <button class="btn btn-secondary btn-sm" id="btnTestShopeeApi" type="button" style="flex:1;">
-              🧪 Testar Conexão (Ping)
-            </button>
-            <button class="btn btn-primary btn-sm" id="btnSaveShopeeCreds" type="button" style="flex:1;">
-              💾 Salvar Credenciais
-            </button>
-          </div>
-        </div>
-      </details>
-    </div>
-
     <!-- SUPABASE / NUVEM -->
     <div class="card">
       <div class="card-header">
@@ -1776,38 +1634,6 @@ select {
     </div>
   </div>
 
-  <!-- ================= MODAL: AUTORIZAÇÃO MANUAL SHOPEE ================= -->
-  <div class="overlay" id="overlayShopeeAuth"></div>
-  <div class="sheet" id="sheetShopeeAuth">
-    <div class="sheet-handle"></div>
-    <h2 style="color:#ff8570;">🔑 Conectar Loja da Shopee</h2>
-    <p class="sub" style="line-height:1.4; margin-bottom:12px;">Se a janela da Shopee abriu e você viu a mensagem de retorno, basta <b>copiar o link completo da barra de endereço</b> dessa janela e colar aqui:</p>
-
-    <div class="field">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-        <label style="margin:0;">URL da Janela ou Código (code)</label>
-        <button type="button" id="btnPasteShopeeClipboard" style="background:transparent; color:var(--amber-light); border:1px solid rgba(245,158,11,0.3); border-radius:6px; font-size:11.5px; font-weight:700; cursor:pointer; padding:3px 8px;">📋 Colar do Teclado</button>
-      </div>
-      <textarea id="modalShopeeCodeOrUrl" placeholder="Cole aqui o link da janela ou código de retorno (Ex: https://.../api/shopee/callback?code=...&shop_id=...)" style="min-height:95px; font-size:12.5px;"></textarea>
-    </div>
-
-    <div class="row2">
-      <div class="field">
-        <label>Shop ID (opcional)</label>
-        <input type="text" id="modalShopeeShopId" placeholder="Ex: 85942109">
-      </div>
-      <div class="field">
-        <label>Ou Access Token Direto</label>
-        <input type="password" id="modalShopeeDirectToken" placeholder="Cole o token aqui se tiver">
-      </div>
-    </div>
-
-    <div class="btn-row" style="margin-top:16px;">
-      <button class="btn btn-secondary" id="btnCancelShopeeAuthModal">Cancelar</button>
-      <button class="btn btn-primary" id="btnConfirmManualAuth">Validar e Conectar Loja</button>
-    </div>
-  </div>
-
   <!-- ================= BOTTOM NAVIGATION ================= -->
   <nav class="bottomnav">
     <button class="navbtn active" data-screen="screen-calc">
@@ -1863,20 +1689,7 @@ const DEFAULT_CONFIG = {
   },
   shopee: { pct: 20, fix: 4.00 },
   tiktok: { pct: 14, fix: 2.00 },
-  mercadolivre: { pct: 13, fix: 6.00 },
-  shopeeApi: {
-    partnerId: '2042983',
-    shopId: '1767798393',
-    shopName: 'Taverna do 3D (Shopee)',
-    partnerKey: 'shpk79597677764c5643766e655763466b66436d5152684c516f6d4378666b59',
-    accessToken: 'shpk79597677764c5643766e655763466b66436d5152684c516f6d4378666b59',
-    refreshToken: '',
-    accessTokenExpiresAt: 253402300799000,
-    connectedAt: 1724774400000,
-    proxyUrl: 'https://calculadora.tavernado3d.workers.dev',
-    redirectUrl: 'https://calculadora.tavernado3d.workers.dev/',
-    autoSync: true
-  }
+  mercadolivre: { pct: 13, fix: 6.00 }
 };
 
 const DEFAULT_FILAMENTS = [
@@ -2541,74 +2354,9 @@ function loadSettingsUI() {
   toggleChannelUIBlock('blockChannelTikTok', 'inputsTikTokArea', appConfig.channels.tiktok?.enabled);
   toggleChannelUIBlock('blockChannelML', 'inputsMLArea', appConfig.channels.mercadolivre?.enabled);
 
-  if (!appConfig.shopeeApi) appConfig.shopeeApi = {};
-  if (!appConfig.shopeeApi.partnerId) appConfig.shopeeApi.partnerId = '2042983';
-  if (!appConfig.shopeeApi.partnerKey) appConfig.shopeeApi.partnerKey = 'shpk79597677764c5643766e655763466b66436d5152684c516f6d4378666b59';
-  if (!appConfig.shopeeApi.shopId) appConfig.shopeeApi.shopId = '1767798393';
-  if (!appConfig.shopeeApi.accessToken) appConfig.shopeeApi.accessToken = 'shpk79597677764c5643766e655763466b66436d5152684c516f6d4378666b59';
-  if (!appConfig.shopeeApi.shopName) appConfig.shopeeApi.shopName = 'Taverna do 3D (Shopee)';
-  if (!appConfig.shopeeApi.connectedAt) appConfig.shopeeApi.connectedAt = Date.now();
-  
-  // Limpar domínio legado ou vazio salvo no localStorage
-  if (!appConfig.shopeeApi.proxyUrl || appConfig.shopeeApi.proxyUrl.includes('pedidos.tavernado3d.workers.dev')) {
-    appConfig.shopeeApi.proxyUrl = (window.location.protocol.startsWith('http') && !window.location.host.includes('localhost') && !window.location.host.includes('127.0.0.1'))
-      ? window.location.origin 
-      : 'https://calculadora.tavernado3d.workers.dev';
-  }
-  if (!appConfig.shopeeApi.redirectUrl || appConfig.shopeeApi.redirectUrl.includes('pedidos.tavernado3d.workers.dev')) {
-    appConfig.shopeeApi.redirectUrl = 'https://calculadora.tavernado3d.workers.dev/';
-  }
-
-  const defaultRedirect = getShopeeRedirectUrl();
-  appConfig.shopeeApi.redirectUrl = appConfig.shopeeApi.redirectUrl || defaultRedirect;
-
-  document.getElementById('cfgShopeePartnerId').value = appConfig.shopeeApi.partnerId || '2042983';
-  document.getElementById('cfgShopeeShopId').value = appConfig.shopeeApi.shopId || '1767798393';
-  document.getElementById('cfgShopeePartnerKey').value = appConfig.shopeeApi.partnerKey || 'shpk79597677764c5643766e655763466b66436d5152684c516f6d4378666b59';
-  document.getElementById('cfgShopeeAccessToken').value = appConfig.shopeeApi.accessToken || 'shpk79597677764c5643766e655763466b66436d5152684c516f6d4378666b59';
-  document.getElementById('cfgShopeeRefreshToken').value = appConfig.shopeeApi.refreshToken || '';
-  document.getElementById('cfgShopeeRedirectUrl').value = appConfig.shopeeApi.redirectUrl || defaultRedirect;
-  document.getElementById('cfgShopeeProxyUrl').value = appConfig.shopeeApi.proxyUrl || 'https://calculadora.tavernado3d.workers.dev';
-  
-  const cbDisplay = document.getElementById('shopeeCallbackDisplay');
-  if (cbDisplay) cbDisplay.textContent = appConfig.shopeeApi.redirectUrl || defaultRedirect;
-
-  const swAuto = document.getElementById('cfgShopeeAutoSync');
-  if (swAuto) swAuto.checked = appConfig.shopeeApi.autoSync !== false;
-
-  renderShopeeStatus();
-
   document.getElementById('cfgCloudUrl').value = appCloud.url || '';
   document.getElementById('cfgCloudKey').value = appCloud.key || '';
   document.getElementById('cfgCloudEmail').value = appCloud.email || '';
-}
-
-function renderShopeeStatus() {
-  const isConnected = Boolean(appConfig.shopeeApi?.accessToken && (appConfig.shopeeApi?.shopId || appConfig.shopeeApi?.shopName));
-  const badge = document.getElementById('shopeeStatusBadge');
-  const disconnectedBox = document.getElementById('shopeeDisconnectedInfo');
-  const connectedBox = document.getElementById('shopeeConnectedInfo');
-  const shopNameEl = document.getElementById('shopeeShopNameDisplay');
-  const shopIdEl = document.getElementById('shopeeShopIdDisplay');
-  const disconnectBtn = document.getElementById('btnShopeeDisconnect');
-  const loginBtnRow = document.getElementById('shopeeLoginBtnRow');
-  const oauthText = document.getElementById('btnShopeeOAuthText');
-
-  if (badge) {
-    badge.className = isConnected ? 'shopee-badge-connected' : 'shopee-badge-disconnected';
-    badge.innerHTML = isConnected ? '🟢 Loja Conectada' : '🔴 Desconectado';
-  }
-
-  if (disconnectedBox) disconnectedBox.style.display = isConnected ? 'none' : 'block';
-  if (connectedBox) connectedBox.style.display = isConnected ? 'block' : 'none';
-  if (disconnectBtn) disconnectBtn.style.display = isConnected ? 'inline-flex' : 'none';
-
-  if (shopNameEl) shopNameEl.textContent = appConfig.shopeeApi?.shopName || `Loja Shopee #${appConfig.shopeeApi?.shopId || 'Conectada'}`;
-  if (shopIdEl) shopIdEl.textContent = appConfig.shopeeApi?.shopId || 'Configurado';
-
-  if (oauthText) {
-    oauthText.textContent = isConnected ? 'Reconectar Loja Shopee (OAuth)' : 'Conectar com a Shopee (Login de Vendedor)';
-  }
 }
 
 function renderChannelOptions() {
@@ -2660,10 +2408,8 @@ function renderChannelOptions() {
     modalSel.value = validModalValues.includes(currentModalVal) ? currentModalVal : (validModalValues[0] || 'whatsapp');
   }
 
-  // 3. Exibir/Ocultar Botão "Sincronizar Shopee" e "Importar Planilha" se a Shopee estiver desativada
-  const btnSyncShopee = document.getElementById('btnSyncShopee');
+  // 3. Exibir/Ocultar Botão "Importar Planilha" se a Shopee estiver desativada
   const btnImportShopee = document.getElementById('btnImportShopeeCSVToolbar');
-  if (btnSyncShopee) btnSyncShopee.style.display = appConfig.channels.shopee?.enabled ? 'inline-flex' : 'none';
   if (btnImportShopee) btnImportShopee.style.display = appConfig.channels.shopee?.enabled ? 'inline-flex' : 'none';
 }
 
@@ -2689,24 +2435,6 @@ function setupChannelToggleListeners() {
   setupToggle('cfgChannelShopeeActive', 'blockChannelShopee', 'inputsShopeeArea', 'shopee', 'Shopee');
   setupToggle('cfgChannelTikTokActive', 'blockChannelTikTok', 'inputsTikTokArea', 'tiktok', 'TikTok Shop');
   setupToggle('cfgChannelMLActive', 'blockChannelML', 'inputsMLArea', 'mercadolivre', 'Mercado Livre');
-}
-
-function getShopeeRedirectUrl() {
-  const inputVal = document.getElementById('cfgShopeeRedirectUrl')?.value?.trim();
-  if (inputVal) {
-    return inputVal;
-  }
-  if (appConfig.shopeeApi?.redirectUrl?.trim() && !appConfig.shopeeApi.redirectUrl.includes('pedidos.tavernado3d.workers.dev')) {
-    return appConfig.shopeeApi.redirectUrl.trim();
-  }
-  if (window.location.protocol.startsWith('http') && window.location.host && !window.location.host.includes('localhost') && !window.location.host.includes('127.0.0.1')) {
-    return `${window.location.origin}/`;
-  }
-  if (appConfig.shopeeApi?.proxyUrl?.trim() && !appConfig.shopeeApi.proxyUrl.includes('pedidos.tavernado3d.workers.dev')) {
-    const pUrl = appConfig.shopeeApi.proxyUrl.trim().replace(/\/$/, '');
-    return `${pUrl}/`;
-  }
-  return 'https://calculadora.tavernado3d.workers.dev/';
 }
 
 document.getElementById('btnSaveGlobalSettings')?.addEventListener('click', () => {
@@ -2735,449 +2463,17 @@ document.getElementById('btnSaveGlobalSettings')?.addEventListener('click', () =
   appConfig.tiktok.pct = appConfig.channels.tiktok.pct;
   appConfig.tiktok.fix = appConfig.channels.tiktok.fix;
 
-  if (!appConfig.shopeeApi) appConfig.shopeeApi = {};
-  appConfig.shopeeApi.partnerId = (document.getElementById('cfgShopeePartnerId')?.value || '').trim() || '2042983';
-  appConfig.shopeeApi.shopId = (document.getElementById('cfgShopeeShopId')?.value || '').trim();
-  appConfig.shopeeApi.partnerKey = (document.getElementById('cfgShopeePartnerKey')?.value || '').trim();
-  appConfig.shopeeApi.accessToken = (document.getElementById('cfgShopeeAccessToken')?.value || '').trim();
-  appConfig.shopeeApi.refreshToken = (document.getElementById('cfgShopeeRefreshToken')?.value || '').trim();
-  appConfig.shopeeApi.redirectUrl = (document.getElementById('cfgShopeeRedirectUrl')?.value || '').trim() || getShopeeRedirectUrl();
-  appConfig.shopeeApi.proxyUrl = (document.getElementById('cfgShopeeProxyUrl')?.value || '').trim() || (window.location.protocol.startsWith('http') ? window.location.origin : '');
-  appConfig.shopeeApi.autoSync = document.getElementById('cfgShopeeAutoSync')?.checked ?? true;
+  // Limpar qualquer campo residual de API
+  if (appConfig.shopeeApi) delete appConfig.shopeeApi;
 
   appCloud.url = (document.getElementById('cfgCloudUrl').value || '').trim().replace(/\/$/, '');
   appCloud.key = (document.getElementById('cfgCloudKey').value || '').trim();
   appCloud.email = (document.getElementById('cfgCloudEmail').value || '').trim();
 
   saveLocal();
-  renderShopeeStatus();
   calculatePrices();
   updateQuotePreview();
   showToast('Configurações e Lojas salvas!', true);
-});
-
-document.getElementById('btnSaveShopeeCreds')?.addEventListener('click', () => {
-  if (!appConfig.shopeeApi) appConfig.shopeeApi = {};
-  appConfig.shopeeApi.partnerId = (document.getElementById('cfgShopeePartnerId')?.value || '').trim() || '2042983';
-  appConfig.shopeeApi.shopId = (document.getElementById('cfgShopeeShopId')?.value || '').trim();
-  appConfig.shopeeApi.partnerKey = (document.getElementById('cfgShopeePartnerKey')?.value || '').trim();
-  appConfig.shopeeApi.accessToken = (document.getElementById('cfgShopeeAccessToken')?.value || '').trim();
-  appConfig.shopeeApi.refreshToken = (document.getElementById('cfgShopeeRefreshToken')?.value || '').trim();
-  appConfig.shopeeApi.redirectUrl = (document.getElementById('cfgShopeeRedirectUrl')?.value || '').trim() || getShopeeRedirectUrl();
-  appConfig.shopeeApi.proxyUrl = (document.getElementById('cfgShopeeProxyUrl')?.value || '').trim() || (window.location.protocol.startsWith('http') ? window.location.origin : '');
-  
-  if (appConfig.shopeeApi.accessToken && !appConfig.shopeeApi.shopName) {
-    appConfig.shopeeApi.shopName = 'Loja Taverna do 3D';
-  }
-
-  saveLocal();
-  renderShopeeStatus();
-  showToast('Credenciais da Shopee salvas com sucesso!', true);
-});
-
-/* =========================================================
-   MOTOR DE AUTENTICAÇÃO E SINCRONIZAÇÃO SHOPEE (OPEN API v2)
-========================================================= */
-async function generateShopeeSign(partnerId, path, timestamp, accessToken = '', shopId = '', partnerKey = '') {
-  try {
-    const baseStr = `${partnerId}${path}${timestamp}${accessToken || ''}${shopId || ''}`;
-    const enc = new TextEncoder();
-    const keyData = enc.encode(partnerKey);
-    const cryptoKey = await crypto.subtle.importKey(
-      'raw',
-      keyData,
-      { name: 'HMAC', hash: 'SHA-256' },
-      false,
-      ['sign']
-    );
-    const signatureBuffer = await crypto.subtle.sign(
-      'HMAC',
-      cryptoKey,
-      enc.encode(baseStr)
-    );
-    return Array.from(new Uint8Array(signatureBuffer))
-      .map(b => b.toString(16).padStart(2, '0'))
-      .join('');
-  } catch (err) {
-    console.error('Erro ao gerar assinatura HMAC Shopee:', err);
-    return '';
-  }
-}
-
-async function startShopeeOAuthLogin() {
-  const partnerId = appConfig.shopeeApi?.partnerId?.trim() || '2042983';
-  const partnerKey = appConfig.shopeeApi?.partnerKey?.trim() || 'shpk79597677764c5643766e655763466b66436d5152684c516f6d4378666b59';
-  const timestamp = Math.floor(Date.now() / 1000);
-  const path = '/api/v2/shop/auth_partner';
-  const sign = await generateShopeeSign(partnerId, path, timestamp, '', '', partnerKey);
-
-  const redirectUrl = getShopeeRedirectUrl();
-
-  const authUrl = new URL('https://openplatform.shopee.com.br/api/v2/shop/auth_partner');
-  authUrl.searchParams.set('partner_id', partnerId);
-  authUrl.searchParams.set('timestamp', timestamp.toString());
-  authUrl.searchParams.set('sign', sign);
-  authUrl.searchParams.set('redirect', redirectUrl);
-
-  showToast('Abrindo autorização oficial na Shopee...', true);
-  console.log('[Shopee OAuth] Auth URL:', authUrl.toString(), '| Redirect:', redirectUrl);
-
-  const popupWidth = 620;
-  const popupHeight = 720;
-  const left = window.screenX + (window.outerWidth - popupWidth) / 2;
-  const top = window.screenY + (window.outerHeight - popupHeight) / 2;
-
-  const authWindow = window.open(
-    authUrl.toString(),
-    'ShopeeOAuthLogin',
-    `width=${popupWidth},height=${popupHeight},left=${left},top=${top},status=no,menubar=no,toolbar=no`
-  );
-
-  if (!authWindow || authWindow.closed || typeof authWindow.closed === 'undefined') {
-    window.open(authUrl.toString(), '_blank');
-  }
-}
-
-// Escuta mensagem da janela de retorno da Shopee
-window.addEventListener('message', async (event) => {
-  if (!event.data) return;
-  
-  if (event.data.type === 'pedidos:shopee-connected' || event.data.code) {
-    const code = event.data.code;
-    const shopId = event.data.shop_id || event.data.shopId;
-    const accessToken = event.data.accessToken || event.data.access_token;
-    const refreshToken = event.data.refreshToken || event.data.refresh_token;
-    const shopName = event.data.shopName || event.data.shop_name;
-    
-    if (accessToken) {
-      appConfig.shopeeApi.accessToken = accessToken;
-      if (refreshToken) appConfig.shopeeApi.refreshToken = refreshToken;
-      if (shopId) appConfig.shopeeApi.shopId = shopId.toString();
-      if (shopName) appConfig.shopeeApi.shopName = shopName;
-      appConfig.shopeeApi.connectedAt = Date.now();
-      saveLocal();
-      loadSettingsUI();
-      renderShopeeStatus();
-      showToast(`🎉 Loja ${shopName || 'Shopee'} conectada com sucesso!`, true);
-      syncShopeeApiOrders({ silent: false });
-    } else if (code) {
-      await exchangeShopeeAuthCode(code, shopId);
-    }
-  } else if (event.data.type === 'pedidos:shopee-error') {
-    showToast('Erro na autorização da Shopee: ' + (event.data.message || 'Falha ao autorizar.'));
-  }
-});
-
-async function exchangeShopeeAuthCode(code, shopId = '') {
-  const isWebHosted = window.location.protocol.startsWith('http');
-  const baseHost = appConfig.shopeeApi?.proxyUrl?.trim() || (isWebHosted ? '' : window.location.origin);
-  const tokenEndpoint = isWebHosted ? '/api/shopee/token' : `${baseHost.replace(/\/$/, '')}/api/shopee/token`;
-
-  showToast('Validando código com a Shopee...');
-
-  try {
-    const resp = await fetch(tokenEndpoint, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ code, shop_id: shopId ? parseInt(shopId, 10) : undefined })
-    });
-
-    const tokenData = await resp.json();
-
-    if (resp.ok && tokenData.access_token) {
-      appConfig.shopeeApi.accessToken = tokenData.access_token;
-      appConfig.shopeeApi.refreshToken = tokenData.refresh_token || '';
-      appConfig.shopeeApi.accessTokenExpiresAt = Date.now() + (tokenData.expire_in || 14400) * 1000;
-      if (tokenData.shop_id) appConfig.shopeeApi.shopId = tokenData.shop_id.toString();
-      appConfig.shopeeApi.shopName = tokenData.shop_name || 'Loja Shopee Taverna do 3D';
-      appConfig.shopeeApi.connectedAt = Date.now();
-      saveLocal();
-      loadSettingsUI();
-      renderShopeeStatus();
-      showToast('🎉 Loja Shopee conectada com sucesso!', true);
-      syncShopeeApiOrders({ silent: false });
-    } else {
-      throw new Error(tokenData.message || tokenData.error || 'Falha na resposta da API.');
-    }
-  } catch (err) {
-    console.error('Erro no exchange de código:', err);
-    showToast('Erro ao validar com a Shopee: ' + err.message);
-  }
-}
-
-document.getElementById('btnPasteShopeeClipboard')?.addEventListener('click', async () => {
-  try {
-    const text = await navigator.clipboard.readText();
-    if (text) {
-      document.getElementById('modalShopeeCodeOrUrl').value = text;
-      showToast('Link colado da área de transferência!', true);
-    }
-  } catch (err) {
-    showToast('Clique no campo de texto e pressione Ctrl+V para colar.');
-  }
-});
-
-// Modal de autorização manual da Shopee
-document.getElementById('btnOpenManualShopeeAuth')?.addEventListener('click', () => {
-  document.getElementById('overlayShopeeAuth').classList.add('open');
-  document.getElementById('sheetShopeeAuth').classList.add('open');
-});
-
-document.getElementById('btnCancelShopeeAuthModal')?.addEventListener('click', () => {
-  document.getElementById('overlayShopeeAuth').classList.remove('open');
-  document.getElementById('sheetShopeeAuth').classList.remove('open');
-});
-
-document.getElementById('btnConfirmManualAuth')?.addEventListener('click', async () => {
-  const rawInput = document.getElementById('modalShopeeCodeOrUrl').value.trim();
-  const directToken = document.getElementById('modalShopeeDirectToken').value.trim();
-  let customShopId = document.getElementById('modalShopeeShopId').value.trim();
-
-  if (directToken) {
-    appConfig.shopeeApi.accessToken = directToken;
-    if (customShopId) appConfig.shopeeApi.shopId = customShopId;
-    if (!appConfig.shopeeApi.shopName) appConfig.shopeeApi.shopName = 'Loja Shopee Taverna do 3D';
-    appConfig.shopeeApi.connectedAt = Date.now();
-    saveLocal();
-    loadSettingsUI();
-    renderShopeeStatus();
-    document.getElementById('overlayShopeeAuth').classList.remove('open');
-    document.getElementById('sheetShopeeAuth').classList.remove('open');
-    showToast('Access Token salvo e conectado com sucesso!', true);
-    syncShopeeApiOrders({ silent: false });
-    return;
-  }
-
-  if (!rawInput) {
-    showToast('Insira o link da janela ou o código code da Shopee.');
-    return;
-  }
-
-  let code = rawInput;
-  if (rawInput.includes('code=')) {
-    try {
-      const urlObj = new URL(rawInput.startsWith('http') ? rawInput : 'https://dummy.com/' + rawInput.replace(/^\?/, ''));
-      code = urlObj.searchParams.get('code') || code;
-      const parsedShopId = urlObj.searchParams.get('shop_id');
-      if (parsedShopId && !customShopId) customShopId = parsedShopId;
-    } catch (e) {
-      const match = rawInput.match(/code=([^&]+)/);
-      if (match) code = match[1];
-      const matchShop = rawInput.match(/shop_id=([^&]+)/);
-      if (matchShop && !customShopId) customShopId = matchShop[1];
-    }
-  }
-
-  document.getElementById('overlayShopeeAuth').classList.remove('open');
-  document.getElementById('sheetShopeeAuth').classList.remove('open');
-
-  await exchangeShopeeAuthCode(code, customShopId);
-});
-
-// Desconectar Loja Shopee
-document.getElementById('btnShopeeDisconnect')?.addEventListener('click', () => {
-  if (confirm('Deseja realmente desconectar a conta da Shopee deste aplicativo?')) {
-    appConfig.shopeeApi.accessToken = '';
-    appConfig.shopeeApi.refreshToken = '';
-    appConfig.shopeeApi.shopId = '';
-    appConfig.shopeeApi.shopName = '';
-    appConfig.shopeeApi.connectedAt = 0;
-    saveLocal();
-    loadSettingsUI();
-    renderShopeeStatus();
-    showToast('Loja Shopee desconectada.');
-  }
-});
-
-document.getElementById('btnShopeeOAuthLogin')?.addEventListener('click', startShopeeOAuthLogin);
-
-// SINCRONIZAÇÃO DE PEDIDOS
-async function syncShopeeApiOrders({ silent = false } = {}) {
-  const syncIcon = document.getElementById('syncShopeeIcon');
-  const btnSyncTop = document.getElementById('btnSyncShopee');
-  const btnSyncSettings = document.getElementById('btnSyncShopeeNow');
-
-  if (syncIcon) syncIcon.classList.add('sync-spin');
-  if (btnSyncTop) btnSyncTop.classList.add('disabled');
-  if (btnSyncSettings) btnSyncSettings.classList.add('disabled');
-
-  const partnerId = appConfig.shopeeApi?.partnerId?.trim() || '2042983';
-  const shopId = appConfig.shopeeApi?.shopId?.trim();
-  const partnerKey = appConfig.shopeeApi?.partnerKey?.trim() || 'shpk79597677764c5643766e655763466b66436d5152684c516f6d4378666b59';
-  const accessToken = appConfig.shopeeApi?.accessToken?.trim();
-  const isWebHosted = window.location.protocol.startsWith('http');
-  const baseHost = appConfig.shopeeApi?.proxyUrl?.trim() || (isWebHosted ? '' : window.location.origin);
-
-  if (!silent) showToast('🔄 Buscando pedidos em tempo real na Shopee...');
-
-  let fetchedOrders = [];
-  let apiSuccess = false;
-
-  // 1. Tentar puxar pedidos via Cloudflare API
-  if (accessToken && shopId) {
-    try {
-      const endpoint = isWebHosted 
-        ? `/api/shopee/orders?shop_id=${encodeURIComponent(shopId)}&access_token=${encodeURIComponent(accessToken)}`
-        : `${baseHost.replace(/\/$/, '')}/api/shopee/orders?shop_id=${encodeURIComponent(shopId)}&access_token=${encodeURIComponent(accessToken)}`;
-
-      const response = await fetch(endpoint, {
-        method: 'GET',
-        headers: {
-          'X-Shopee-Access-Token': accessToken,
-          'X-Shopee-Shop-Id': shopId
-        }
-      }).catch(err => {
-        console.warn('Fetch error:', err);
-        return null;
-      });
-
-      if (response && response.ok) {
-        const resData = await response.json();
-        if (resData.success && Array.isArray(resData.orders)) {
-          apiSuccess = true;
-          fetchedOrders = resData.orders;
-        } else if (resData.response && resData.response.order_list) {
-          apiSuccess = true;
-          resData.response.order_list.forEach(item => {
-            const orderSn = item.order_sn;
-            const prodName = item.item_list?.[0]?.item_name || 'Peça Personalizada 3D';
-            const variation = item.item_list?.[0]?.model_name || '';
-            const price = parseFloat(item.total_amount) || 0;
-            const buyer = item.buyer_username || item.buyer_user_id || 'Cliente Shopee';
-            const shipBy = item.ship_by_date ? new Date(item.ship_by_date * 1000).toLocaleDateString('pt-BR') : 'Shopee Envio';
-
-            fetchedOrders.push({
-              id: 'TAV-' + (orderSn.length > 4 ? orderSn.slice(-4) : Math.floor(1000 + Math.random() * 9000)),
-              shopeeId: orderSn,
-              client: buyer,
-              product: variation ? `${prodName} (${variation})` : prodName,
-              channel: 'shopee',
-              status: 'a_produzir',
-              price: price,
-              deadline: shipBy,
-              notes: variation ? `Variação: ${variation}` : 'Pedido Shopee Integrado',
-              createdAt: item.create_time ? new Date(item.create_time * 1000).toISOString() : new Date().toISOString()
-            });
-          });
-        }
-      }
-    } catch (err) {
-      console.warn('[Shopee API Sync]:', err);
-    }
-  }
-
-  // 2. Se a API retornou pedidos reais, processa-os
-  if (apiSuccess && fetchedOrders.length > 0) {
-    let addedCount = 0;
-    fetchedOrders.forEach(newO => {
-      const orderToInsert = {
-        id: newO.id || ('TAV-' + (newO.shopeeId?.slice(-4) || Math.floor(1000 + Math.random() * 9000))),
-        shopeeId: newO.shopeeId || newO.order_sn || '',
-        client: newO.client || newO.clientName || newO.customer || 'Cliente Shopee',
-        product: newO.product || newO.itemsSummary || 'Produto 3D Shopee',
-        channel: 'shopee',
-        status: newO.status === 'print' ? 'a_produzir' : (newO.status || 'a_produzir'),
-        price: Number(newO.price || newO.value || newO.totalPrice || 0),
-        deadline: newO.deadline || newO.shipByDate || 'Shopee Envio',
-        notes: newO.notes || 'Pedido Shopee Integrado',
-        createdAt: newO.createdAt || newO.date || new Date().toISOString()
-      };
-
-      const exists = appOrders.some(o => (orderToInsert.shopeeId && o.shopeeId === orderToInsert.shopeeId) || o.id === orderToInsert.id);
-      if (!exists) {
-        appOrders.unshift(orderToInsert);
-        addedCount++;
-      }
-    });
-
-    saveLocal();
-    renderOrders();
-    if (document.getElementById('listContainer')?.style.display === 'block') {
-      renderOrderListView();
-    }
-
-    if (!silent) {
-      showToast(`✅ ${addedCount > 0 ? addedCount + ' novos pedidos importados da Shopee!' : 'Shopee sincronizada: nenhum pedido novo pendente no momento.'}`, true);
-    }
-  } else if (!apiSuccess && accessToken) {
-    if (!silent) {
-      showToast('⚠️ API Shopee: Não retornou pedidos. Use o botão "Importar Planilha" para carregar seus pedidos da Central do Vendedor.', false);
-    }
-  } else {
-    if (!silent) {
-      showToast('⚠️ Conecte sua loja Shopee nos Ajustes ou use "Importar Planilha" para carregar seus pedidos.', false);
-    }
-  }
-
-  setTimeout(() => {
-    if (syncIcon) syncIcon.classList.remove('sync-spin');
-    if (btnSyncTop) btnSyncTop.classList.remove('disabled');
-    if (btnSyncSettings) btnSyncSettings.classList.remove('disabled');
-  }, 500);
-}
-
-document.getElementById('btnSyncShopee')?.addEventListener('click', () => syncShopeeApiOrders());
-document.getElementById('btnSyncShopeeNow')?.addEventListener('click', () => syncShopeeApiOrders());
-
-const copyCallbackUrl = async () => {
-  const urlToCopy = getShopeeRedirectUrl();
-  try {
-    await navigator.clipboard.writeText(urlToCopy);
-    showToast('📋 URL de Callback copiada!', true);
-  } catch (e) {
-    const inp = document.getElementById('cfgShopeeRedirectUrl');
-    if (inp) {
-      inp.select();
-      document.execCommand('copy');
-      showToast('📋 URL copiada!', true);
-    } else {
-      prompt('Copie a URL de Callback da Shopee:', urlToCopy);
-    }
-  }
-};
-
-document.getElementById('btnCopyShopeeCallbackTop')?.addEventListener('click', copyCallbackUrl);
-document.getElementById('btnCopyShopeeRedirect')?.addEventListener('click', copyCallbackUrl);
-
-document.getElementById('btnTestShopeeApi')?.addEventListener('click', async () => {
-  const pId = document.getElementById('cfgShopeePartnerId')?.value.trim() || '2042983';
-  const sId = document.getElementById('cfgShopeeShopId')?.value.trim();
-  const pKey = document.getElementById('cfgShopeePartnerKey')?.value.trim();
-  const token = document.getElementById('cfgShopeeAccessToken')?.value.trim();
-  const isWebHosted = window.location.protocol.startsWith('http');
-  const proxyUrl = document.getElementById('cfgShopeeProxyUrl')?.value.trim() || (isWebHosted ? window.location.origin : '');
-
-  showToast('Testando conexão com a API Shopee...');
-  
-  try {
-    const pingEndpoint = isWebHosted 
-      ? `/api/shopee/ping?shop_id=${encodeURIComponent(sId || '')}&access_token=${encodeURIComponent(token || '')}`
-      : `${proxyUrl.replace(/\/$/, '')}/api/shopee/ping?shop_id=${encodeURIComponent(sId || '')}&access_token=${encodeURIComponent(token || '')}`;
-
-    const res = await fetch(pingEndpoint, {
-      headers: {
-        'X-Shopee-Access-Token': token || '',
-        'X-Shopee-Shop-Id': sId || ''
-      }
-    });
-    const data = await res.json();
-    if (res.ok && data.success) {
-      showToast(data.message || '✅ Conexão com a Shopee estabelecida com sucesso!', true);
-      if (data.shopName) {
-        appConfig.shopeeApi.shopName = data.shopName;
-        saveLocal();
-        loadSettingsUI();
-      }
-    } else {
-      showToast('⚠️ Shopee: ' + (data.message || data.error || 'Erro na verificação da API.'), false);
-    }
-  } catch (err) {
-    if (pKey) {
-      const testSign = await generateShopeeSign(pId, '/api/v2/shop/get_shop_info', Math.floor(Date.now()/1000), token, sId, pKey);
-      console.log('[Shopee API Test] Assinatura HMAC gerada localmente:', testSign);
-    }
-    showToast('✅ Validação local HMAC concluída com sucesso!', true);
-  }
 });
 
 /* =========================================================
@@ -3507,6 +2803,12 @@ if ('serviceWorker' in navigator) {
    INICIALIZAÇÃO DO SISTEMA
 ========================================================= */
 document.addEventListener('DOMContentLoaded', () => {
+  // Limpar resquícios de chave de API da Shopee no localStorage se existirem
+  if (appConfig.shopeeApi) {
+    delete appConfig.shopeeApi;
+    saveLocal();
+  }
+
   loadSettingsUI();
   setupChannelToggleListeners();
   renderChannelOptions();
@@ -3515,49 +2817,9 @@ document.addEventListener('DOMContentLoaded', () => {
   renderOrders();
   calculatePrices();
 
-  // Tratar retorno OAuth direto na URL (quando sem popup)
-  try {
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('shopee') === 'connected' || urlParams.get('access_token')) {
-      const accToken = urlParams.get('access_token');
-      const rToken = urlParams.get('refresh_token');
-      const sId = urlParams.get('shop_id');
-      const sName = urlParams.get('shop_name');
-      if (accToken) {
-        if (!appConfig.shopeeApi) appConfig.shopeeApi = {};
-        appConfig.shopeeApi.accessToken = accToken;
-        if (rToken) appConfig.shopeeApi.refreshToken = rToken;
-        if (sId) appConfig.shopeeApi.shopId = sId;
-        if (sName) appConfig.shopeeApi.shopName = sName;
-        appConfig.shopeeApi.connectedAt = Date.now();
-        saveLocal();
-        loadSettingsUI();
-        renderShopeeStatus();
-        showToast(`🎉 Loja ${sName || 'Shopee'} conectada com sucesso!`, true);
-        syncShopeeApiOrders({ silent: false });
-        window.history.replaceState({}, document.title, window.location.pathname);
-      }
-    } else if (urlParams.get('code')) {
-      const code = urlParams.get('code');
-      const shopId = urlParams.get('shop_id') || '';
-      exchangeShopeeAuthCode(code, shopId);
-      window.history.replaceState({}, document.title, window.location.pathname);
-    }
-  } catch (e) {
-    console.warn('Erro ao processar parâmetros de URL:', e);
-  }
-
   if (appCloud.session?.access_token) {
     setCloudStatus('ok', 'Nuvem Conectada');
   }
-
-  // Auto-Sincronização de pedidos em segundo plano (a cada 30s) direto no app
-  setInterval(() => {
-    const isAutoSync = document.getElementById('cfgShopeeAutoSync')?.checked ?? true;
-    if (isAutoSync) {
-      syncShopeeApiOrders({ silent: true });
-    }
-  }, 30000);
 });
 </script>
 
