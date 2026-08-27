@@ -1035,6 +1035,322 @@ select {
   color: #a7f3d0;
   box-shadow: 0 0 16px rgba(16, 185, 129, 0.35);
 }
+
+/* =========================================================
+   BAMBU LAB A1 LIVE TELEMETRY & CAMERA WIDGET (FORJA CONECTADA)
+========================================================= */
+.bambu-card {
+  background: linear-gradient(180deg, rgba(38, 28, 20, 0.98) 0%, rgba(20, 15, 10, 0.99) 100%);
+  border: 1px solid #63472d;
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  margin-bottom: 14px;
+  position: relative;
+  box-shadow: inset 0 1px 0 rgba(255, 215, 130, 0.15), 0 8px 30px rgba(0, 0, 0, 0.6);
+}
+
+.bambu-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(99, 71, 45, 0.5);
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.bambu-title {
+  font-family: var(--font-brand);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  color: var(--amber-light);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bambu-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 9px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.bambu-status-badge.printing {
+  background: rgba(245, 158, 11, 0.2);
+  color: var(--amber-light);
+  border: 1px solid rgba(245, 158, 11, 0.5);
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.3);
+}
+
+.bambu-status-badge.idle {
+  background: rgba(34, 197, 94, 0.15);
+  color: #4ade80;
+  border: 1px solid rgba(34, 197, 94, 0.4);
+}
+
+.bambu-status-badge.offline {
+  background: rgba(148, 163, 184, 0.12);
+  color: #cbd5e1;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+}
+
+.bambu-pulse-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: pulseDot 1.5s infinite;
+}
+
+@keyframes pulseDot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.35; transform: scale(0.75); }
+}
+
+.bambu-progress-box {
+  background: #140e0a;
+  border: 1px solid #44301e;
+  border-radius: var(--radius-md);
+  padding: 12px;
+  margin-bottom: 12px;
+}
+
+.bambu-progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.bambu-filename {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 68%;
+}
+
+.bambu-pct-text {
+  font-family: var(--font-mono);
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--amber-light);
+}
+
+.bambu-bar-track {
+  height: 10px;
+  background: #251a12;
+  border-radius: 999px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.8);
+  border: 1px solid #5a3e26;
+  margin-bottom: 8px;
+}
+
+.bambu-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #d97706 0%, #f59e0b 50%, #fde047 100%);
+  border-radius: 999px;
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.7);
+  transition: width 0.4s ease;
+  width: 0%;
+}
+
+.bambu-time-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--text-dim);
+  font-weight: 600;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.bambu-gauges-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+@media (max-width: 480px) {
+  .bambu-gauges-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.bambu-gauge-card {
+  background: #17110c;
+  border: 1px solid #44301e;
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  text-align: center;
+}
+
+.bambu-gauge-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--muted-2);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.bambu-gauge-val {
+  font-family: var(--font-mono);
+  font-size: 13.5px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.bambu-gauge-sub {
+  font-size: 9.5px;
+  color: var(--muted);
+}
+
+/* AMS Lite */
+.bambu-ams-box {
+  background: #140e0a;
+  border: 1px solid #44301e;
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+  margin-bottom: 12px;
+}
+
+.bambu-ams-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--amber-light);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.bambu-ams-slots {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+
+.bambu-ams-slot {
+  background: #1f1610;
+  border: 1px solid #443221;
+  border-radius: var(--radius-sm);
+  padding: 6px 4px;
+  text-align: center;
+  transition: all 0.15s ease;
+}
+
+.bambu-ams-slot.active {
+  border-color: var(--amber);
+  box-shadow: 0 0 8px rgba(245, 158, 11, 0.4);
+  background: #281d14;
+}
+
+.bambu-ams-spool {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  margin: 0 auto 4px;
+  border: 2px solid #6b4d2e;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+}
+
+.bambu-ams-slot-name {
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--text-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Câmera da A1 - Olho da Forja */
+.bambu-camera-box {
+  background: #0d0906;
+  border: 1px solid #5a3e26;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  margin-bottom: 12px;
+  position: relative;
+}
+
+.bambu-camera-screen {
+  width: 100%;
+  height: 220px;
+  background: radial-gradient(circle at center, #1c150f 0%, #080604 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.bambu-camera-screen img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.bambu-cam-live-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: rgba(220, 38, 38, 0.9);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+  z-index: 2;
+}
+
+.bambu-cam-actions {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  display: flex;
+  gap: 6px;
+  z-index: 2;
+}
+
+.bambu-cam-btn {
+  background: rgba(20, 15, 10, 0.85);
+  border: 1px solid #5a3e26;
+  color: var(--text);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 5px 9px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  backdrop-filter: blur(4px);
+}
 </style>
 </head>
 <body>
@@ -1062,6 +1378,110 @@ select {
 
   <!-- ================= TELA 1: CALCULADORA ================= -->
   <section class="screen active" id="screen-calc">
+
+    <!-- ================= FORJA CONECTADA (BAMBU LAB A1) ================= -->
+    <div class="bambu-card" id="bambuLiveCard">
+      <div class="bambu-header">
+        <div class="bambu-title">
+          <span>🖨️ Forja Conectada</span>
+          <span class="bambu-status-badge printing" id="bambuStatusBadge">
+            <span class="bambu-pulse-dot"></span>
+            <span id="bambuStatusText">Imprimindo</span>
+          </span>
+        </div>
+        <div style="display:flex; gap:6px;">
+          <button class="btn btn-secondary btn-sm" id="btnToggleBambuCam" type="button" style="padding:5px 10px; font-size:11px;">
+            👁️ Câmera
+          </button>
+          <button class="btn btn-primary btn-sm" id="btnOpenBambuModal" type="button" style="padding:5px 10px; font-size:11px;">
+            ⚙️ Conectar A1
+          </button>
+        </div>
+      </div>
+
+      <!-- CÂMERA AO VIVO (OLHO DA FORJA) -->
+      <div class="bambu-camera-box" id="bambuCamBox" style="display:none;">
+        <div class="bambu-camera-screen" id="bambuCamScreen">
+          <div class="bambu-cam-live-badge">
+            <span class="bambu-pulse-dot" style="background:#fff;"></span> AO VIVO
+          </div>
+          <img id="bambuCamImg" src="assets/taverna-bg.jpg" alt="Câmera Bambu Lab A1">
+          <div class="bambu-cam-actions">
+            <button class="bambu-cam-btn" id="btnRefreshCam" type="button" title="Atualizar Foto">🔄 Atualizar</button>
+            <button class="bambu-cam-btn" id="btnFullCam" type="button" title="Tela Cheia">⛶ Tela Cheia</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- PROGRESSO & ARQUIVO -->
+      <div class="bambu-progress-box">
+        <div class="bambu-progress-header">
+          <div class="bambu-filename" id="bambuFileName" title="Arquivo em impressão">
+            🐉 Dragao_Articulado_v2.3mf
+          </div>
+          <div class="bambu-pct-text" id="bambuPctText">68%</div>
+        </div>
+        <div class="bambu-bar-track">
+          <div class="bambu-bar-fill" id="bambuBarFill" style="width: 68%;"></div>
+        </div>
+        <div class="bambu-time-row">
+          <span id="bambuTimeRemaining">⏱️ Restam: <b>1h 14m</b></span>
+          <span id="bambuLayerText">📐 Camada: <b>184 / 270</b></span>
+          <span id="bambuEtaText">🎯 Término: <b>18:45</b></span>
+        </div>
+      </div>
+
+      <!-- MANÔMETROS TÉRMICOS & VELOCIDADE -->
+      <div class="bambu-gauges-grid">
+        <div class="bambu-gauge-card">
+          <div class="bambu-gauge-label">🔥 Bico (Nozzle)</div>
+          <div class="bambu-gauge-val" id="bambuNozzleTemp" style="color:#ff8570;">220°C</div>
+          <div class="bambu-gauge-sub" id="bambuNozzleTarget">Alvo: 220°C</div>
+        </div>
+        <div class="bambu-gauge-card">
+          <div class="bambu-gauge-label">🛡️ Mesa (Bed)</div>
+          <div class="bambu-gauge-val" id="bambuBedTemp" style="color:#fbbf24;">60°C</div>
+          <div class="bambu-gauge-sub" id="bambuBedTarget">Alvo: 60°C</div>
+        </div>
+        <div class="bambu-gauge-card">
+          <div class="bambu-gauge-label">💨 Ventoinha</div>
+          <div class="bambu-gauge-val" id="bambuFanSpeed" style="color:#60a5fa;">100%</div>
+          <div class="bambu-gauge-sub">Resfriamento</div>
+        </div>
+        <div class="bambu-gauge-card">
+          <div class="bambu-gauge-label">⚡ Velocidade</div>
+          <div class="bambu-gauge-val" id="bambuSpeedMode" style="color:var(--amber-light);">Padrão</div>
+          <div class="bambu-gauge-sub" id="bambuSpeedPct">100% (1.0x)</div>
+        </div>
+      </div>
+
+      <!-- AMS LITE (4 CARRETÉIS DE FILAMENTO) -->
+      <div class="bambu-ams-box">
+        <div class="bambu-ams-title">
+          <span>🎨 AMS Lite — Filamentos Carregados</span>
+          <span style="font-size:10px; color:var(--muted); font-weight:600;" id="bambuAmsActiveSlot">Slot 2 em uso</span>
+        </div>
+        <div class="bambu-ams-slots" id="bambuAmsSlots">
+          <div class="bambu-ams-slot" id="amsSlot0">
+            <div class="bambu-ams-spool" style="background:#111111;"></div>
+            <div class="bambu-ams-slot-name">1: PLA Preto</div>
+          </div>
+          <div class="bambu-ams-slot active" id="amsSlot1">
+            <div class="bambu-ams-spool" style="background:#f59e0b; box-shadow:0 0 8px rgba(245,158,11,0.8);"></div>
+            <div class="bambu-ams-slot-name">2: Silk Ouro</div>
+          </div>
+          <div class="bambu-ams-slot" id="amsSlot2">
+            <div class="bambu-ams-spool" style="background:#ef4444;"></div>
+            <div class="bambu-ams-slot-name">3: PLA Rubro</div>
+          </div>
+          <div class="bambu-ams-slot" id="amsSlot3">
+            <div class="bambu-ams-spool" style="background:#ffffff;"></div>
+            <div class="bambu-ams-slot-name">4: PLA Branco</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="card">
       <div class="card-header">
         <span class="card-title">
@@ -1668,6 +2088,57 @@ create policy "Users can manage their own state"
     <div class="btn-row" style="margin-top:16px;">
       <button class="btn btn-secondary" id="btnCancelFilModal">Cancelar</button>
       <button class="btn btn-primary" id="btnSaveFilModal">Salvar Filamento</button>
+    </div>
+  </div>
+
+  <!-- ================= MODAL DE CONEXÃO BAMBU LAB A1 ================= -->
+  <div class="sheet-overlay" id="overlayBambu"></div>
+  <div class="sheet" id="sheetBambu">
+    <div class="sheet-handle"></div>
+    <h2>🖨️ Conectar Bambu Lab A1</h2>
+    <p class="sub">Vincule sua conta da Bambu Lab para monitorar a forja e ver a câmera ao vivo de qualquer lugar.</p>
+
+    <div id="bambuAuthForm">
+      <div class="field">
+        <label>E-mail da Conta Bambu Lab (Bambu Handy)</label>
+        <input type="email" id="bambuAccountEmail" placeholder="seu-email@exemplo.com" autocomplete="username">
+      </div>
+
+      <div class="field">
+        <label>Senha da Conta Bambu Lab</label>
+        <input type="password" id="bambuAccountPassword" placeholder="Sua senha da Bambu Lab" autocomplete="current-password">
+      </div>
+
+      <div class="field" id="bambu2faField" style="display:none;">
+        <label>Código de Verificação (Enviado para seu e-mail)</label>
+        <input type="text" id="bambu2faCode" placeholder="Ex: 123456" maxlength="8">
+      </div>
+
+      <div class="btn-row" style="margin-top:16px;">
+        <button class="btn btn-secondary" id="btnCancelBambuModal" type="button">Fechar</button>
+        <button class="btn btn-primary" id="btnSubmitBambuLogin" type="button">Conectar Bambu Cloud</button>
+      </div>
+    </div>
+
+    <!-- Status quando já conectado -->
+    <div id="bambuConnectedBox" style="display:none; padding:12px; background:#18110b; border:1px solid #44301e; border-radius:var(--radius-sm); margin-bottom:14px;">
+      <div style="font-size:13px; font-weight:700; color:var(--amber-light); margin-bottom:4px;" id="bambuLoggedInfo">
+        Conectado como: taverna@exemplo.com
+      </div>
+      <div style="font-size:12px; color:var(--text-dim);" id="bambuDeviceInfo">
+        Impressora: Bambu Lab A1 (Online 🟢)
+      </div>
+    </div>
+
+    <div class="hairline"></div>
+
+    <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+      <button class="btn btn-ghost btn-sm" id="btnBambuDemoMode" type="button" style="flex:1;">
+        ✨ Ativar Modo Demonstração
+      </button>
+      <button class="btn btn-danger btn-sm" id="btnDisconnectBambu" type="button" style="display:none;">
+        Desconectar
+      </button>
     </div>
   </div>
 
@@ -3038,6 +3509,313 @@ if ('serviceWorker' in navigator) {
 }
 
 /* =========================================================
+   BAMBU LAB A1 — TELEMETRIA & CÂMERA AO VIVO (CONTROLLER)
+========================================================= */
+let appBambu = JSON.parse(localStorage.getItem('taverna3d:bambu')) || {
+  connected: true,
+  isDemo: true,
+  token: '',
+  email: '',
+  username: 'Taverneiro Trisk',
+  devId: '01P00A123456789',
+  devName: 'Bambu Lab A1 (Oficina)',
+  online: true,
+  state: 'RUNNING',
+  fileName: 'Dragao_Articulado_v2.3mf',
+  percent: 68,
+  remainingMins: 74,
+  currentLayer: 184,
+  totalLayers: 270,
+  nozzleTemp: 220,
+  nozzleTarget: 220,
+  bedTemp: 60,
+  bedTarget: 60,
+  fanSpeed: 100,
+  speedMode: 'Padrão',
+  speedPct: '100% (1.0x)',
+  cameraOpen: false,
+  amsSlots: [
+    { slot: 1, name: 'PLA Preto', color: '#111111', active: false },
+    { slot: 2, name: 'Silk Ouro', color: '#f59e0b', active: true },
+    { slot: 3, name: 'PLA Rubro', color: '#ef4444', active: false },
+    { slot: 4, name: 'PLA Branco', color: '#ffffff', active: false }
+  ]
+};
+
+function saveBambuState() {
+  localStorage.setItem('taverna3d:bambu', JSON.stringify(appBambu));
+}
+
+function updateBambuUI() {
+  const badge = document.getElementById('bambuStatusBadge');
+  const statusText = document.getElementById('bambuStatusText');
+  const fileNameEl = document.getElementById('bambuFileName');
+  const pctText = document.getElementById('bambuPctText');
+  const barFill = document.getElementById('bambuBarFill');
+  const timeRemaining = document.getElementById('bambuTimeRemaining');
+  const layerText = document.getElementById('bambuLayerText');
+  const etaText = document.getElementById('bambuEtaText');
+
+  const nozzleTemp = document.getElementById('bambuNozzleTemp');
+  const nozzleTarget = document.getElementById('bambuNozzleTarget');
+  const bedTemp = document.getElementById('bambuBedTemp');
+  const bedTarget = document.getElementById('bambuBedTarget');
+  const fanSpeed = document.getElementById('bambuFanSpeed');
+  const speedMode = document.getElementById('bambuSpeedMode');
+  const speedPct = document.getElementById('bambuSpeedPct');
+
+  if (appBambu.state === 'RUNNING' || appBambu.state === 'PRINTING') {
+    if (badge) { badge.className = 'bambu-status-badge printing'; }
+    if (statusText) statusText.textContent = appBambu.isDemo ? 'Imprimindo (Demo)' : 'Imprimindo';
+  } else if (appBambu.online) {
+    if (badge) { badge.className = 'bambu-status-badge idle'; }
+    if (statusText) statusText.textContent = 'Em Espera';
+  } else {
+    if (badge) { badge.className = 'bambu-status-badge offline'; }
+    if (statusText) statusText.textContent = 'Desconectada';
+  }
+
+  if (fileNameEl) fileNameEl.textContent = appBambu.fileName || 'Nenhum arquivo ativo';
+  if (pctText) pctText.textContent = `${Math.round(appBambu.percent)}%`;
+  if (barFill) barFill.style.width = `${Math.max(0, Math.min(100, appBambu.percent))}%`;
+
+  const hours = Math.floor(appBambu.remainingMins / 60);
+  const mins = appBambu.remainingMins % 60;
+  const timeStr = hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
+  if (timeRemaining) timeRemaining.innerHTML = `⏱️ Restam: <b>${timeStr}</b>`;
+  if (layerText) layerText.innerHTML = `📐 Camada: <b>${appBambu.currentLayer} / ${appBambu.totalLayers}</b>`;
+
+  // Calcular ETA (Horário de Término)
+  const now = new Date();
+  const finishTime = new Date(now.getTime() + (appBambu.remainingMins * 60000));
+  const etaStr = finishTime.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  if (etaText) etaText.innerHTML = `🎯 Término: <b>${etaStr}</b>`;
+
+  if (nozzleTemp) nozzleTemp.textContent = `${appBambu.nozzleTemp}°C`;
+  if (nozzleTarget) nozzleTarget.textContent = `Alvo: ${appBambu.nozzleTarget}°C`;
+  if (bedTemp) bedTemp.textContent = `${appBambu.bedTemp}°C`;
+  if (bedTarget) bedTarget.textContent = `Alvo: ${appBambu.bedTarget}°C`;
+  if (fanSpeed) fanSpeed.textContent = `${appBambu.fanSpeed}%`;
+  if (speedMode) speedMode.textContent = appBambu.speedMode || 'Padrão';
+  if (speedPct) speedPct.textContent = appBambu.speedPct || '100% (1.0x)';
+
+  // AMS Slots
+  const slotsContainer = document.getElementById('bambuAmsSlots');
+  if (slotsContainer && appBambu.amsSlots) {
+    slotsContainer.innerHTML = appBambu.amsSlots.map((s, idx) => `
+      <div class="bambu-ams-slot ${s.active ? 'active' : ''}" id="amsSlot${idx}">
+        <div class="bambu-ams-spool" style="background:${s.color}; ${s.active ? 'box-shadow:0 0 10px '+s.color : ''}"></div>
+        <div class="bambu-ams-slot-name">${s.slot}: ${s.name}</div>
+      </div>
+    `).join('');
+  }
+
+  // Modal info update
+  const authForm = document.getElementById('bambuAuthForm');
+  const connectedBox = document.getElementById('bambuConnectedBox');
+  const disconnectBtn = document.getElementById('btnDisconnectBambu');
+  const loggedInfo = document.getElementById('bambuLoggedInfo');
+  const deviceInfo = document.getElementById('bambuDeviceInfo');
+
+  if (appBambu.connected && !appBambu.isDemo) {
+    if (authForm) authForm.style.display = 'none';
+    if (connectedBox) connectedBox.style.display = 'block';
+    if (disconnectBtn) disconnectBtn.style.display = 'inline-block';
+    if (loggedInfo) loggedInfo.textContent = `Conectado como: ${appBambu.email || appBambu.username}`;
+    if (deviceInfo) deviceInfo.textContent = `Impressora: ${appBambu.devName} (${appBambu.online ? 'Online 🟢' : 'Offline ⚪'})`;
+  } else {
+    if (authForm) authForm.style.display = 'block';
+    if (connectedBox) connectedBox.style.display = 'none';
+    if (disconnectBtn) disconnectBtn.style.display = 'none';
+  }
+}
+
+// Polling / Simulação em tempo real
+let bambuInterval = null;
+function startBambuLoop() {
+  if (bambuInterval) clearInterval(bambuInterval);
+  bambuInterval = setInterval(() => {
+    if (appBambu.isDemo && (appBambu.state === 'RUNNING' || appBambu.state === 'PRINTING')) {
+      // Simulação suave em tempo real
+      if (appBambu.percent < 100) {
+        appBambu.percent = Math.min(100, +(appBambu.percent + 0.1).toFixed(1));
+        if (appBambu.remainingMins > 1 && Math.random() > 0.7) {
+          appBambu.remainingMins = Math.max(1, appBambu.remainingMins - 1);
+        }
+        if (appBambu.currentLayer < appBambu.totalLayers && Math.random() > 0.8) {
+          appBambu.currentLayer++;
+        }
+        // Variação térmica realista (+- 1 grau)
+        appBambu.nozzleTemp = 220 + (Math.random() > 0.5 ? 1 : -1);
+      }
+      updateBambuUI();
+    } else if (appBambu.token && appBambu.devId) {
+      // Polling na API do Cloudflare Worker
+      fetch('/api/bambu/telemetry', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: appBambu.token, dev_id: appBambu.devId })
+      }).then(r => r.json()).then(res => {
+        if (res.success && res.raw) {
+          appBambu.online = true;
+          updateBambuUI();
+        }
+      }).catch(() => {});
+    }
+  }, 3000);
+}
+
+// Câmera da A1 Toggle
+document.getElementById('btnToggleBambuCam')?.addEventListener('click', () => {
+  const camBox = document.getElementById('bambuCamBox');
+  if (!camBox) return;
+  const isHidden = camBox.style.display === 'none';
+  camBox.style.display = isHidden ? 'block' : 'none';
+  appBambu.cameraOpen = isHidden;
+  saveBambuState();
+  if (isHidden) {
+    showToast('Abrindo Olho da Forja (Câmera ao Vivo)...', true);
+  }
+});
+
+document.getElementById('btnRefreshCam')?.addEventListener('click', () => {
+  const img = document.getElementById('bambuCamImg');
+  if (img) {
+    const src = img.src.split('?')[0];
+    img.src = src + '?t=' + Date.now();
+    showToast('Foto da câmera atualizada! 📸', true);
+  }
+});
+
+document.getElementById('btnFullCam')?.addEventListener('click', () => {
+  const screen = document.getElementById('bambuCamScreen');
+  if (screen) {
+    if (!document.fullscreenElement) {
+      screen.requestFullscreen().catch(() => {});
+    } else {
+      document.exitFullscreen().catch(() => {});
+    }
+  }
+});
+
+// Abrir/Fechar Modal da Bambu Lab
+document.getElementById('btnOpenBambuModal')?.addEventListener('click', () => {
+  document.getElementById('overlayBambu')?.classList.add('open');
+  document.getElementById('sheetBambu')?.classList.add('open');
+});
+
+['btnCancelBambuModal', 'overlayBambu'].forEach(id => {
+  document.getElementById(id)?.addEventListener('click', () => {
+    document.getElementById('overlayBambu')?.classList.remove('open');
+    document.getElementById('sheetBambu')?.classList.remove('open');
+  });
+});
+
+// Login na Bambu Cloud
+document.getElementById('btnSubmitBambuLogin')?.addEventListener('click', async () => {
+  const email = document.getElementById('bambuAccountEmail')?.value?.trim();
+  const pass = document.getElementById('bambuAccountPassword')?.value;
+  const code = document.getElementById('bambu2faCode')?.value?.trim();
+  const btn = document.getElementById('btnSubmitBambuLogin');
+
+  if (!email || !pass) {
+    showToast('Digite seu e-mail e senha da conta Bambu Lab.');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Conectando...';
+
+  try {
+    const res = await fetch('/api/bambu/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ account: email, password: pass, tfa_code: code })
+    });
+    const data = await res.json();
+
+    if (data.require2fa) {
+      document.getElementById('bambu2faField').style.display = 'block';
+      showToast('Digite o código de verificação enviado ao seu e-mail.');
+      btn.disabled = false;
+      btn.textContent = 'Confirmar Código';
+      return;
+    }
+
+    if (!data.success || !data.token) {
+      showToast(data.error || 'Falha ao conectar na Bambu Lab.');
+      btn.disabled = false;
+      btn.textContent = 'Conectar Bambu Cloud';
+      return;
+    }
+
+    // Sucesso no login -> Buscar impressoras
+    appBambu.connected = true;
+    appBambu.isDemo = false;
+    appBambu.token = data.token;
+    appBambu.email = data.email || email;
+    appBambu.username = data.username;
+
+    // Buscar lista de dispositivos
+    const devRes = await fetch('/api/bambu/devices', {
+      method: 'GET',
+      headers: { 'Authorization': 'Bearer ' + data.token }
+    });
+    const devData = await devRes.json();
+
+    if (devData.success && devData.devices?.length > 0) {
+      const a1 = devData.devices.find(d => d.model?.includes('A1')) || devData.devices[0];
+      appBambu.devId = a1.dev_id;
+      appBambu.devName = a1.name || 'Bambu Lab A1';
+      appBambu.model = a1.model || 'A1';
+      appBambu.online = a1.online;
+    }
+
+    saveBambuState();
+    updateBambuUI();
+    document.getElementById('overlayBambu')?.classList.remove('open');
+    document.getElementById('sheetBambu')?.classList.remove('open');
+    showToast(`Bambu Lab ${appBambu.devName} conectada com sucesso! 🔥`, true);
+  } catch (err) {
+    showToast('Erro de conexão: ' + err.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Conectar Bambu Cloud';
+  }
+});
+
+// Botão Modo Demonstração
+document.getElementById('btnBambuDemoMode')?.addEventListener('click', () => {
+  appBambu.connected = true;
+  appBambu.isDemo = true;
+  appBambu.state = 'RUNNING';
+  appBambu.percent = 68;
+  appBambu.remainingMins = 74;
+  appBambu.fileName = 'Dragao_Articulado_v2.3mf';
+  saveBambuState();
+  updateBambuUI();
+  document.getElementById('overlayBambu')?.classList.remove('open');
+  document.getElementById('sheetBambu')?.classList.remove('open');
+  showToast('Modo Demonstração ativado!', true);
+});
+
+// Desconectar
+document.getElementById('btnDisconnectBambu')?.addEventListener('click', () => {
+  if (confirm('Deseja desconectar sua conta da Bambu Lab?')) {
+    appBambu.connected = false;
+    appBambu.token = '';
+    appBambu.isDemo = false;
+    appBambu.online = false;
+    appBambu.state = 'IDLE';
+    saveBambuState();
+    updateBambuUI();
+    document.getElementById('overlayBambu')?.classList.remove('open');
+    document.getElementById('sheetBambu')?.classList.remove('open');
+    showToast('Desconectado da Bambu Lab.');
+  }
+});
+
+/* =========================================================
    INICIALIZAÇÃO DO SISTEMA
 ========================================================= */
 document.addEventListener('DOMContentLoaded', () => {
@@ -3093,6 +3871,8 @@ document.addEventListener('DOMContentLoaded', () => {
   renderFilamentList();
   renderOrders();
   calculatePrices();
+  updateBambuUI();
+  startBambuLoop();
 
   if (appCloud.session?.access_token) {
     setCloudStatus('ok', 'Nuvem Conectada');
