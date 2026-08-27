@@ -265,15 +265,15 @@ input, select, textarea {
   width: 100%;
   max-width: 620px;
   z-index: 50;
-  background: linear-gradient(180deg, rgba(28, 21, 15, 0.98) 0%, rgba(14, 10, 7, 0.99) 100%);
+  background: linear-gradient(180deg, rgba(38, 28, 20, 0.98) 0%, rgba(20, 15, 10, 0.99) 100%);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border-top: 2px solid #5a4128;
-  box-shadow: 0 -4px 25px rgba(0, 0, 0, 0.8);
+  border-top: 1.5px solid #785233;
+  box-shadow: 0 -4px 25px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(255, 215, 130, 0.2);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 6px 4px calc(6px + env(safe-area-inset-bottom));
+  padding: 7px 4px calc(7px + env(safe-area-inset-bottom));
 }
 
 .navbtn {
@@ -284,7 +284,7 @@ input, select, textarea {
   justify-content: center;
   gap: 2px;
   background: transparent;
-  color: var(--muted);
+  color: #d6c8b8;
   padding: 5px 1px;
   border-radius: var(--radius-md);
   transition: all 0.15s ease;
@@ -293,6 +293,10 @@ input, select, textarea {
   border: none;
   text-align: center;
   text-decoration: none;
+}
+
+.navbtn:hover {
+  color: #ffffff;
 }
 
 .navbtn svg, .navbtn .nav-icon {
@@ -307,23 +311,31 @@ input, select, textarea {
 }
 
 .navbtn span.nav-label {
-  font-size: 9.5px;
+  font-size: 10px;
   font-weight: 700;
   letter-spacing: -0.01em;
+  color: #e5d8cb;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 100%;
   display: block;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
 }
 
 .navbtn.active {
-  color: var(--amber-light);
+  color: #fbbf24;
+}
+
+.navbtn.active span.nav-label {
+  color: #fde68a;
+  font-weight: 800;
+  text-shadow: 0 0 10px rgba(245, 158, 11, 0.6), 0 1px 3px rgba(0, 0, 0, 0.9);
 }
 
 .navbtn.active svg, .navbtn.active .nav-icon {
-  transform: scale(1.18);
-  filter: drop-shadow(0 0 8px var(--amber-glow));
+  transform: scale(1.2);
+  filter: drop-shadow(0 0 10px rgba(245, 158, 11, 0.8));
 }
 
 /* =========================================================
