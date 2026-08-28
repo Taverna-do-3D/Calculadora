@@ -1,0 +1,33 @@
+name: System Audit E2E
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    name: Teste completo da Calculadora
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Instalar Playwright
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+
+      - name: Rodar auditoria no site publicado
+        env:
+          APP_URL: https://calculadora.tavernado3d.workers.dev/
+        run: node tests/system-audit.mjs
