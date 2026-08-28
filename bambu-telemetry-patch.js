@@ -3,6 +3,17 @@
  * Usa exclusivamente a telemetria MQTT real para sensores e evita valores fictícios/stale.
  */
 (() => {
+  const removeCameraUI = () => {
+    document.getElementById('btnToggleBambuCam')?.remove();
+    document.getElementById('bambuCamBox')?.remove();
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', removeCameraUI, { once: true });
+  } else {
+    removeCameraUI();
+  }
+
   const asNumber = (value) => {
     if (value === undefined || value === null || value === '') return null;
     const n = Number(value);
@@ -154,6 +165,7 @@
       saveBambuState();
       updateBambuUI();
       strictSensorRender(hasRealTelemetry);
+      removeCameraUI();
 
       if (!silent) {
         const sourceLabel = hasRealTelemetry ? 'MQTT em tempo real' : 'Bambu Cloud (sem sensores em tempo real)';
@@ -166,6 +178,7 @@
       clearRealSensors();
       updateBambuUI();
       strictSensorRender(false);
+      removeCameraUI();
       if (!silent) showToast('Não foi possível sincronizar a telemetria agora.');
     }
   };
