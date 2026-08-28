@@ -3,6 +3,11 @@
  * Usa exclusivamente a telemetria MQTT real para sensores e evita valores fictícios/stale.
  */
 (() => {
+  const POLL_MS = 8000;
+  const REQUEST_TIMEOUT_MS = 14000;
+  let syncInFlight = null;
+  let lastFreshTelemetryAt = 0;
+
   const removeCameraUI = () => {
     document.getElementById('btnToggleBambuCam')?.remove();
     document.getElementById('bambuCamBox')?.remove();
@@ -24,11 +29,6 @@
     if (value !== undefined && value !== null && value !== '') obj[key] = value;
   };
 
-  const REAL_SENSOR_KEYS = [
-    'nozzleTemp', 'nozzleTarget', 'bedTemp', 'bedTarget',
-    'fanSpeed', 'speedMode', 'speedPct'
-  ];
-
   const clearRealSensors = () => {
     appBambu.nozzleTemp = null;
     appBambu.nozzleTarget = null;
@@ -39,22 +39,57 @@
     appBambu.speedPct = null;
   };
 
+  const clearFinishedJob = () => {
+    appBambu.fileName = '';
+    appBambu.percent = 0;
+    appBambu.remainingMins = 0;
+    appBambu.currentLayer = null;
+    appBambu.totalLayers = null;
+  };
+
   const applyTaskFallback = (task) => {
-    if (!task) return;
-    setIfPresent(appBambu, 'fileName', task.subtask_name || task.title || task.gcode_file || task.design_title);
-    setIfPresent(appBambu, 'percent', asNumber(task.percent ?? task.progress));
+    if (!task) return false;
+    let applied = false;
+
+    const fileName = task.subtask_name || task.title || task.gcode_file || task.design_title;
+    if (fileName) {
+      appBambu.fileName = fileName;
+      applied = true;
+    }
+
+    const percent = asNumber(task.percent ?? task.progress);
+    if (percent !== null) {
+      appBambu.percent = percent;
+      applied = true;
+    }
 
     const remaining = task.mc_remaining_time ?? task.remainingMins;
     if (remaining !== undefined && remaining !== null) {
-      setIfPresent(appBambu, 'remainingMins', asNumber(remaining));
+      const n = asNumber(remaining);
+      if (n !== null) {
+        appBambu.remainingMins = n;
+        applied = true;
+      }
     } else if (task.total_time && task.cost_time) {
       appBambu.remainingMins = Math.max(0, Math.round((Number(task.total_time) - Number(task.cost_time)) / 60));
+      applied = true;
     } else if (task.remain_time) {
       appBambu.remainingMins = Math.max(0, Math.round(Number(task.remain_time) / 60));
+      applied = true;
     }
 
-    setIfPresent(appBambu, 'currentLayer', asNumber(task.current_layer ?? task.layer_num));
-    setIfPresent(appBambu, 'totalLayers', asNumber(task.total_layers ?? task.total_layer_num));
+    const currentLayer = asNumber(task.current_layer ?? task.layer_num);
+    const totalLayers = asNumber(task.total_layers ?? task.total_layer_num);
+    if (currentLayer !== null) {
+      appBambu.currentLayer = currentLayer;
+      applied = true;
+    }
+    if (totalLayers !== null) {
+      appBambu.totalLayers = totalLayers;
+      applied = true;
+    }
+
+    return applied;
   };
 
   const strictSensorRender = (hasRealTelemetry) => {
@@ -87,15 +122,20 @@
     setText('bambuSpeedPct', Number.isFinite(asNumber(appBambu.speedPct)) ? `${Math.round(asNumber(appBambu.speedPct))}%` : (appBambu.speedPct || '--'));
   };
 
-  syncBambuTelemetry = async function syncBambuTelemetryReal(silent = true) {
+  async function doSyncBambuTelemetry(silent = true) {
     if (!appBambu.connected || appBambu.mode !== 'cloud' || !appBambu.token) return;
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
 
     try {
       if (!appBambu.devId) {
         const dRes = await fetch('/api/bambu/devices', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ token: appBambu.token })
+          body: JSON.stringify({ token: appBambu.token }),
+          signal: controller.signal,
+          cache: 'no-store'
         });
         const dData = await dRes.json().catch(() => ({}));
         if (dData.success && dData.devices?.length) {
@@ -116,7 +156,9 @@
           token: appBambu.token,
           dev_id: appBambu.devId,
           user_id: appBambu.userId || ''
-        })
+        }),
+        signal: controller.signal,
+        cache: 'no-store'
       });
       const data = await res.json().catch(() => ({}));
       if (!data.success) throw new Error(data.error || 'Falha ao consultar telemetria.');
@@ -138,6 +180,7 @@
       ].some(v => v !== null && v !== undefined && v !== '');
 
       if (hasRealTelemetry) {
+        lastFreshTelemetryAt = Date.now();
         appBambu.online = true;
         setIfPresent(appBambu, 'state', t.state);
         setIfPresent(appBambu, 'fileName', t.fileName);
@@ -155,12 +198,21 @@
         appBambu.speedPct = asNumber(t.speedPct);
       } else {
         clearRealSensors();
-        applyTaskFallback(data.task);
+        const hasTaskFallback = applyTaskFallback(data.task);
         if (data.device?.print_status) appBambu.state = data.device.print_status;
+
+        // Se nem MQTT nem tarefa atual vieram, não deixa dados de uma impressão antiga presos indefinidamente.
+        if (!hasTaskFallback && lastFreshTelemetryAt && Date.now() - lastFreshTelemetryAt > 30000) {
+          clearFinishedJob();
+        }
       }
 
-      if (appBambu.state === 'PAUSE') appBambu.state = 'PAUSED';
-      if (appBambu.state === 'FINISH' || appBambu.state === 'SUCCESS') appBambu.state = 'IDLE';
+      const normalizedState = String(appBambu.state || '').toUpperCase();
+      if (normalizedState === 'PAUSE') appBambu.state = 'PAUSED';
+      if (['FINISH', 'SUCCESS', 'IDLE', 'READY'].includes(normalizedState)) {
+        appBambu.state = 'IDLE';
+        clearFinishedJob();
+      }
 
       saveBambuState();
       updateBambuUI();
@@ -168,26 +220,56 @@
       removeCameraUI();
 
       if (!silent) {
-        const sourceLabel = hasRealTelemetry ? 'MQTT em tempo real' : 'Bambu Cloud (sem sensores em tempo real)';
+        const sourceLabel = hasRealTelemetry ? 'MQTT em tempo real' : 'Bambu Cloud (fallback)';
         showToast(`Telemetria atualizada — ${sourceLabel}! 🔥`, true);
       }
 
       if (data.mqtt_error) console.warn('[Bambu MQTT fallback]', data.mqtt_error);
     } catch (err) {
-      console.warn('Erro ao sincronizar Bambu:', err);
+      const aborted = err?.name === 'AbortError';
+      console.warn('Erro ao sincronizar Bambu:', aborted ? 'timeout da consulta' : err);
       clearRealSensors();
       updateBambuUI();
       strictSensorRender(false);
       removeCameraUI();
-      if (!silent) showToast('Não foi possível sincronizar a telemetria agora.');
+      if (!silent) showToast(aborted ? 'A consulta da A1 demorou demais. Tente novamente.' : 'Não foi possível sincronizar a telemetria agora.');
+    } finally {
+      clearTimeout(timeoutId);
     }
+  }
+
+  syncBambuTelemetry = function syncBambuTelemetryReal(silent = true) {
+    // Impede duas consultas MQTT simultâneas, evitando resposta antiga sobrescrever a mais nova.
+    if (syncInFlight) return syncInFlight;
+    syncInFlight = doSyncBambuTelemetry(silent).finally(() => {
+      syncInFlight = null;
+    });
+    return syncInFlight;
   };
 
   startBambuLoop = function startBambuLoopReal() {
-    if (bambuInterval) clearInterval(bambuInterval);
-    if (appBambu.connected && appBambu.mode === 'cloud') syncBambuTelemetry(true);
-    bambuInterval = setInterval(() => {
-      if (appBambu.connected && appBambu.mode === 'cloud') syncBambuTelemetry(true);
-    }, 10000);
+    if (bambuInterval) clearTimeout(bambuInterval);
+
+    const tick = async () => {
+      if (appBambu.connected && appBambu.mode === 'cloud') {
+        await syncBambuTelemetry(true);
+      }
+      bambuInterval = setTimeout(tick, POLL_MS);
+    };
+
+    tick();
   };
+
+  // Ao voltar para a aba/app ou recuperar a internet, força uma leitura atual imediatamente.
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && appBambu?.connected && appBambu?.mode === 'cloud') {
+      syncBambuTelemetry(true);
+    }
+  });
+
+  window.addEventListener('online', () => {
+    if (appBambu?.connected && appBambu?.mode === 'cloud') {
+      syncBambuTelemetry(true);
+    }
+  });
 })();

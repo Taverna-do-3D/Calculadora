@@ -1,4 +1,4 @@
-const CACHE_NAME = 'taverna3d-v1.0.0';
+const CACHE_NAME = 'taverna3d-v1.1.1';
 const ASSETS = [
   './',
   './index.html',
@@ -26,38 +26,55 @@ self.addEventListener('activate', (e) => {
   );
 });
 
+async function networkFirst(request, navigationFallback = false) {
+  try {
+    const fresh = await fetch(request, { cache: 'no-store' });
+    if (fresh && fresh.ok) {
+      const copy = fresh.clone();
+      caches.open(CACHE_NAME).then((c) => c.put(request, copy));
+    }
+    return fresh;
+  } catch (_) {
+    const cached = await caches.match(request);
+    if (cached) return cached;
+    if (navigationFallback) {
+      const shell = await caches.match('./index.html');
+      if (shell) return shell;
+    }
+    return new Response('Offline', { status: 503, statusText: 'Offline' });
+  }
+}
+
+async function cacheFirst(request) {
+  const cached = await caches.match(request);
+  if (cached) return cached;
+  const fresh = await fetch(request);
+  if (fresh && fresh.ok) {
+    const copy = fresh.clone();
+    caches.open(CACHE_NAME).then((c) => c.put(request, copy));
+  }
+  return fresh;
+}
+
 self.addEventListener('fetch', (e) => {
   if (e.request.method !== 'GET') return;
   const u = new URL(e.request.url);
   if (u.origin !== self.location.origin) return;
+  if (u.pathname.startsWith('/api/')) return;
 
   if (e.request.mode === 'navigate') {
-    e.respondWith(
-      fetch(e.request)
-        .then((r) => {
-          if (r && r.ok) {
-            const cp = r.clone();
-            caches.open(CACHE_NAME).then((c) => c.put(e.request, cp));
-          }
-          return r;
-        })
-        .catch(async () => (await caches.match(e.request)) || (await caches.match('./index.html')))
-    );
+    e.respondWith(networkFirst(e.request, true));
     return;
   }
 
-  e.respondWith(
-    caches.match(e.request).then((cached) => {
-      return (
-        cached ||
-        fetch(e.request).then((r) => {
-          if (r && r.ok) {
-            const cp = r.clone();
-            caches.open(CACHE_NAME).then((c) => c.put(e.request, cp));
-          }
-          return r;
-        })
-      );
-    })
-  );
+  const isAppCode = /\.(?:html|js|css|json)$/i.test(u.pathname) || u.pathname === '/' || u.pathname === '';
+
+  // Código do app sempre tenta a rede primeiro para não deixar JS/HTML antigo preso no PWA.
+  if (isAppCode) {
+    e.respondWith(networkFirst(e.request, false));
+    return;
+  }
+
+  // Imagens e demais arquivos estáticos podem continuar cache-first.
+  e.respondWith(cacheFirst(e.request));
 });
