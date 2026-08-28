@@ -13,6 +13,7 @@ export default {
         .on('body', {
           element(element) {
             element.append('<script src="/auto-cache-refresh.js?v=2"></script>', { html: true });
+            element.append('<script src="/settings-save-guard.js?v=1"></script>', { html: true });
           },
         })
         .transform(response);
