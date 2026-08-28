@@ -42,3 +42,8 @@ jobs:
         env:
           APP_URL: http://127.0.0.1:4173/
         run: node tests/system-audit.mjs
+
+      - name: Validar cálculos da calibração Bambu
+        env:
+          APP_URL: http://127.0.0.1:4173/
+        run: node tests/calibration-audit.mjs
