@@ -1,4 +1,4 @@
-const CACHE_NAME = 'taverna3d-v1.1.0';
+const CACHE_NAME = 'taverna3d-v1.1.1';
 const ASSETS = [
   './',
   './index.html',
@@ -26,7 +26,7 @@ self.addEventListener('activate', (e) => {
   );
 });
 
-async function networkFirst(request) {
+async function networkFirst(request, navigationFallback = false) {
   try {
     const fresh = await fetch(request, { cache: 'no-store' });
     if (fresh && fresh.ok) {
@@ -35,7 +35,13 @@ async function networkFirst(request) {
     }
     return fresh;
   } catch (_) {
-    return (await caches.match(request)) || (await caches.match('./index.html'));
+    const cached = await caches.match(request);
+    if (cached) return cached;
+    if (navigationFallback) {
+      const shell = await caches.match('./index.html');
+      if (shell) return shell;
+    }
+    return new Response('Offline', { status: 503, statusText: 'Offline' });
   }
 }
 
@@ -56,13 +62,16 @@ self.addEventListener('fetch', (e) => {
   if (u.origin !== self.location.origin) return;
   if (u.pathname.startsWith('/api/')) return;
 
-  const isAppCode = e.request.mode === 'navigate' ||
-    /\.(?:html|js|css|json)$/i.test(u.pathname) ||
-    u.pathname === '/' || u.pathname === '';
+  if (e.request.mode === 'navigate') {
+    e.respondWith(networkFirst(e.request, true));
+    return;
+  }
+
+  const isAppCode = /\.(?:html|js|css|json)$/i.test(u.pathname) || u.pathname === '/' || u.pathname === '';
 
   // Código do app sempre tenta a rede primeiro para não deixar JS/HTML antigo preso no PWA.
   if (isAppCode) {
-    e.respondWith(networkFirst(e.request));
+    e.respondWith(networkFirst(e.request, false));
     return;
   }
 
