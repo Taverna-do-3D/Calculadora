@@ -22,20 +22,20 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Instalar Playwright
+      - name: Instalar dependências de teste
         run: |
           npm install --no-save playwright@1.55.0
           npx playwright install --with-deps chromium
 
-      - name: Iniciar versão do PR
+      - name: Iniciar Worker local da versão do PR
         run: |
-          python3 -m http.server 4173 --bind 127.0.0.1 > /tmp/taverna-http.log 2>&1 &
-          echo $! > /tmp/taverna-http.pid
-          for i in {1..20}; do
+          npx wrangler dev --port 4173 --ip 127.0.0.1 > /tmp/taverna-worker.log 2>&1 &
+          echo $! > /tmp/taverna-worker.pid
+          for i in {1..30}; do
             curl -fsS http://127.0.0.1:4173/ >/dev/null && exit 0
             sleep 1
           done
-          cat /tmp/taverna-http.log
+          cat /tmp/taverna-worker.log
           exit 1
 
       - name: Rodar auditoria E2E da versão do PR
