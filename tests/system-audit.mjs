@@ -175,14 +175,32 @@ await test('Bambu: componentes essenciais da telemetria existem', async () => {
   }
 });
 
-await test('Bambu -> Calculadora: integração automática existe', async () => {
-  const refs = await page.evaluate(() => {
-    const src = Array.from(document.scripts).map(s => s.textContent || '').join('\n');
-    const itemWrites = /calcItemName[^\n]{0,120}(appBambu|fileName)|(appBambu|fileName)[^\n]{0,120}calcItemName/.test(src);
-    const timeWrites = /calcHours[^\n]{0,120}appBambu|appBambu[^\n]{0,120}calcHours/.test(src);
-    return { itemWrites, timeWrites };
+await test('Bambu -> Calculadora: integração automática funciona e respeita edição manual', async () => {
+  await nav('screen-calc');
+  await page.locator('#calcItemName').fill('');
+  await page.locator('#calcHours').fill('');
+  await page.locator('#calcMins').fill('');
+
+  const available = await page.evaluate(() => typeof window.syncBambuToCalculator === 'function');
+  assert(available, 'Função syncBambuToCalculator não está disponível');
+
+  await page.evaluate(() => {
+    appBambu.state = 'RUNNING';
+    appBambu.fileName = 'Peca_da_Bambu.3mf';
+    window.syncBambuToCalculator({ total_time: 5400 });
   });
-  assert(refs.itemWrites || refs.timeWrites, 'Não há rotina automática que leve os dados atuais da Bambu para os campos da Calculadora');
+  await page.waitForTimeout(100);
+
+  assert(await page.locator('#calcItemName').inputValue() === 'Peca_da_Bambu.3mf', 'Nome da peça Bambu não foi enviado para a Calculadora');
+  assert(await page.locator('#calcHours').inputValue() === '1', 'Horas totais confiáveis da Bambu não foram enviadas');
+  assert(await page.locator('#calcMins').inputValue() === '30', 'Minutos totais confiáveis da Bambu não foram enviados');
+
+  await page.locator('#calcItemName').fill('Nome editado pelo usuário');
+  await page.evaluate(() => {
+    appBambu.fileName = 'Outro_Arquivo.3mf';
+    window.syncBambuToCalculator({ total_time: 7200 });
+  });
+  assert(await page.locator('#calcItemName').inputValue() === 'Nome editado pelo usuário', 'Sincronização Bambu sobrescreveu uma edição manual do usuário');
 });
 
 await test('Service Worker não mantém código antigo por cache-first', async () => {
@@ -191,7 +209,6 @@ await test('Service Worker não mantém código antigo por cache-first', async (
   assert(sw.includes("u.pathname.startsWith('/api/')"), 'Service Worker não exclui APIs do cache');
 });
 
-// Restaura completamente o armazenamento usado pelo navegador de auditoria.
 await page.evaluate(saved => {
   localStorage.clear();
   for (const [k,v] of Object.entries(saved)) localStorage.setItem(k, v);
