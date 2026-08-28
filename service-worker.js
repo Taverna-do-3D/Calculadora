@@ -1,4 +1,4 @@
-const CACHE_NAME = 'taverna3d-v1.1.1';
+const CACHE_NAME = 'taverna3d-v1.3.0';
 const ASSETS = [
   './',
   './index.html',
@@ -14,6 +14,10 @@ self.addEventListener('install', (e) => {
       .then((c) => c.addAll(ASSETS))
       .then(() => self.skipWaiting())
   );
+});
+
+self.addEventListener('message', (e) => {
+  if (e.data?.type === 'SKIP_WAITING') self.skipWaiting();
 });
 
 self.addEventListener('activate', (e) => {
