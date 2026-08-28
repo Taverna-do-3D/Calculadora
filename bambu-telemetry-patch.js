@@ -7,6 +7,7 @@
   const REQUEST_TIMEOUT_MS = 14000;
   let syncInFlight = null;
   let lastFreshTelemetryAt = 0;
+  let lastHasRealTelemetry = false;
 
   const removeCameraUI = () => {
     document.getElementById('btnToggleBambuCam')?.remove();
@@ -92,6 +93,18 @@
     return applied;
   };
 
+  const fmtTempValue = (value) => {
+    const n = asNumber(value);
+    if (n === null) return '--°C';
+    return `${n.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}°C`;
+  };
+
+  const fmtTargetValue = (value) => {
+    const n = asNumber(value);
+    if (n === null) return 'Alvo: --°C';
+    return `Alvo: ${n.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}°C`;
+  };
+
   const strictSensorRender = (hasRealTelemetry) => {
     const setText = (id, value) => {
       const el = document.getElementById(id);
@@ -109,18 +122,27 @@
       return;
     }
 
-    const fmtTemp = (v) => Number.isFinite(asNumber(v)) ? `${Math.round(asNumber(v))}°C` : '--°C';
-    const fmtTarget = (v) => Number.isFinite(asNumber(v)) ? `Alvo: ${Math.round(asNumber(v))}°C` : 'Alvo: --°C';
     const fmtPct = (v) => Number.isFinite(asNumber(v)) ? `${Math.round(asNumber(v))}%` : '--%';
 
-    setText('bambuNozzleTemp', fmtTemp(appBambu.nozzleTemp));
-    setText('bambuNozzleTarget', fmtTarget(appBambu.nozzleTarget));
-    setText('bambuBedTemp', fmtTemp(appBambu.bedTemp));
-    setText('bambuBedTarget', fmtTarget(appBambu.bedTarget));
+    setText('bambuNozzleTemp', fmtTempValue(appBambu.nozzleTemp));
+    setText('bambuNozzleTarget', fmtTargetValue(appBambu.nozzleTarget));
+    setText('bambuBedTemp', fmtTempValue(appBambu.bedTemp));
+    setText('bambuBedTarget', fmtTargetValue(appBambu.bedTarget));
     setText('bambuFanSpeed', fmtPct(appBambu.fanSpeed));
     setText('bambuSpeedMode', appBambu.speedMode || '--');
     setText('bambuSpeedPct', Number.isFinite(asNumber(appBambu.speedPct)) ? `${Math.round(asNumber(appBambu.speedPct))}%` : (appBambu.speedPct || '--'));
   };
+
+  // A função antiga da tela também atualiza estes campos. Envolvemos ela para que a
+  // formatação final seja sempre reaplicada depois de qualquer redesenho da aba.
+  if (typeof updateBambuUI === 'function') {
+    const originalUpdateBambuUI = updateBambuUI;
+    updateBambuUI = function updateBambuUIFormatted(...args) {
+      const result = originalUpdateBambuUI.apply(this, args);
+      queueMicrotask(() => strictSensorRender(lastHasRealTelemetry));
+      return result;
+    };
+  }
 
   async function doSyncBambuTelemetry(silent = true) {
     if (!appBambu.connected || appBambu.mode !== 'cloud' || !appBambu.token) return;
@@ -178,6 +200,7 @@
         t.nozzleTemp, t.nozzleTarget, t.bedTemp, t.bedTarget,
         t.percent, t.currentLayer, t.totalLayers, t.state
       ].some(v => v !== null && v !== undefined && v !== '');
+      lastHasRealTelemetry = Boolean(hasRealTelemetry);
 
       if (hasRealTelemetry) {
         lastFreshTelemetryAt = Date.now();
@@ -201,7 +224,6 @@
         const hasTaskFallback = applyTaskFallback(data.task);
         if (data.device?.print_status) appBambu.state = data.device.print_status;
 
-        // Se nem MQTT nem tarefa atual vieram, não deixa dados de uma impressão antiga presos indefinidamente.
         if (!hasTaskFallback && lastFreshTelemetryAt && Date.now() - lastFreshTelemetryAt > 30000) {
           clearFinishedJob();
         }
@@ -226,6 +248,7 @@
 
       if (data.mqtt_error) console.warn('[Bambu MQTT fallback]', data.mqtt_error);
     } catch (err) {
+      lastHasRealTelemetry = false;
       const aborted = err?.name === 'AbortError';
       console.warn('Erro ao sincronizar Bambu:', aborted ? 'timeout da consulta' : err);
       clearRealSensors();
@@ -239,7 +262,6 @@
   }
 
   syncBambuTelemetry = function syncBambuTelemetryReal(silent = true) {
-    // Impede duas consultas MQTT simultâneas, evitando resposta antiga sobrescrever a mais nova.
     if (syncInFlight) return syncInFlight;
     syncInFlight = doSyncBambuTelemetry(silent).finally(() => {
       syncInFlight = null;
@@ -260,7 +282,6 @@
     tick();
   };
 
-  // Ao voltar para a aba/app ou recuperar a internet, força uma leitura atual imediatamente.
   document.addEventListener('visibilitychange', () => {
     if (!document.hidden && appBambu?.connected && appBambu?.mode === 'cloud') {
       syncBambuTelemetry(true);
