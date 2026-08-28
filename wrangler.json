@@ -1,7 +1,7 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "calculadora",
-  "main": "worker-entry.js",
+  "main": "worker-camera-entry.js",
   "compatibility_date": "2026-08-27",
   "assets": {
     "directory": ".",
