@@ -120,7 +120,8 @@
       }
 
       const t = data.telemetry;
-      const hasRealTelemetry = data.source === 'mqtt' && t && [
+      const isMqttSource = String(data.source || '').startsWith('mqtt');
+      const hasRealTelemetry = isMqttSource && t && [
         t.nozzleTemp, t.nozzleTarget, t.bedTemp, t.bedTarget,
         t.percent, t.currentLayer, t.totalLayers, t.state
       ].some(v => v !== null && v !== undefined && v !== '');
