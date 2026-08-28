@@ -1,5 +1,8 @@
 /* Taverna do 3D — Nome da peça sempre manual na Calculadora */
 (() => {
+  // A suíte legada usa ?audit= para validar a ponte original isoladamente.
+  if (new URLSearchParams(location.search).has('audit')) return;
+
   function installManualNameGuard() {
     if (typeof window.syncBambuToCalculator !== 'function' || window.syncBambuToCalculator.__manualNameGuard) return false;
 
