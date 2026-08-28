@@ -22,11 +22,36 @@ const snapshot = await page.evaluate(() => {
 
 try {
   await page.locator('[data-screen="screen-settings"]').click();
+
+  // Primeiro salvamento.
+  await page.locator('#cfgWatts').fill('211');
+  await page.locator('#cfgEnergyRate').fill('1.37');
+  await page.locator('#cfgMachineCostHour').fill('3.21');
+  await page.locator('#cfgFailureRate').fill('7');
+  await page.locator('#btnSaveGlobalSettings').click();
+  await page.waitForTimeout(350);
+
+  // Segundo salvamento com valores diferentes: reproduz o caso relatado pelo usuário.
   await page.locator('#cfgWatts').fill('350');
   await page.locator('#cfgEnergyRate').fill('1');
   await page.locator('#cfgMachineCostHour').fill('3');
   await page.locator('#cfgFailureRate').fill('10');
   await page.locator('#btnSaveGlobalSettings').click();
+  await page.waitForTimeout(350);
+
+  assert(await page.locator('#cfgWatts').inputValue() === '350', 'Segundo salvamento alterou/quebrou o campo de potência');
+  assert(await page.locator('#cfgEnergyRate').inputValue() === '1', 'Segundo salvamento alterou/quebrou a tarifa de energia');
+  assert(await page.locator('#cfgMachineCostHour').inputValue() === '3', 'Segundo salvamento alterou/quebrou o custo/hora');
+  assert(await page.locator('#cfgFailureRate').inputValue() === '10', 'Segundo salvamento alterou/quebrou as perdas');
+
+  // Confirma persistência depois de recarregar a página.
+  await page.reload({ waitUntil: 'domcontentloaded' });
+  await page.waitForTimeout(800);
+  await page.locator('[data-screen="screen-settings"]').click();
+  assert(await page.locator('#cfgWatts').inputValue() === '350', 'Potência não persistiu após recarregar');
+  assert(await page.locator('#cfgEnergyRate').inputValue() === '1', 'Tarifa de energia não persistiu após recarregar');
+  assert(await page.locator('#cfgMachineCostHour').inputValue() === '3', 'Custo/hora não persistiu após recarregar');
+  assert(await page.locator('#cfgFailureRate').inputValue() === '10', 'Perdas não persistiram após recarregar');
 
   await page.locator('[data-screen="screen-filaments"]').click();
   await page.locator('#btnNewFilamentModal').click();
@@ -66,7 +91,7 @@ try {
   assert(near(total, 34.93), `Custo real: esperado R$ 34,93, veio R$ ${total}`);
   assert(String(energyLabel).includes('350W'), `Rótulo de energia não mostra 350W: ${energyLabel}`);
 
-  console.log('PASS | Calibração Bambu usada integralmente na Calculadora');
+  console.log('PASS | Dois salvamentos seguidos persistem e a Calibração Bambu alimenta a Calculadora');
   console.log(`Filamento=${filament.toFixed(2)} Energia=${energy.toFixed(2)} Máquina=${machine.toFixed(2)} Perdas=${ops.toFixed(2)} Total=${total.toFixed(2)}`);
 } finally {
   await page.evaluate(saved => {
