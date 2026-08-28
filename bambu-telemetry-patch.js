@@ -8,6 +8,7 @@
   let syncInFlight = null;
   let lastFreshTelemetryAt = 0;
   let lastHasRealTelemetry = false;
+  const calcAutoValues = { item: null, hours: null, mins: null };
 
   const removeCameraUI = () => {
     document.getElementById('btnToggleBambuCam')?.remove();
@@ -46,6 +47,16 @@
     appBambu.remainingMins = 0;
     appBambu.currentLayer = null;
     appBambu.totalLayers = null;
+    appBambu.totalDurationMins = null;
+  };
+
+  const extractReliableTotalDurationMins = (task) => {
+    if (!task) return null;
+    // A API de tarefas da Bambu informa total_time em segundos. Só usamos esse campo
+    // explícito; nunca transformamos "tempo restante + porcentagem" em duração total.
+    const totalSeconds = asNumber(task.total_time ?? task.totalTime);
+    if (totalSeconds !== null && totalSeconds > 0) return Math.max(1, Math.round(totalSeconds / 60));
+    return null;
   };
 
   const applyTaskFallback = (task) => {
@@ -55,6 +66,12 @@
     const fileName = task.subtask_name || task.title || task.gcode_file || task.design_title;
     if (fileName) {
       appBambu.fileName = fileName;
+      applied = true;
+    }
+
+    const totalDurationMins = extractReliableTotalDurationMins(task);
+    if (totalDurationMins !== null) {
+      appBambu.totalDurationMins = totalDurationMins;
       applied = true;
     }
 
@@ -91,6 +108,49 @@
     }
 
     return applied;
+  };
+
+  const canAutoWrite = (el, previousAutoValue) => {
+    if (!el) return false;
+    const current = String(el.value ?? '').trim();
+    return current === '' || (previousAutoValue !== null && current === String(previousAutoValue));
+  };
+
+  const writeCalcField = (id, value, key) => {
+    const el = document.getElementById(id);
+    if (!el || value === null || value === undefined || value === '') return false;
+    if (!canAutoWrite(el, calcAutoValues[key])) return false;
+    const next = String(value);
+    if (el.value !== next) {
+      el.value = next;
+      el.dispatchEvent(new Event('input', { bubbles: true }));
+      el.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+    calcAutoValues[key] = next;
+    return true;
+  };
+
+  // Ponte oficial Bambu -> Calculadora. Fica global também para teste automatizado.
+  window.syncBambuToCalculator = function syncBambuToCalculator(task = null) {
+    const state = String(appBambu?.state || '').toUpperCase();
+    const active = ['RUNNING', 'PRINTING', 'PAUSE', 'PAUSED'].includes(state);
+    if (!active) return false;
+
+    let changed = false;
+    if (appBambu.fileName) {
+      changed = writeCalcField('calcItemName', appBambu.fileName, 'item') || changed;
+    }
+
+    const reliableTotal = extractReliableTotalDurationMins(task) ?? asNumber(appBambu.totalDurationMins);
+    if (reliableTotal !== null && reliableTotal > 0) {
+      const hours = Math.floor(reliableTotal / 60);
+      const mins = Math.round(reliableTotal % 60);
+      changed = writeCalcField('calcHours', hours, 'hours') || changed;
+      changed = writeCalcField('calcMins', mins, 'mins') || changed;
+    }
+
+    if (changed && typeof calculatePrices === 'function') calculatePrices();
+    return changed;
   };
 
   const fmtTempValue = (value) => {
@@ -133,8 +193,6 @@
     setText('bambuSpeedPct', Number.isFinite(asNumber(appBambu.speedPct)) ? `${Math.round(asNumber(appBambu.speedPct))}%` : (appBambu.speedPct || '--'));
   };
 
-  // A função antiga da tela também atualiza estes campos. Envolvemos ela para que a
-  // formatação final seja sempre reaplicada depois de qualquer redesenho da aba.
   if (typeof updateBambuUI === 'function') {
     const originalUpdateBambuUI = updateBambuUI;
     updateBambuUI = function updateBambuUIFormatted(...args) {
@@ -202,6 +260,9 @@
       ].some(v => v !== null && v !== undefined && v !== '');
       lastHasRealTelemetry = Boolean(hasRealTelemetry);
 
+      const totalDurationMins = extractReliableTotalDurationMins(data.task);
+      if (totalDurationMins !== null) appBambu.totalDurationMins = totalDurationMins;
+
       if (hasRealTelemetry) {
         lastFreshTelemetryAt = Date.now();
         appBambu.online = true;
@@ -240,6 +301,7 @@
       updateBambuUI();
       strictSensorRender(hasRealTelemetry);
       removeCameraUI();
+      window.syncBambuToCalculator(data.task || null);
 
       if (!silent) {
         const sourceLabel = hasRealTelemetry ? 'MQTT em tempo real' : 'Bambu Cloud (fallback)';

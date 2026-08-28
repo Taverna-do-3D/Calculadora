@@ -1,0 +1,44 @@
+name: System Audit E2E
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    name: Teste completo da Calculadora
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Instalar dependências de teste
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+
+      - name: Iniciar Worker local da versão do PR
+        run: |
+          npx wrangler dev --port 4173 --ip 127.0.0.1 > /tmp/taverna-worker.log 2>&1 &
+          echo $! > /tmp/taverna-worker.pid
+          for i in {1..30}; do
+            curl -fsS http://127.0.0.1:4173/ >/dev/null && exit 0
+            sleep 1
+          done
+          cat /tmp/taverna-worker.log
+          exit 1
+
+      - name: Rodar auditoria E2E da versão do PR
+        env:
+          APP_URL: http://127.0.0.1:4173/
+        run: node tests/system-audit.mjs
