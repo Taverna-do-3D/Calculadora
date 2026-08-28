@@ -1,4 +1,4 @@
-import baseWorker from './worker-entry.js';
+import baseWorker from './worker-calculator-entry.js';
 
 export default {
   async fetch(request, env, ctx) {
